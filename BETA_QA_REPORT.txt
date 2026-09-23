@@ -1,0 +1,36 @@
+SOULZ CROSS SHARE v2.4 BETA1 - QA REPORT
+
+BETA1修正
+- 履歴/新規現場/バックアップ復元時の編集中寸法状態をリセット
+- ChatGPT結果の二重反映防止を現在の現場単位へ修正
+- 住所/担当/メモ/職人/品番/リピートだけ入力済みでも新規現場開始前に確認
+- カスタム部屋名/名前変更でも重複名を自動回避
+- Androidで通常の入力欄を触る時は固定テンキーを自動収納
+- pagehide / visibilitychange 時に保存
+- PWA manifest を補強
+
+検証
+- index.html JavaScript構文: PASS
+- service worker JavaScript構文: PASS
+- manifest JSON: PASS
+- HTML ID重複: PASS
+- JavaScript参照DOM ID: PASS
+- icon 192x192 / 512x512: PASS
+- PWA必須ファイル: PASS
+- ZIP整合性: PASS
+- 施工区分 天井/壁/アクセント/ベース: PASS
+- ポイント -> アクセント移行: PASS
+- リピート計算:
+  245 / 64 = 256cm: PASS
+  245 / 64.2 = 256.8cm: PASS
+  245 / 52.5 = 262.5cm: PASS
+  245x3 / 64 = 7.68m: PASS
+
+未自動検証
+- 実行環境の組織ポリシーで headless Chromium の localhost/file/data URL 表示がブロックされるため、
+  ブラウザ自動クリック試験は実行できませんでした。
+- Android実機のタップ感、共有、バックアップ保存、ホーム画面追加は実機確認が最終確認です。
+- リピート自動検索は外部ネットワークに依存します。失敗時は検索結果を開いて手動確認できます。
+
+BETA方針
+- ここからは大きな機能追加を抑え、実機で出た不具合修正を優先します。

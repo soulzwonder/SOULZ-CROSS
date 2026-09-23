@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#08111e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>SOULZ クロス計算 SHARE</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <style>
+    :root{
+      --bg:#08111e;--panel:#111827;--panel2:#0b1524;--line:#2b3a50;
+      --text:#f8fafc;--sub:#94a3b8;--blue:#2f6fed;--blue2:#60a5fa;
+      --green:#22c55e;--green2:#86efac;--orange:#b45309;--red:#8b1e24;
+      --shadow:0 14px 38px rgba(0,0,0,.22)
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;min-height:100%;background:linear-gradient(180deg,#06101c,#0a1322 40%,#08111e);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Segoe UI",sans-serif}
+    button,input,textarea{font:inherit}
+    button{touch-action:manipulation}
+    .app{max-width:760px;margin:auto;padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 24px)}
+    .top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .logo{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:1.35rem;font-weight:950;background:linear-gradient(145deg,#5aa1ff,#2563eb);box-shadow:0 8px 24px rgba(37,99,235,.3)}
+    .brand{min-width:0;flex:1}.title{font-size:1.28rem;font-weight:950}.sub{color:var(--sub);font-size:.76rem;margin-top:2px}.date{color:#bfdbfe;font-size:.78rem;font-weight:850;margin-top:3px}
+    .share-btn{border:1px solid #3b82f6;background:#1d4ed8;color:#fff;border-radius:14px;padding:12px 14px;font-weight:950}
+    .tabs-shell{display:grid;grid-template-columns:52px 32px minmax(0,1fr) 32px 38px;gap:4px;align-items:center;margin:10px 0}
+    .tab-fixed,.tab-arrow,.tab-plus,.room-tab{border:1px solid #425a77;background:#102034;color:#e5eefb;border-radius:11px;min-height:44px;font-weight:950}
+    .tab-fixed{width:52px;padding:0 4px;font-size:.82rem}.tab-arrow{width:32px;padding:0;font-size:1.05rem}.tab-plus{width:38px;padding:0;font-size:1.38rem}
+    .room-scroll{display:flex;gap:4px;overflow:auto;scrollbar-width:none;scroll-snap-type:x proximity;padding:1px 2px;mask-image:linear-gradient(90deg,transparent 0,#000 7px,#000 calc(100% - 9px),transparent 100%);-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7px,#000 calc(100% - 9px),transparent 100%)}.room-scroll::-webkit-scrollbar{display:none}
+    .room-tab{position:relative;flex:0 0 auto;min-width:64px;max-width:82px;padding:0 9px;scroll-snap-align:center;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.78rem;line-height:44px}
+    .room-tab.active,.tab-fixed.active{background:var(--blue);border-color:#72a7ff;box-shadow:0 0 0 2px rgba(96,165,250,.14)}
+    .progress{position:absolute;right:3px;top:2px;min-width:22px;height:15px;line-height:13px;text-align:center;font-size:.48rem;padding:0 3px;border:1px solid #5d7ca2;border-radius:999px;color:#dbeafe;background:rgba(9,20,35,.86)}
+    .room-tab:has(.progress){padding-right:23px}
+    .panel{background:rgba(17,24,39,.97);border:1px solid rgba(148,163,184,.18);border-radius:19px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+    .panel h2{font-size:1.05rem;margin:0 0 12px}.panel h3{font-size:.92rem;margin:0 0 10px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .field{display:flex;flex-direction:column;gap:5px}.field label{font-size:.72rem;color:#cbd5e1;font-weight:850}
+    input,textarea{width:100%;border:1px solid #334155;background:#091423;color:#f8fafc;border-radius:12px;padding:12px 12px;outline:0}
+    input:focus,textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 2px rgba(96,165,250,.12)}
+    textarea{min-height:90px;resize:vertical}
+    .room-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .room-name{font-size:1.15rem;font-weight:950}
+    .room-actions{display:flex;gap:6px}.ghost{border:1px solid #334155;background:#0d1726;color:#cbd5e1;border-radius:10px;padding:8px 10px;font-weight:850}
+    .category-tabs{display:flex;gap:7px;overflow:auto;scrollbar-width:none;padding:2px 0 8px}.category-tabs::-webkit-scrollbar{display:none}
+    .cat{flex:0 0 auto;border:1px solid #4b6482;background:#102034;color:#e7eefb;border-radius:12px;padding:11px 15px;font-weight:950;min-width:78px}
+    .cat.active{background:var(--blue);border-color:#7bb0ff}
+    .product-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+    .lookup{border:1px solid #315e9b;background:#102a52;color:#dbeafe;border-radius:12px;padding:12px 12px;font-weight:950;white-space:nowrap}
+    .lookup-result{display:none;margin-top:9px;border:1px solid #334155;background:#0a1525;border-radius:13px;padding:10px 11px}
+    .lookup-result.show{display:block}.lookup-result.searching{border-color:#315e9b}.lookup-result.found{border-color:#3f6f2a;background:#10200e}.lookup-result.none{border-color:#526071}.lookup-result.error{border-color:#75404a;background:#211216}
+    .lookup-main{display:flex;gap:8px;align-items:center;justify-content:space-between}.lookup-text{font-size:.75rem;color:#cbd5e1;font-weight:850;line-height:1.45;min-width:0}.lookup-text b{font-size:1.12rem;color:#d9f99d}
+    .lookup-actions{display:flex;gap:6px;flex:0 0 auto}.lookup-actions button{border:1px solid #425772;background:#111d2e;color:#dbeafe;border-radius:9px;padding:8px 10px;font-size:.68rem;font-weight:950;white-space:nowrap}.lookup-actions .adopt{background:#1f5f2a;border-color:#3f8d4c;color:#dcfce7}.lookup-actions .reject{color:#cbd5e1}
+    .lookup-source{margin-top:5px;font-size:.61rem;color:#7f8ea3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .repeat-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px;align-items:end}
+    .repeat-toggle{border:1px solid #476e2a;background:#18350f;color:#d9f99d;border-radius:12px;padding:12px 14px;font-weight:950}
+    .repeat-toggle.off{border-color:#465467;background:#101827;color:#94a3b8}
+    .entry-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .entry-title{font-size:1rem;font-weight:950}.entry-note{font-size:.68rem;color:#94a3b8;font-weight:800}
+    .entry-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:9px;align-items:center}
+    .entry-field{border:1px solid #35506f;background:#091423;border-radius:16px;padding:11px 12px;min-height:98px}
+    .entry-field.active{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.12)}
+    .entry-label{font-size:.72rem;color:#94a3b8;font-weight:850}.entry-value{font-size:2rem;font-weight:950;margin-top:8px;letter-spacing:-.02em}.entry-value small{font-size:.72rem;color:#94a3b8;margin-left:3px}
+    .times{color:#64748b;font-weight:950}
+    .quick{display:flex;gap:6px;overflow:auto;scrollbar-width:none;margin-top:10px}.quick::-webkit-scrollbar{display:none}.quick button{flex:0 0 auto;border:1px solid #344861;background:#101b2c;color:#dbeafe;border-radius:10px;padding:8px 10px;font-weight:900}
+    .keypad-dock{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(760px,100vw);z-index:80;background:linear-gradient(180deg,rgba(8,17,30,.96),#08111e 18%);border-top:1px solid #27384f;padding:9px 10px calc(env(safe-area-inset-bottom) + 9px);box-shadow:0 -14px 34px rgba(0,0,0,.32);transition:transform .18s ease,opacity .18s ease}
+    .keypad-dock.hidden{transform:translate(-50%,calc(100% - 42px))}
+    .keypad-handle{display:block;margin:0 auto 8px;border:1px solid #35506f;background:#101b2c;color:#dbeafe;border-radius:999px;padding:7px 15px;font-size:.72rem;font-weight:900}
+    .keypad{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0}
+    .key{min-height:52px;border:1px solid #2c3d55;background:#172337;color:#fff;border-radius:13px;font-size:1.15rem;font-weight:950}
+    body.room-active .app{padding-bottom:calc(292px + env(safe-area-inset-bottom))}
+    body.room-active.keypad-collapsed .app{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
+    body.room-active.keypad-collapsed .keypad-handle{margin-bottom:0}
+    .key.red{background:#8b1e24}.key.orange{background:#a44706}.key.blue{background:#1f57d6}.key.green{background:#14883b}.key.gray{font-size:.78rem;color:#d5deea}
+    .rows{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+    .group-title{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #31506e;padding:10px 4px 6px;margin-top:8px;font-weight:950}
+    .group-title .prod{font-size:1rem}.group-title .catname{font-size:.78rem;color:#cbd5e1}
+    .row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;gap:6px;align-items:center;background:#101827;border:1px solid #24364c;border-radius:13px;padding:7px 8px}
+    .row.selected{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.13);background:#102039}
+    .row.done{opacity:.62}.row input[type=checkbox]{width:23px;height:23px;margin:0;accent-color:#22c55e}
+    .code{font-size:1.28rem;font-weight:950;white-space:nowrap}.repbadge{font-size:.61rem;color:#d9f99d;border:1px solid #3f6f2a;background:#13230d;border-radius:999px;padding:5px 7px;white-space:nowrap}
+    .mini{border:1px solid #334155;background:#0c1726;color:#dbeafe;border-radius:9px;width:34px;height:34px;font-weight:950}.mini.del{border-color:#6b2d37;background:#281217;color:#fecaca}
+    .empty{border:1px dashed #334155;border-radius:13px;padding:18px;text-align:center;color:#64748b}
+    .bottom-tools{display:flex;gap:8px;margin-top:10px}.bottom-tools button{flex:1;border:1px solid #334155;background:#111827;color:#dbeafe;border-radius:12px;padding:11px;font-weight:900}
+    .summary{background:linear-gradient(140deg,#111827,#14213a);border:1px solid #263952}
+    .sumtop{display:flex;justify-content:space-between;gap:12px}.sumlabel{color:#cbd5e1;font-size:.78rem;font-weight:900}.sumvalue{font-size:2.35rem;font-weight:950;letter-spacing:-.04em;margin-top:4px}.sumvalue small{font-size:.9rem;margin-left:4px}.sumitems{text-align:right}.sumitems b{font-size:1.5rem}
+    .sumextra{margin-top:9px;color:#94a3b8;font-size:.76rem;font-weight:800}.sumextra b{color:#dbeafe}.sumextra .green{color:#bef264}
+    .order{border-top:1px solid #2b3a50;margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;align-items:end}.order strong{font-size:1.55rem;color:#86efac}
+    .waste{display:flex;gap:5px}.waste button{border:1px solid #334155;background:#0d1726;color:#cbd5e1;border-radius:999px;padding:7px 10px;font-weight:900}.waste button.active{background:#14532d;color:#bbf7d0;border-color:#228048}
+    .craft-row{display:grid;grid-template-columns:1fr 90px auto;gap:6px;margin-top:6px}.craft-row button{border:1px solid #5b2630;background:#261218;color:#fecaca;border-radius:10px}
+    .cost-total{margin-top:8px;text-align:right;color:#86efac;font-weight:950}
+    .job-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+    .job-tools button{min-height:48px;border:1px solid #3a526f;background:#101c2d;color:#e5eefb;border-radius:12px;padding:9px 7px;font-weight:950;font-size:.75rem}
+    .job-tools .primary{background:#1d4ed8;border-color:#4d82ee}.job-tools .green{background:#176536;border-color:#2c8e4c;color:#dcfce7}
+    .history-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .history-card{border:1px solid #2b4059;background:#0e1929;border-radius:14px;padding:11px}
+    .history-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+    .history-name{font-size:.95rem;font-weight:950}.history-date{font-size:.62rem;color:#94a3b8;white-space:nowrap}
+    .history-meta{margin-top:5px;font-size:.68rem;color:#aebdd0;line-height:1.45}
+    .history-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:9px}
+    .history-actions button{border:1px solid #38516e;background:#111d2e;color:#dbeafe;border-radius:9px;padding:8px 6px;font-size:.66rem;font-weight:950}
+    .history-actions .open{background:#1e4f9e}.history-actions .dup{background:#245a35}.history-actions .del{background:#36161b;border-color:#6b2c36;color:#fecaca}
+    .backup-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+    .backup-row button,.backup-row label{display:flex;align-items:center;justify-content:center;border:1px solid #405672;background:#111d2e;color:#dbeafe;border-radius:10px;padding:10px 8px;font-weight:950;font-size:.72rem}
+    .backup-row .export{background:#174c7e}.backup-row .import{background:#4b3412}
+    .status-line{font-size:.66rem;color:#94a3b8;margin-top:7px;min-height:1em}
+
+    .modal{position:fixed;inset:0;background:rgba(2,6,23,.72);display:none;align-items:flex-end;z-index:99}.modal.show{display:flex}.sheet{width:100%;max-width:760px;margin:auto;background:#0b1524;border:1px solid #334155;border-radius:22px 22px 0 0;padding:16px 14px calc(env(safe-area-inset-bottom) + 18px);max-height:75vh;overflow:auto}
+    .sheet h3{margin:0 0 10px;font-size:1.05rem}.room-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.room-presets button{border:1px solid #3a536f;background:#111f32;color:#fff;border-radius:12px;padding:12px 8px;font-weight:900}
+    .modal-input-row{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:10px}.modal-input-row button{border:0;background:#2563eb;color:#fff;border-radius:12px;padding:0 14px;font-weight:950}
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 18px);background:#020617;color:#fff;border:1px solid #334155;border-radius:999px;padding:9px 14px;font-weight:850;font-size:.8rem;opacity:0;pointer-events:none;transition:.2s;z-index:120}.toast.show{opacity:1}
+    .ai-launch{margin:8px 0 10px}
+    .ai-launch button{width:100%;min-height:48px;border:1px solid #4369a1;background:linear-gradient(90deg,#16325d,#102542);color:#eaf2ff;border-radius:12px;padding:8px 12px;font-weight:950;display:flex;align-items:center;gap:10px;text-align:left}
+    .ai-launch .ai-icon{font-size:1.05rem;flex:0 0 auto}
+    .ai-launch .ai-copy{min-width:0;display:flex;align-items:baseline;gap:9px;white-space:nowrap;overflow:hidden}
+    .ai-launch .ai-title{font-size:.86rem;font-weight:950;flex:0 0 auto}
+    .ai-launch .ai-hint{font-size:.63rem;color:#a9bdd8;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .ai-sheet{position:fixed;inset:0;background:rgba(2,6,23,.78);display:none;z-index:140;align-items:flex-end}
+    .ai-sheet.show{display:flex}
+    .ai-card{width:100%;max-width:760px;margin:auto;background:#0b1524;border:1px solid #334155;border-radius:22px 22px 0 0;padding:14px 12px calc(env(safe-area-inset-bottom) + 16px);max-height:88vh;overflow:auto}
+    .ai-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.ai-head h3{margin:0;font-size:1.05rem}.ai-close{border:1px solid #334155;background:#111827;color:#e2e8f0;border-radius:10px;padding:8px 12px;font-weight:900}
+    .ai-step{margin-top:12px;padding:11px;border:1px solid #25364d;background:#0e1929;border-radius:14px}.ai-step-title{font-size:.82rem;font-weight:950;margin-bottom:7px}.ai-step-note{font-size:.66rem;color:#94a3b8;line-height:1.5;margin-bottom:7px}
+    .ai-file{display:block;width:100%;border:1px dashed #45607d;background:#0a1524;color:#dbeafe;border-radius:12px;padding:12px}
+    .ai-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.ai-actions button{border:1px solid #405672;background:#111d2e;color:#dbeafe;border-radius:10px;padding:10px 9px;font-weight:950}
+    .ai-actions .primary{background:#1f57d6;border-color:#4d85f5}.ai-actions .green{background:#176536;border-color:#2e9150;color:#dcfce7}
+    .ai-actions .orange{background:#8a4108;border-color:#bd5d10}
+    .ai-status{font-size:.68rem;color:#bfdbfe;font-weight:800;margin-top:7px;min-height:1.1em}
+    .ai-json{min-height:150px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72rem;line-height:1.45}
+    .ai-ocr{min-height:125px}
+
+    @media(max-width:420px){
+      .app{padding-left:8px;padding-right:8px}.panel{padding:12px}.grid2{grid-template-columns:1fr}.top{gap:9px}.logo{width:44px;height:44px}.title{font-size:1.12rem}.share-btn{padding:10px 11px;font-size:.8rem}
+      .tabs-shell{grid-template-columns:50px 30px minmax(0,1fr) 30px 36px;gap:3px}.tab-fixed{width:50px;padding:0 3px;font-size:.79rem}.tab-arrow{width:30px}.tab-plus{width:36px}.room-tab{min-width:61px;max-width:76px;padding-left:7px;padding-right:7px;font-size:.75rem}.room-tab:has(.progress){padding-right:21px}
+      .entry-value{font-size:1.8rem}.row{grid-template-columns:auto minmax(0,1fr) auto auto auto}.code{font-size:1.18rem}.repbadge{font-size:.56rem}
+      .keypad-dock{padding-left:8px;padding-right:8px}.key{min-height:49px}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="logo">S</div>
+    <div class="brand"><div class="title">クロス計算 SHARE</div><div class="sub">Android / iPhone 共通 BETA v2.4 BETA1</div><div class="date" id="today"></div></div>
+    <button class="share-btn" id="shareBtn">共有</button>
+  </div>
+
+  <div class="ai-launch">
+    <button id="aiImportOpen">
+      <span class="ai-icon">🤖</span>
+      <span class="ai-copy"><span class="ai-title">ChatGPT取込</span><span class="ai-hint">画像・PDF・Excel等を解析 → 反映</span></span>
+    </button>
+  </div>
+  <div class="tabs-shell">
+    <button class="tab-fixed" id="siteTab">現場</button>
+    <button class="tab-arrow" id="tabPrev">‹</button>
+    <div class="room-scroll" id="roomTabs"></div>
+    <button class="tab-arrow" id="tabNext">›</button>
+    <button class="tab-plus" id="roomAdd">＋</button>
+  </div>
+
+
+  <div id="siteView">
+    <section class="panel">
+      <div class="room-head"><h2 style="margin:0">現場管理</h2><span class="sumlabel" id="historyEditLabel"></span></div>
+      <div class="job-tools" style="margin-top:10px">
+        <button class="green" id="historySaveBtn">履歴に保存</button>
+        <button class="primary" id="historyOpenBtn">現場一覧</button>
+        <button id="newJobBtn">新規現場</button>
+      </div>
+      <div class="backup-row">
+        <button class="export" id="backupExportBtn">バックアップ書出し</button>
+        <label class="import">バックアップ読込<input id="backupImportInput" type="file" accept=".json,application/json" hidden></label>
+      </div>
+      <div class="status-line" id="jobManageStatus"></div>
+    </section>
+
+    <section class="panel">
+      <h2>現場情報</h2>
+      <div class="field"><label>現場名</label><input id="jobName" placeholder="例：山田邸"></div>
+      <div class="field" style="margin-top:8px"><label>住所</label><input id="address" placeholder="住所"></div>
+      <div class="grid2" style="margin-top:8px">
+        <div class="field"><label>開始日</label><input id="startDate" type="date"></div>
+        <div class="field"><label>終了日</label><input id="endDate" type="date"></div>
+      </div>
+      <div class="grid2" style="margin-top:8px">
+        <div class="field"><label>開始時間</label><input id="startTime" type="time"></div>
+        <div class="field"><label>終了時間</label><input id="endTime" type="time"></div>
+      </div>
+      <div class="grid2" style="margin-top:8px">
+        <div class="field"><label>担当者</label><input id="contactName" placeholder="氏名"></div>
+        <div class="field"><label>担当者 電話</label><input id="contactTel" inputmode="tel" placeholder="090-..."></div>
+        <div class="field"><label>監督</label><input id="supervisorName" placeholder="氏名"></div>
+        <div class="field"><label>監督 電話</label><input id="supervisorTel" inputmode="tel" placeholder="090-..."></div>
+      </div>
+      <div class="field" style="margin-top:8px"><label>現場メモ</label><textarea id="memo" placeholder="注意点・駐車位置など"></textarea></div>
+    </section>
+
+    <section class="panel">
+      <div class="room-head"><h2 style="margin:0">職人・日数</h2><button class="ghost" id="craftAdd">＋ 職人</button></div>
+      <div id="craftList"></div>
+      <div class="cost-total">延べ日数 <span id="craftDaysTotal">0</span>日</div>
+    </section>
+
+    <section class="panel">
+      <h2>交通費</h2>
+      <div class="grid2">
+        <div class="field"><label>高速代</label><input id="highwayCost" inputmode="numeric" placeholder="0"></div>
+        <div class="field"><label>駐車場代</label><input id="parkingCost" inputmode="numeric" placeholder="0"></div>
+      </div>
+      <div class="cost-total">合計 ¥<span id="travelCostTotal">0</span></div>
+    </section>
+  </div>
+
+  <div id="roomView" style="display:none">
+    <section class="panel">
+      <div class="room-head">
+        <div class="room-name" id="roomName"></div>
+        <div class="room-actions"><button class="ghost" id="renameRoom">名前変更</button><button class="ghost" id="deleteRoom">削除</button></div>
+      </div>
+      <div class="category-tabs" id="categoryTabs"></div>
+      <div class="product-row">
+        <div class="field"><label>品番</label><input id="productCode" placeholder="例：RE55231" autocomplete="off"></div>
+        <button class="lookup" id="webLookup">🌐 リピート検索</button>
+      </div>
+      <div class="lookup-result" id="lookupResult" aria-live="polite">
+        <div class="lookup-main"><div class="lookup-text" id="lookupText"></div><div class="lookup-actions" id="lookupActions"></div></div>
+        <div class="lookup-source" id="lookupSource"></div>
+      </div>
+      <div class="repeat-row">
+        <div class="field"><label>リピート幅 cm</label><input id="repeatCm" inputmode="decimal" placeholder="例：52.5"></div>
+        <button class="repeat-toggle off" id="repeatToggle">OFF</button>
+      </div>
+    </section>
+
+    <section class="panel" id="dimensionInputPanel">
+      <div class="entry-head"><div class="entry-title">寸法入力</div><div class="entry-note">長さ → 枚数 → 追加</div></div>
+      <div class="entry-grid">
+        <div class="entry-field active" id="lengthField"><div class="entry-label">実寸 長さ</div><div class="entry-value"><span id="lengthValue">0</span><small>cm</small></div></div>
+        <div class="times">×</div>
+        <div class="entry-field" id="countField"><div class="entry-label">枚数</div><div class="entry-value"><span id="countValue">1</span><small>枚</small></div></div>
+      </div>
+      <div class="quick" id="quick"></div>
+      <div class="keypad-dock" id="keypadDock">
+        <button class="keypad-handle" id="keypadHandle">⌄ テンキーを隠す</button>
+        <div class="keypad">
+        <button class="key" data-digit="7">7</button><button class="key" data-digit="8">8</button><button class="key" data-digit="9">9</button><button class="key red" data-act="back">⌫</button>
+        <button class="key" data-digit="4">4</button><button class="key" data-digit="5">5</button><button class="key" data-digit="6">6</button><button class="key orange" data-act="focusCount">枚数</button>
+        <button class="key" data-digit="1">1</button><button class="key" data-digit="2">2</button><button class="key" data-digit="3">3</button><button class="key blue" data-act="focusLength">長さ</button>
+        <button class="key" data-digit="0">0</button><button class="key gray" data-act="clear">C</button><button class="key gray" id="undoRedoKey" data-act="undo">↶戻る<small style="display:block;font-size:.52rem;color:#94a3b8">長押し=進む</small></button><button class="key green" data-act="add">追加↵</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>入力済み寸法</h2>
+      <div id="dimensionList"></div>
+    </section>
+  </div>
+
+  <section class="panel summary" id="summaryPanel">
+    <div class="sumtop">
+      <div><div class="sumlabel">累計 必要長さ</div><div class="sumvalue"><span id="totalM">0.00</span><small>m</small></div><div class="sumextra" id="repeatExtraRow" style="display:none">実寸 <b id="actualM">0.00m</b> ・ リピートで増加 <b class="green" id="repeatExtraM">+0.00m</b></div></div>
+      <div class="sumitems"><div class="sumlabel">合計</div><b><span id="itemCount">0</span>項目</b><div class="sumlabel" style="margin-top:6px"><span id="pieceCount">0</span>枚</div></div>
+    </div>
+    <div class="order"><div><div class="sumlabel">発注目安</div><strong><span id="orderM">0.0</span>m</strong></div><div><div class="sumlabel" style="text-align:right;margin-bottom:6px">ロス</div><div class="waste" id="wasteBtns"></div></div></div>
+  </section>
+</div>
+
+<div class="modal" id="roomModal">
+  <div class="sheet">
+    <h3>部屋を追加</h3>
+    <div class="room-presets" id="roomPresets"></div>
+    <div class="modal-input-row"><input id="roomCustom" placeholder="部屋名を入力"><button id="roomCustomAdd">追加</button></div>
+    <button class="ghost" id="roomModalClose" style="width:100%;margin-top:10px">閉じる</button>
+  </div>
+</div>
+
+
+<div class="ai-sheet" id="historySheet">
+  <div class="ai-card">
+    <div class="ai-head"><h3>現場一覧・履歴</h3><button class="ai-close" id="historyClose">閉じる</button></div>
+    <div class="field" style="margin-top:10px"><label>検索</label><input id="historySearch" placeholder="現場名・住所・部屋名"></div>
+    <div class="history-list" id="historyList"></div>
+    <div class="status-line" id="historyStatus"></div>
+  </div>
+</div>
+
+<div class="ai-sheet" id="aiSheet">
+  <div class="ai-card">
+    <div class="ai-head"><h3>ChatGPTから取込</h3><button class="ai-close" id="aiClose">閉じる</button></div>
+
+    <div class="ai-step">
+      <div class="ai-step-title">1. ChatGPTで画像・ファイルを解析</div>
+      <div class="ai-step-note">このアプリでは画像認識しません。ChatGPTを開いて、写真・PDF・Excel・Wordなどを直接添付してください。</div>
+      <div class="ai-actions">
+        <button class="primary" id="aiOpenChatGPT">ChatGPTを開く</button>
+        <button id="aiCopyPrompt">整理指示をコピー</button>
+      </div>
+      <div class="ai-status" id="aiPromptStatus"></div>
+    </div>
+
+    <div class="ai-step">
+      <div class="ai-step-title">2. ChatGPTの答えを貼る</div>
+      <div class="ai-step-note">ChatGPTが返したJSONをそのまま貼り付けて「アプリに反映」。既存データは残しながら追加・更新します。</div>
+      <textarea class="ai-json" id="aiJsonText" placeholder='{"job":{...},"rooms":[...]}'></textarea>
+      <div class="ai-actions"><button id="aiPasteJson">貼り付け</button><button class="green" id="aiApplyJson">アプリに反映</button></div>
+      <div class="ai-status" id="aiApplyStatus"></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+var KEY='soulz_cross_share_v1';
+var categories=['天井','壁','アクセント','ベース'];
+var presets=['洗面','トイレ','洋間','リビング','寝室','廊下','玄関','キッチン','脱衣'];
+var undoStack=[],redoStack=[];
+var BACKUP_KEY='soulz_cross_share_backup_v1';
+var HISTORY_KEY='soulz_cross_share_history_v1';
+var state=load()||{
+  jobName:'',address:'',startDate:'',endDate:'',startTime:'',endTime:'',
+  contactName:'',contactTel:'',supervisorName:'',supervisorTel:'',memo:'',
+  highwayCost:'',parkingCost:'',crafts:[],
+  waste:0,activeRoomId:'site',activeCategory:'壁',rooms:[makeRoom('未分類')]
+};
+var input={active:'length',length:'',count:'1',editId:null,replaceNext:false};
+var keypadCollapsed=false;
+var lookupTimer=null,lookupSeq=0,lastLookupCode='',lookupCandidate=null;
+
+function $(s){return document.querySelector(s)}
+function $$(s){return Array.from(document.querySelectorAll(s))}
+function id(){return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function makeRoom(name){var products={},repeat={};categories.forEach(c=>{products[c]='';repeat[c]={on:false,cm:''}});return{id:id(),name:name,products:products,repeat:repeat,items:[]}}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));return true}
+  catch(e){toast('保存できませんでした');console.log(e);return false}
+}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
+function clone(v){return JSON.parse(JSON.stringify(v))}
+function backupState(){
+  try{localStorage.setItem(BACKUP_KEY,JSON.stringify(state))}catch(e){}
+}
+function snap(){
+  backupState();
+  undoStack.push(JSON.stringify(state));
+  if(undoStack.length>30)undoStack.shift();
+  redoStack.length=0
+}
+
+function loadHistory(){
+  try{
+    var h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+    return Array.isArray(h)?h:[]
+  }catch(e){return []}
+}
+function saveHistoryArray(arr){
+  try{localStorage.setItem(HISTORY_KEY,JSON.stringify(arr));return true}
+  catch(e){toast('履歴を保存できませんでした');return false}
+}
+function stateSummary(s){
+  var actual=0,need=0,pieces=0,items=0;
+  (s.rooms||[]).forEach(function(r){(r.items||[]).forEach(function(x){
+    var cm=Number(x.cm)||0,cnt=Number(x.count)||0,rep=Number(x.repeatCm)||0,cut=cm;
+    if(rep>0)cut=Math.round(Math.ceil(cm/rep)*rep*100)/100;
+    actual+=cm*cnt;need+=cut*cnt;pieces+=cnt;items++
+  })});
+  return {actualCm:actual,needCm:need,pieces:pieces,items:items}
+}
+function newBlankState(){
+  return{
+    jobName:'',address:'',startDate:'',endDate:'',startTime:'',endTime:'',
+    contactName:'',contactTel:'',supervisorName:'',supervisorTel:'',memo:'',
+    highwayCost:'',parkingCost:'',crafts:[],
+    waste:0,activeRoomId:'site',activeCategory:'壁',rooms:[makeRoom('未分類')]
+  }
+}
+function syncSiteInputs(){
+  ['jobName','address','startDate','endDate','startTime','endTime','contactName','contactTel','supervisorName','supervisorTel','memo','highwayCost','parkingCost'].forEach(function(k){
+    var e=$('#'+k);if(e&&document.activeElement!==e)e.value=state[k]||''
+  })
+}
+function historyCurrentLabel(){
+  var el=$('#historyEditLabel');if(!el)return;
+  el.textContent=state.historyId?'履歴を編集中':''
+}
+function saveCurrentToHistory(){
+  normalize();
+  var arr=loadHistory(),now=new Date().toISOString(),entryId=state.historyId||id(),copy=clone(state);
+  copy.historyId=entryId;
+  var entry={id:entryId,savedAt:now,name:(state.jobName||'名称未入力').trim()||'名称未入力',state:copy};
+  var i=arr.findIndex(x=>x&&x.id===entryId);
+  if(i>=0)arr[i]=entry;else arr.unshift(entry);
+  arr=arr.filter(Boolean).sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||''))).slice(0,100);
+  if(saveHistoryArray(arr)){
+    state.historyId=entryId;save();historyCurrentLabel();renderHistoryList();toast(i>=0?'履歴を更新しました':'履歴に保存しました')
+  }
+}
+function openHistoryEntry(entryId,duplicate){
+  var arr=loadHistory(),e=arr.find(x=>x&&x.id===entryId);if(!e||!e.state){toast('履歴が見つかりません');return}
+  snap();state=clone(e.state);normalize();resetEntryState();
+  if(duplicate){delete state.historyId;state.jobName=(state.jobName||'名称未入力')+' コピー'}
+  else state.historyId=e.id;
+  state.activeRoomId='site';save();render();syncSiteInputs();window.scrollTo({top:0,behavior:'auto'});
+  $('#historySheet').classList.remove('show');
+  toast(duplicate?'複製しました':'履歴を開きました')
+}
+function deleteHistoryEntry(entryId){
+  var arr=loadHistory(),e=arr.find(x=>x&&x.id===entryId);
+  if(!e)return;
+  if(!confirm('「'+(e.name||'現場')+'」を履歴から削除しますか？'))return;
+  arr=arr.filter(x=>x&&x.id!==entryId);saveHistoryArray(arr);
+  if(state.historyId===entryId){delete state.historyId;save()}
+  renderHistoryList();historyCurrentLabel();toast('履歴を削除しました')
+}
+function historySearchText(e){
+  var s=e&&e.state||{},rooms=(s.rooms||[]).map(r=>r.name).join(' ');
+  return[(e&&e.name)||'',s.address||'',rooms,s.contactName||'',s.supervisorName||''].join(' ').toLowerCase()
+}
+function renderHistoryList(){
+  var box=$('#historyList');if(!box)return;
+  var q=String(($('#historySearch')||{}).value||'').trim().toLowerCase();
+  var arr=loadHistory().filter(e=>!q||historySearchText(e).includes(q));
+  if(!arr.length){box.innerHTML='<div class="empty">保存した現場はありません</div>';return}
+  box.innerHTML=arr.map(function(e){
+    var s=e.state||{},t=stateSummary(s),d='';
+    try{d=new Date(e.savedAt).toLocaleString('ja-JP',{year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}catch(_){}
+    return '<div class="history-card"><div class="history-top"><div class="history-name">'+esc(e.name||'名称未入力')+'</div><div class="history-date">'+esc(d)+'</div></div>'+
+      '<div class="history-meta">'+esc(s.address||'住所未入力')+'<br>'+((s.rooms||[]).length)+'部屋 ・ '+t.items+'項目 ・ '+(t.needCm/100).toFixed(2)+'m</div>'+
+      '<div class="history-actions"><button class="open" data-hop="'+e.id+'">開く/編集</button><button class="dup" data-hdup="'+e.id+'">複製</button><button class="del" data-hdel="'+e.id+'">削除</button></div></div>'
+  }).join('');
+  box.querySelectorAll('[data-hop]').forEach(b=>b.onclick=()=>openHistoryEntry(b.dataset.hop,false));
+  box.querySelectorAll('[data-hdup]').forEach(b=>b.onclick=()=>openHistoryEntry(b.dataset.hdup,true));
+  box.querySelectorAll('[data-hdel]').forEach(b=>b.onclick=()=>deleteHistoryEntry(b.dataset.hdel))
+}
+function hasMeaningfulCurrentState(){
+  var fields=['jobName','address','startDate','endDate','startTime','endTime','contactName','contactTel','supervisorName','supervisorTel','memo','highwayCost','parkingCost'];
+  if(fields.some(k=>String(state[k]||'').trim()!==''))return true;
+  if((state.crafts||[]).some(c=>String(c.name||'').trim()||String(c.days||'').trim()))return true;
+  return (state.rooms||[]).some(r=>(r.items||[]).length||categories.some(c=>String((r.products||{})[c]||'').trim()||Number(((r.repeat||{})[c]||{}).cm)>0))
+}
+function startNewJob(){
+  if(hasMeaningfulCurrentState()){
+    if(!confirm('現在の内容を残して新しい現場を始めますか？\\n必要なら先に「履歴に保存」してください。'))return
+  }
+  backupState();state=newBlankState();undoStack.length=0;redoStack.length=0;resetEntryState();
+  save();render();syncSiteInputs();window.scrollTo({top:0,behavior:'auto'});toast('新しい現場を開始しました')
+}
+function buildBackupObject(){
+  return{format:'SOULZ_CROSS_SHARE_BACKUP',version:1,exportedAt:new Date().toISOString(),current:clone(state),history:loadHistory()}
+}
+async function exportBackup(){
+  var data=JSON.stringify(buildBackupObject(),null,2),name='SOULZ_CROSS_BACKUP_'+new Date().toISOString().slice(0,10)+'.json';
+  try{
+    var file=new File([data],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){await navigator.share({files:[file],title:'SOULZ クロス計算 バックアップ'});return}
+  }catch(e){}
+  try{
+    var blob=new Blob([data],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('バックアップを書き出しました')
+  }catch(e){toast('バックアップを書き出せませんでした')}
+}
+async function importBackupFile(file){
+  if(!file)return;
+  var data;
+  try{data=JSON.parse(await file.text())}catch(e){toast('バックアップを読めません');return}
+  if(!data||data.format!=='SOULZ_CROSS_SHARE_BACKUP'||!data.current||!Array.isArray(data.history)){toast('SOULZバックアップではありません');return}
+  if(!confirm('現在のデータと履歴をバックアップ内容に置き換えますか？'))return;
+  backupState();state=clone(data.current);normalize();resetEntryState();undoStack.length=0;redoStack.length=0;
+  saveHistoryArray(data.history);save();render();syncSiteInputs();renderHistoryList();window.scrollTo({top:0,behavior:'auto'});toast('バックアップを復元しました')
+}
+
+function toast(msg){var t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),1200)}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function fmt(v){v=Math.round(Number(v||0)*100)/100;return Number.isInteger(v)?String(v):String(v).replace(/(\.\d*?[1-9])0+$/,'$1').replace(/\.0+$/,'')}
+function setKeypadCollapsed(v){
+  keypadCollapsed=!!v;
+  var dock=$('#keypadDock'),handle=$('#keypadHandle');
+  if(dock)dock.classList.toggle('hidden',keypadCollapsed);
+  if(handle)handle.textContent=keypadCollapsed?'⌃ テンキーを表示':'⌄ テンキーを隠す';
+  document.body.classList.toggle('keypad-collapsed',keypadCollapsed);
+}
+function keepDimensionInputVisible(smooth){
+  if(state.activeRoomId==='site')return;
+  var p=$('#dimensionInputPanel');if(!p)return;
+  var top=p.getBoundingClientRect().top+window.scrollY-10;
+  window.scrollTo({top:Math.max(0,top),behavior:smooth?'smooth':'auto'});
+}
+function resetEntryState(){
+  input.active='length';input.length='';input.count='1';input.editId=null;input.replaceNext=false;
+  lastLookupCode='';lookupCandidate=null;clearTimeout(lookupTimer)
+}
+function room(){return state.rooms.find(r=>r.id===state.activeRoomId)||null}
+function activeRepeat(){var r=room();return r?r.repeat[state.activeCategory]:{on:false,cm:''}}
+function itemCutCm(x){var rr=Number(x.repeatCm||0);return rr>0?Math.round(Math.ceil(Number(x.cm)/rr)*rr*100)/100:Number(x.cm)}
+function calc(){
+  var actual=0,need=0,pieces=0,items=0;
+  state.rooms.forEach(r=>r.items.forEach(x=>{actual+=Number(x.cm)*Number(x.count);need+=itemCutCm(x)*Number(x.count);pieces+=Number(x.count);items++}));
+  var withWaste=need/100*(1+Number(state.waste||0)/100);
+  return{actualCm:actual,needCm:need,pieces:pieces,items:items,repeatExtraCm:need-actual,order:Math.ceil((withWaste-1e-9)*2)/2}
+}
+function roomProgress(r){var total=0,done=0;r.items.forEach(x=>{total+=Number(x.count)||0;done+=Math.min(Number(x.count)||0,Number(x.cutCount)||0)});return total?done+'/'+total:''}
+function normalize(){
+  if(!state||typeof state!=='object')state={};
+  if(!Array.isArray(state.crafts))state.crafts=[];
+  if(![0,5,10,15].includes(Number(state.waste)))state.waste=0;
+  if(!categories.includes(state.activeCategory)){
+    state.activeCategory=state.activeCategory==='ポイント'?'アクセント':'壁'
+  }
+
+  state.rooms=Array.isArray(state.rooms)?state.rooms.filter(Boolean):[];
+  if(!state.rooms.length)state.rooms=[makeRoom('未分類')];
+
+  state.rooms.forEach(r=>{
+    r.id=r.id||id();
+    r.name=String(r.name||'未分類').trim()||'未分類';
+    r.products=(r.products&&typeof r.products==='object')?r.products:{};
+    r.repeat=(r.repeat&&typeof r.repeat==='object')?r.repeat:{};
+    r.items=Array.isArray(r.items)?r.items.filter(Boolean):[];
+
+    // migration: 「ポイント」を「アクセント」に統合
+    if(r.products['ポイント'] && !r.products['アクセント']) r.products['アクセント']=r.products['ポイント'];
+    if(r.repeat['ポイント']){
+      if(!r.repeat['アクセント'] || (!r.repeat['アクセント'].on && !r.repeat['アクセント'].cm)){
+        r.repeat['アクセント']=r.repeat['ポイント'];
+      }
+    }
+    delete r.products['ポイント'];
+    delete r.repeat['ポイント'];
+
+    categories.forEach(c=>{
+      if(r.products[c]==null)r.products[c]='';
+      r.products[c]=String(r.products[c]||'').toUpperCase();
+      if(!r.repeat[c]||typeof r.repeat[c]!=='object')r.repeat[c]={on:false,cm:''};
+      r.repeat[c].on=!!r.repeat[c].on;
+      r.repeat[c].cm=(Number(r.repeat[c].cm)>0)?String(Number(r.repeat[c].cm)):''
+    });
+
+    r.items=r.items.map(x=>{
+      x.id=x.id||id();
+      if(x.category==='ポイント')x.category='アクセント';
+      if(!categories.includes(x.category))x.category='壁';
+      x.cm=Math.max(0,Math.round((Number(x.cm)||0)*100)/100);
+      x.count=Math.max(1,Math.round(Number(x.count)||1));
+      x.product=String(x.product||'').toUpperCase();
+      x.repeatCm=Math.max(0,Math.round((Number(x.repeatCm)||0)*100)/100);
+      x.cutCount=Math.max(0,Math.min(x.count,Math.round(Number(x.cutCount)||0)));
+      return x
+    }).filter(x=>x.cm>0)
+  });
+
+  if(state.activeRoomId!=='site'&&!state.rooms.some(r=>r.id===state.activeRoomId))state.activeRoomId=state.rooms[0].id
+}
+normalize();
+
+function bindStateField(id,key){
+  var e=$(id); e.value=state[key]||'';
+  e.addEventListener('input',()=>{state[key]=e.value;save();renderSummary()});
+}
+['jobName','address','startDate','endDate','startTime','endTime','contactName','contactTel','supervisorName','supervisorTel','memo','highwayCost','parkingCost'].forEach(k=>bindStateField('#'+k,k));
+
+function renderTabs(){
+  $('#siteTab').classList.toggle('active',state.activeRoomId==='site');
+  var box=$('#roomTabs'); box.innerHTML=state.rooms.map(r=>'<button class="room-tab '+(r.id===state.activeRoomId?'active':'')+'" data-room="'+r.id+'">'+esc(r.name)+(roomProgress(r)?'<span class="progress">'+roomProgress(r)+'</span>':'')+'</button>').join('');
+  box.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>selectTab(b.dataset.room));
+  setTimeout(()=>{var a=box.querySelector('.active');if(a)a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})},30)
+}
+function selectTab(v){state.activeRoomId=v;input.editId=null;lastLookupCode='';hideLookup();save();render();if(v!=='site'){setTimeout(scheduleLookup,140);setTimeout(function(){keepDimensionInputVisible(false)},40)}else window.scrollTo({top:0,behavior:'smooth'})}
+$('#siteTab').onclick=()=>selectTab('site');
+$('#tabPrev').onclick=()=>{$('#roomTabs').scrollBy({left:-190,behavior:'smooth'})};
+$('#tabNext').onclick=()=>{$('#roomTabs').scrollBy({left:190,behavior:'smooth'})};
+
+function renderSite(){
+  var isSite=state.activeRoomId==='site';
+  $('#siteView').style.display=isSite?'block':'none';
+  $('#roomView').style.display=isSite?'none':'block';
+  document.body.classList.toggle('room-active',!isSite);
+  document.body.classList.toggle('keypad-collapsed',!isSite&&keypadCollapsed);
+  if(isSite){syncSiteInputs();historyCurrentLabel()}
+  renderCrafts();
+  $('#travelCostTotal').textContent=(Number(state.highwayCost||0)+Number(state.parkingCost||0)).toLocaleString('ja-JP');
+}
+function renderCrafts(){
+  var box=$('#craftList');box.innerHTML=(state.crafts||[]).map((c,i)=>'<div class="craft-row"><input data-cn="'+i+'" value="'+esc(c.name||'')+'" placeholder="職人名"><input data-cd="'+i+'" value="'+esc(c.days||'')+'" inputmode="decimal" placeholder="日数"><button data-cr="'+i+'">×</button></div>').join('');
+  box.querySelectorAll('[data-cn]').forEach(e=>e.oninput=()=>{state.crafts[+e.dataset.cn].name=e.value;save()});
+  box.querySelectorAll('[data-cd]').forEach(e=>e.oninput=()=>{state.crafts[+e.dataset.cd].days=e.value;save();renderCraftTotal()});
+  box.querySelectorAll('[data-cr]').forEach(e=>e.onclick=()=>{state.crafts.splice(+e.dataset.cr,1);save();renderCrafts()});
+  renderCraftTotal()
+}
+function renderCraftTotal(){$('#craftDaysTotal').textContent=fmt((state.crafts||[]).reduce((a,c)=>a+(Number(c.days)||0),0))}
+$('#craftAdd').onclick=()=>{state.crafts.push({name:'',days:''});save();renderCrafts()};
+
+
+function cleanCode(v){return String(v||'').toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9\-]/g,'')}
+function codeReady(v){v=cleanCode(v);return /^(?=.*\d)[A-Z0-9\-]{4,16}$/.test(v)}
+function hideLookup(){var b=$('#lookupResult');if(b)b.className='lookup-result';lookupCandidate=null}
+function setLookup(kind,text,source,actions){
+  var box=$('#lookupResult'),tx=$('#lookupText'),src=$('#lookupSource'),act=$('#lookupActions');if(!box)return;
+  box.className='lookup-result show '+kind;tx.innerHTML=text||'';src.textContent=source||'';act.innerHTML='';
+  (actions||[]).forEach(a=>{var b=document.createElement('button');b.type='button';b.textContent=a.label;b.className=a.cls||'';b.onclick=a.fn;act.appendChild(b)})
+}
+function normalizeWebText(s){
+  return String(s||'')
+    .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+    .replace(/．/g,'.').replace(/：/g,':').replace(/[㎝]/g,'cm')
+    .replace(/\s+/g,' ');
+}
+function parseRepeatFromText(raw,code){
+  var s=normalizeWebText(raw), upper=s.toUpperCase(), c=cleanCode(code);
+  if(c && upper.indexOf(c)<0 && upper.indexOf(c.replace('-',''))<0)return null;
+
+  var noneRegs=[
+    /リピート.{0,100}(?:縦|タテ)\s*[:：]?\s*[ー－\-–—―]\s*(?:cm)?/i,
+    /リピート\s*(?:\(cm\)|（cm）|cm)?\s*(?:縦|タテ)\s*[:：]?\s*[ー－\-–—―]/i
+  ];
+  if(noneRegs.some(r=>r.test(s))) return {kind:'none',repeatCm:0};
+
+  var vals=[];
+  var regs=[
+    /リピート.{0,120}(?:縦|タテ)\s*[:：]?\s*(\d{1,3}(?:\.\d{1,2})?)\s*(cm|mm)?/ig,
+    /(?:縦|タテ)\s*[:：]?\s*(\d{1,3}(?:\.\d{1,2})?)\s*(cm|mm).{0,80}リピート/ig,
+    /(?:柄\s*)?リピート[^0-9]{0,55}(\d{1,3}(?:\.\d{1,2})?)\s*(cm|mm)/ig
+  ];
+  regs.forEach(re=>{var m,n=0;while((m=re.exec(s))&&n++<40){var v=parseFloat(m[1]);if((m[2]||'').toLowerCase()==='mm')v/=10;if(v>0&&v<=200)vals.push(Math.round(v*100)/100)}})
+  if(!vals.length)return null;
+  var counts={};vals.forEach(v=>{var k=v.toFixed(2);counts[k]=(counts[k]||0)+1});
+  var best=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]||vals.indexOf(Number(a))-vals.indexOf(Number(b)))[0];
+  return {kind:'value',repeatCm:Number(best)}
+}
+async function fetchWithTimeout(url,ms){
+  var ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),ms||9000);
+  try{var r=await fetch(url,{signal:ctl.signal,cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);return await r.text()}finally{clearTimeout(tm)}
+}
+function lookupSearchURL(code){return 'https://www.google.com/search?q='+encodeURIComponent(code+' 壁紙 リピート 縦 cm')}
+async function autoLookup(force){
+  var r=room(),code=cleanCode($('#productCode').value);if(!r)return;
+  if(!codeReady(code)){if(force)toast('品番を入力してください');hideLookup();return}
+  if(!force&&code===lastLookupCode&&lookupCandidate)return;
+  lastLookupCode=code;lookupCandidate=null;var seq=++lookupSeq;
+  setLookup('searching','🌐 <b>'+esc(code)+'</b> のリピートをネット検索中…','数秒かかることがあります',[]);
+  var q=code+' 壁紙 リピート 縦 cm';
+  var targets=[
+    {name:'Google検索',url:'https://r.jina.ai/http://www.google.com/search?q='+encodeURIComponent(q)},
+    {name:'Bing検索',url:'https://r.jina.ai/http://www.bing.com/search?q='+encodeURIComponent(q)},
+    {name:'DuckDuckGo検索',url:'https://r.jina.ai/http://html.duckduckgo.com/html/?q='+encodeURIComponent(q)}
+  ];
+  var found=null,source='';
+  for(var i=0;i<targets.length;i++){
+    try{
+      var txt=await fetchWithTimeout(targets[i].url,8500);
+      if(seq!==lookupSeq)return;
+      var p=parseRepeatFromText(txt,code);
+      if(p){found=p;source=targets[i].name;break}
+    }catch(e){}
+  }
+  if(seq!==lookupSeq)return;
+  if(!found){
+    setLookup('error','自動でリピートを確認できませんでした','検索結果を開いて手動確認できます',[
+      {label:'検索結果',fn:()=>window.open(lookupSearchURL(code),'_blank')},
+      {label:'再検索',fn:()=>autoLookup(true)}
+    ]);
+    return
+  }
+  lookupCandidate={code:code,kind:found.kind,repeatCm:found.repeatCm,source:source};
+  if(found.kind==='none'){
+    setLookup('found','候補：<b>リピートなし</b>','ネット検索候補 ・ '+source,[
+      {label:'採用',cls:'adopt',fn:()=>adoptLookup()},
+      {label:'不採用',cls:'reject',fn:()=>{hideLookup();toast('候補を不採用にしました')}},
+      {label:'確認',fn:()=>window.open(lookupSearchURL(code),'_blank')}
+    ]);
+  }else{
+    setLookup('found','候補：<b>'+fmt(found.repeatCm)+'cm</b>','ネット検索候補 ・ '+source,[
+      {label:'採用',cls:'adopt',fn:()=>adoptLookup()},
+      {label:'不採用',cls:'reject',fn:()=>{hideLookup();toast('候補を不採用にしました')}},
+      {label:'確認',fn:()=>window.open(lookupSearchURL(code),'_blank')}
+    ]);
+  }
+}
+function adoptLookup(){
+  var r=room(),c=lookupCandidate;if(!r||!c)return;snap();
+  var rp=r.repeat[state.activeCategory];
+  if(c.kind==='none'){rp.on=false;rp.cm='';r.items.filter(x=>x.category===state.activeCategory).forEach(x=>x.repeatCm=0);toast('リピートなしを採用しました')}
+  else{rp.on=true;rp.cm=String(c.repeatCm);r.items.filter(x=>x.category===state.activeCategory).forEach(x=>x.repeatCm=c.repeatCm);toast('リピート '+fmt(c.repeatCm)+'cm を採用しました')}
+  save();render();setTimeout(()=>{var box=$('#lookupResult');if(box){setLookup('found',c.kind==='none'?'✓ <b>リピートなし</b> を採用しました':'✓ <b>'+fmt(c.repeatCm)+'cm</b> を採用しました','現在の部屋・施工区分に反映済み',[]) }},30)
+}
+function scheduleLookup(){
+  clearTimeout(lookupTimer);var code=cleanCode($('#productCode').value);
+  if(!codeReady(code)){hideLookup();return}
+  lookupTimer=setTimeout(()=>autoLookup(false),900)
+}
+
+function renderRoom(){
+  var r=room();if(!r)return;
+  $('#roomName').textContent=r.name;
+  var cats=$('#categoryTabs');cats.innerHTML=categories.map(c=>'<button class="cat '+(c===state.activeCategory?'active':'')+'" data-cat="'+c+'">'+c+'</button>').join('');
+  cats.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{state.activeCategory=b.dataset.cat;input.editId=null;lastLookupCode='';hideLookup();save();renderRoom();setTimeout(scheduleLookup,120)});
+  $('#productCode').value=r.products[state.activeCategory]||'';
+  var rp=r.repeat[state.activeCategory];$('#repeatCm').value=rp.cm||'';$('#repeatToggle').textContent=rp.on?'ON':'OFF';$('#repeatToggle').classList.toggle('off',!rp.on);
+  renderInputs();renderList()
+}
+$('#productCode').oninput=e=>{var r=room();if(!r)return;r.products[state.activeCategory]=e.target.value.toUpperCase();lastLookupCode='';hideLookup();save();renderList();scheduleLookup()};
+$('#repeatCm').oninput=e=>{var r=room();if(!r)return;var rp=r.repeat[state.activeCategory];rp.cm=e.target.value;var cm=Number(rp.cm||0);if(rp.on)r.items.filter(x=>x.category===state.activeCategory).forEach(x=>x.repeatCm=cm>0?cm:0);save();renderList();renderSummary()};
+$('#repeatToggle').onclick=()=>{var r=room();if(!r)return;snap();var rp=r.repeat[state.activeCategory];rp.on=!rp.on;var cm=Number(rp.cm||0);r.items.filter(x=>x.category===state.activeCategory).forEach(x=>x.repeatCm=(rp.on&&cm>0)?cm:0);save();render()};
+$('#webLookup').onclick=()=>autoLookup(true);
+
+function renderInputs(){
+  $('#lengthValue').textContent=input.length||'0';$('#countValue').textContent=input.count||'0';
+  $('#lengthField').classList.toggle('active',input.active==='length');$('#countField').classList.toggle('active',input.active==='count');
+  var recent=[];state.rooms.forEach(r=>r.items.forEach(x=>recent.push(Number(x.cm))));recent=recent.reverse().filter((v,i,a)=>v&&a.indexOf(v)===i).slice(0,8);
+  var defaults=[90,180,240,250,270,300];var vals=recent.concat(defaults).filter((v,i,a)=>a.indexOf(v)===i).slice(0,10);
+  $('#quick').innerHTML=vals.map(v=>'<button data-q="'+v+'">'+fmt(v)+'cm</button>').join('');
+  $('#quick').querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{input.length=String(b.dataset.q);input.active='count';input.replaceNext=false;renderInputs()})
+}
+$('#lengthField').onclick=()=>{input.active='length';input.replaceNext=true;setKeypadCollapsed(false);renderInputs();setTimeout(function(){keepDimensionInputVisible(false)},20)};
+$('#countField').onclick=()=>{input.active='count';input.replaceNext=true;setKeypadCollapsed(false);renderInputs();setTimeout(function(){keepDimensionInputVisible(false)},20)};
+$('#keypadHandle').onclick=()=>setKeypadCollapsed(!keypadCollapsed);
+document.addEventListener('focusin',function(e){
+  if(state.activeRoomId==='site')return;
+  var t=e.target;if(!t)return;
+  if(t.matches&&t.matches('input,textarea')&&!t.closest('#dimensionInputPanel'))setKeypadCollapsed(true)
+});
+$$('.key').forEach(b=>b.onclick=()=>{
+  if(b.dataset.digit!=null){digit(b.dataset.digit);return}
+  var a=b.dataset.act;if(a==='focusCount'){input.active='count';input.replaceNext=true}
+  if(a==='focusLength'){input.active='length';input.replaceNext=true}
+  if(a==='back')backspace();if(a==='clear')clearField();if(a==='undo')undo();if(a==='add')addItem();renderInputs()
+});
+(function(){
+  var b=$('#undoRedoKey'),tm=null,longPressed=false;if(!b)return;
+  b.addEventListener('pointerdown',function(){longPressed=false;tm=setTimeout(function(){longPressed=true;redo();renderInputs()},550)});
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){b.addEventListener(ev,function(){clearTimeout(tm)})});
+  b.addEventListener('click',function(e){if(longPressed){e.stopImmediatePropagation();e.preventDefault();longPressed=false}},true);
+  b.addEventListener('dblclick',function(e){e.preventDefault();redo();renderInputs()})
+})();
+function digit(d){var k=input.active;var v=k==='length'?input.length:input.count;if(input.replaceNext){v='';input.replaceNext=false}if(v==='0')v='';v+=d;if(k==='count'&&Number(v)>999)return;if(k==='length'&&v.length>5)return;if(k==='length')input.length=v;else input.count=v;renderInputs()}
+function backspace(){var k=input.active;if(k==='length')input.length=(input.length||'').slice(0,-1);else input.count=(input.count||'').slice(0,-1)}
+function clearField(){if(input.active==='length')input.length='';else input.count='0';input.replaceNext=true}
+function undo(){
+  if(!undoStack.length){toast('戻せる操作がありません');return}
+  redoStack.push(JSON.stringify(state));
+  state=JSON.parse(undoStack.pop());normalize();save();render();toast('1つ戻しました')
+}
+function redo(){
+  if(!redoStack.length){toast('進める操作がありません');return}
+  undoStack.push(JSON.stringify(state));
+  state=JSON.parse(redoStack.pop());normalize();save();render();toast('1つ進めました')
+}
+function addItem(){
+  var r=room();if(!r)return;var cm=Number(input.length||0),cnt=Number(input.count||0);if(!(cm>0)){toast('長さを入力してください');return}if(!(cnt>0)){toast('枚数を入力してください');return}
+  snap();var rp=r.repeat[state.activeCategory],rep=(rp.on&&Number(rp.cm)>0)?Number(rp.cm):0;
+  if(input.editId){var x=r.items.find(x=>x.id===input.editId);if(x){x.cm=cm;x.count=cnt;x.repeatCm=rep;x.category=state.activeCategory;x.product=r.products[state.activeCategory]||'';x.cutCount=Math.min(Number(x.cutCount||0),cnt)}input.editId=null}
+  else r.items.push({id:id(),cm:cm,count:cnt,category:state.activeCategory,product:r.products[state.activeCategory]||'',repeatCm:rep,cutCount:0});
+  input.length='';input.count='1';input.active='length';input.replaceNext=false;save();render();toast('追加しました');
+  setTimeout(function(){keepDimensionInputVisible(false)},30)
+}
+
+function renderList(){
+  var r=room(),box=$('#dimensionList');if(!r)return;
+  var groups=[];
+  categories.forEach(function(c){
+    var xs=r.items.filter(x=>x.category===c);
+    var keys=[];
+    xs.forEach(function(x){
+      var p=String(x.product||r.products[c]||'').trim().toUpperCase();
+      var k=c+'|'+p;
+      var g=groups.find(z=>z.key===k);
+      if(!g){g={key:k,category:c,product:p,items:[]};groups.push(g)}
+      g.items.push(x)
+    })
+  });
+  if(!groups.length){box.innerHTML='<div class="empty">まだ寸法がありません</div>';return}
+  box.innerHTML=groups.map(function(g){
+    var prod=g.product||'品番未入力';
+    return '<div class="group-title"><span class="catname">'+g.category+'</span><span class="prod">'+esc(prod)+'</span></div><div class="rows">'+g.items.map(function(x){
+      var rep=x.repeatCm>0?'<span class="repbadge">'+fmt(x.repeatCm)+'→'+fmt(itemCutCm(x))+'</span>':'';
+      return '<div class="row '+(input.editId===x.id?'selected ':'')+(Number(x.cutCount)>=Number(x.count)?'done':'')+'" data-row="'+x.id+'"><input type="checkbox" data-done="'+x.id+'" '+(Number(x.cutCount)>=Number(x.count)?'checked':'')+'><div class="code" data-edit="'+x.id+'">'+fmt(x.cm)+' - '+x.count+'</div>'+rep+'<button class="mini" data-plus="'+x.id+'">＋</button><button class="mini del" data-del="'+x.id+'">×</button></div>'
+    }).join('')+'</div>'
+  }).join('');
+  box.querySelectorAll('[data-edit]').forEach(e=>e.onclick=()=>{var x=r.items.find(x=>x.id===e.dataset.edit);if(!x)return;state.activeCategory=x.category;if(x.product)r.products[x.category]=x.product;if(x.repeatCm>0)r.repeat[x.category]={on:true,cm:String(x.repeatCm)};input.editId=x.id;input.length=String(x.cm);input.count=String(x.count);input.active='length';input.replaceNext=true;render();setTimeout(()=>keepDimensionInputVisible(false),30)});
+  box.querySelectorAll('[data-plus]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();var x=r.items.find(x=>x.id===e.dataset.plus);if(!x)return;snap();x.count++;save();render()});
+  box.querySelectorAll('[data-del]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();snap();r.items=r.items.filter(x=>x.id!==e.dataset.del);save();render()});
+  box.querySelectorAll('[data-done]').forEach(e=>e.onchange=()=>{var x=r.items.find(x=>x.id===e.dataset.done);if(!x)return;x.cutCount=e.checked?x.count:0;save();renderTabs();renderList()})
+}
+function renderSummary(){
+  var t=calc();$('#totalM').textContent=(t.needCm/100).toFixed(2);$('#actualM').textContent=(t.actualCm/100).toFixed(2)+'m';$('#repeatExtraM').textContent='+'+(t.repeatExtraCm/100).toFixed(2)+'m';$('#repeatExtraRow').style.display=t.repeatExtraCm>0?'block':'none';$('#itemCount').textContent=t.items;$('#pieceCount').textContent=t.pieces;$('#orderM').textContent=t.order.toFixed(1);
+  var w=$('#wasteBtns');w.innerHTML=[0,5,10,15].map(n=>'<button data-w="'+n+'" class="'+(Number(state.waste)===n?'active':'')+'">'+n+'%</button>').join('');w.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{state.waste=Number(b.dataset.w);save();renderSummary()});
+  $('#travelCostTotal').textContent=(Number(state.highwayCost||0)+Number(state.parkingCost||0)).toLocaleString('ja-JP')
+}
+function render(){normalize();renderTabs();renderSite();if(state.activeRoomId!=='site')renderRoom();renderSummary();setKeypadCollapsed(keypadCollapsed)}
+
+function nextRoomName(base){
+  base=String(base||'部屋').trim()||'部屋';
+  var names=state.rooms.map(r=>r.name);
+  if(base==='洋間'){
+    var nums=names.map(n=>{var m=n.match(/^洋間(\d+)$/);return m?+m[1]:0});
+    var x=1;while(nums.includes(x))x++;return '洋間'+x
+  }
+  if(!names.includes(base))return base;
+  var n=2;while(names.includes(base+n))n++;
+  return base+n
+}
+$('#roomAdd').onclick=()=>$('#roomModal').classList.add('show');
+$('#roomModalClose').onclick=()=>$('#roomModal').classList.remove('show');
+$('#roomModal').onclick=e=>{if(e.target.id==='roomModal')$('#roomModal').classList.remove('show')};
+$('#roomPresets').innerHTML=presets.map(p=>'<button data-p="'+p+'">'+p+'</button>').join('');
+$('#roomPresets').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>addRoom(nextRoomName(b.dataset.p)));
+$('#roomCustomAdd').onclick=()=>{var v=$('#roomCustom').value.trim();if(v)addRoom(v)};
+function uniqueRoomName(name,excludeId){
+  name=String(name||'部屋').trim()||'部屋';
+  var names=state.rooms.filter(r=>r.id!==excludeId).map(r=>r.name);
+  if(!names.includes(name))return name;
+  var n=2;while(names.includes(name+n))n++;
+  return name+n
+}
+function addRoom(name){snap();var r=makeRoom(uniqueRoomName(name));state.rooms.push(r);state.activeRoomId=r.id;save();$('#roomModal').classList.remove('show');$('#roomCustom').value='';render()}
+$('#renameRoom').onclick=()=>{var r=room();if(!r)return;var n=prompt('部屋名',r.name);if(n&&n.trim()){snap();r.name=uniqueRoomName(n.trim(),r.id);save();render()}};
+$('#deleteRoom').onclick=()=>{var r=room();if(!r)return;if(!confirm('「'+r.name+'」を削除しますか？'))return;snap();state.rooms=state.rooms.filter(x=>x.id!==r.id);state.activeRoomId=state.rooms[0]?.id||'site';save();render()};
+
+function shareText(){
+  var t=calc(),lines=[state.jobName||'クロス計算 SHARE','トータル: '+(t.needCm/100).toFixed(2)+'m'];
+  if(state.address)lines.push('住所: '+state.address);
+  if(state.startDate||state.endDate)lines.push('日程: '+(state.startDate||'')+' 〜 '+(state.endDate||''));
+  if(state.startTime||state.endTime)lines.push('作業時間: '+(state.startTime||'')+' 〜 '+(state.endTime||''));
+  if(state.contactName||state.contactTel)lines.push('担当: '+[state.contactName,state.contactTel].filter(Boolean).join(' / '));
+  if(state.supervisorName||state.supervisorTel)lines.push('監督: '+[state.supervisorName,state.supervisorTel].filter(Boolean).join(' / '));
+  if((state.crafts||[]).length){
+    lines.push('職人:');
+    state.crafts.forEach(c=>{if(c.name)lines.push('  '+c.name+(c.days?' '+fmt(c.days)+'日':''))});
+    lines.push('延べ日数: '+fmt(state.crafts.reduce((a,c)=>a+(Number(c.days)||0),0))+'日')
+  }
+  lines.push('');
+  state.rooms.forEach(function(r){
+    if(!r.items.length)return;lines.push('【'+r.name+'】');
+    categories.forEach(function(c){
+      var xs=r.items.filter(x=>x.category===c);if(!xs.length)return;
+      var prods=[];
+      xs.forEach(function(x){
+        var p=String(x.product||r.products[c]||'').trim().toUpperCase();
+        if(!prods.includes(p))prods.push(p)
+      });
+      prods.forEach(function(p){
+        var ys=xs.filter(x=>String(x.product||r.products[c]||'').trim().toUpperCase()===p);
+        lines.push(c+(p?' '+p:''));
+        ys.forEach(x=>lines.push('  '+fmt(x.cm)+'-'+x.count+(x.repeatCm>0?' ('+fmt(x.repeatCm)+'cm → '+fmt(itemCutCm(x))+'cm)':'')))
+      })
+    });
+    lines.push('')
+  });
+  lines.push('必要長さ: '+(t.needCm/100).toFixed(2)+'m');
+  lines.push('ロス: '+state.waste+'%');
+  lines.push('発注目安: '+t.order.toFixed(1)+'m');
+  return lines.join('\\n')
+}
+$('#shareBtn').onclick=async()=>{
+  var text=shareText();
+  try{
+    if(navigator.share){await navigator.share({title:state.jobName||'クロス計算',text:text});return}
+  }catch(e){}
+  try{await navigator.clipboard.writeText(text);toast('共有メモをコピーしました')}
+  catch(e){toast('共有できませんでした')}
+};
+
+function updateCost(){renderSummary()}
+
+
+var aiWorker=null;
+
+
+function buildAiPrompt(){
+  return `あなたは内装クロス施工の寸法メモ整理アシスタントです。
+このチャットに添付された画像・PDF・文書・表計算ファイルを読み取り、必ずJSONだけを返してください。説明文やMarkdownコードフェンスは不要です。
+
+ルール:
+- 「ポイント」は「アクセント」に統一
+- 施工区分は「天井」「壁」「アクセント」「ベース」のいずれか
+- 寸法は cm、枚数は count
+- 「245-3」は 245cm × 3枚
+- 「245×3」「245cm 3枚」も同じ意味
+- リピートが書かれていれば repeatCm に数値
+- 品番が書かれていれば product に入れる
+- 部屋名が不明なら「未分類」
+- 判断できない値は空文字または null
+- OCR誤認と思われるものは、周辺文脈から補正してよいが、推測が強いものは confidence を "low" にする
+
+JSON形式:
+{
+  "job": {
+    "jobName": "",
+    "address": "",
+    "startDate": "",
+    "endDate": "",
+    "startTime": "",
+    "endTime": "",
+    "contactName": "",
+    "contactTel": "",
+    "supervisorName": "",
+    "supervisorTel": "",
+    "memo": "",
+    "highwayCost": "",
+    "parkingCost": "",
+    "crafts": [{"name":"","days":""}]
+  },
+  "rooms": [
+    {
+      "name": "洗面",
+      "items": [
+        {
+          "category": "壁",
+          "product": "RE5488",
+          "repeatCm": 52.5,
+          "cm": 245,
+          "count": 3,
+          "confidence": "high"
+        }
+      ]
+    }
+  ]
+}`;
+}
+async function copyTextSafe(text){
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(text);return true}}catch(e){}
+  try{
+    var ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+    var ok=document.execCommand('copy');document.body.removeChild(ta);return !!ok
+  }catch(e){return false}
+}
+async function copyAiPrompt(){
+  var ok=await copyTextSafe(buildAiPrompt());
+  $('#aiPromptStatus').textContent=ok?'整理指示をコピーしました。ChatGPTで画像・ファイルを添付して貼り付けてください。':'コピーできませんでした。長押し貼り付けが使える場合はChatGPT側で入力してください。'
+}
+async function openChatGPT(){
+  var ok=await copyTextSafe(buildAiPrompt());
+  $('#aiPromptStatus').textContent=ok?'整理指示をコピーしました。ChatGPTで画像・ファイルを添付してください。':'ChatGPTを開きます。必要なら「整理指示をコピー」を押してください。';
+  var w=window.open('https://chatgpt.com/','_blank');
+  if(!w)window.location.href='https://chatgpt.com/'
+}
+function cleanJsonText(v){
+  var s=String(v||'').trim();
+  s=s.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');
+  var a=s.indexOf('{'),b=s.lastIndexOf('}');
+  if(a>=0&&b>a)s=s.slice(a,b+1);
+  return s
+}
+function findOrCreateRoomByName(name){
+  name=String(name||'未分類').trim()||'未分類';
+  var r=state.rooms.find(x=>x.name===name);
+  if(r)return r;
+  r=makeRoom(name);state.rooms.push(r);return r
+}
+function normalizeImportedCategory(c){
+  c=String(c||'壁').trim();
+  if(c==='ポイント')c='アクセント';
+  return ['天井','壁','アクセント','ベース'].includes(c)?c:'壁'
+}
+function simpleHash(s){
+  var h=2166136261>>>0;
+  for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}
+  return (h>>>0).toString(16)
+}
+function applyAiJson(){
+  var raw=cleanJsonText($('#aiJsonText').value);
+  if(!raw){toast('ChatGPTのJSONを貼ってください');return}
+  var data;
+  try{data=JSON.parse(raw)}
+  catch(e){$('#aiApplyStatus').textContent='JSONを読み取れません。ChatGPTの返答をそのまま貼ってください。';return}
+
+  var importHash=simpleHash(raw);
+  if(state.lastAiImportHash===importHash){
+    $('#aiApplyStatus').textContent='このChatGPT結果は現在の現場へ反映済みです。二重登録を防止しました。';
+    toast('同じ結果は反映済みです');return
+  }
+
+  var rooms=Array.isArray(data.rooms)?data.rooms:[];
+  if(!data.job&&!rooms.length){
+    $('#aiApplyStatus').textContent='現場情報または部屋データが見つかりません。';
+    return
+  }
+
+  snap();
+  var job=(data.job&&typeof data.job==='object')?data.job:{};
+  ['jobName','address','startDate','endDate','startTime','endTime','contactName','contactTel','supervisorName','supervisorTel','memo','highwayCost','parkingCost'].forEach(function(k){
+    if(job[k]!==undefined&&job[k]!==null&&String(job[k]).trim()!=='')state[k]=String(job[k]).trim()
+  });
+  if(Array.isArray(job.crafts)&&job.crafts.length){
+    state.crafts=job.crafts.map(c=>({name:String(c&&c.name||'').trim(),days:String(c&&c.days||'').trim()})).filter(c=>c.name||c.days)
+  }
+
+  var added=0,skipped=0,updatedRooms=0;
+  rooms.forEach(function(rr){
+    if(!rr||typeof rr!=='object'){skipped++;return}
+    var r=findOrCreateRoomByName(rr.name);updatedRooms++;
+    (Array.isArray(rr.items)?rr.items:[]).forEach(function(it){
+      if(!it||typeof it!=='object'){skipped++;return}
+      var cm=Number(it.cm),count=Number(it.count||1);
+      if(!(cm>0)||!(count>0)){skipped++;return}
+      var cat=normalizeImportedCategory(it.category),
+          product=String(it.product||'').trim().toUpperCase(),
+          rep=Number(it.repeatCm||0);
+      cm=Math.round(cm*100)/100;
+      count=Math.max(1,Math.round(count));
+      rep=rep>0?Math.round(rep*100)/100:0;
+
+      if(product)r.products[cat]=product;
+      if(rep>0)r.repeat[cat]={on:true,cm:String(rep)};
+
+      r.items.push({
+        id:id(),cm:cm,count:count,category:cat,
+        product:product||r.products[cat]||'',
+        repeatCm:rep,cutCount:0
+      });
+      added++
+    })
+  });
+
+  normalize();state.lastAiImportHash=importHash;save();render();
+  $('#aiApplyStatus').textContent='反映完了：'+updatedRooms+'部屋・'+added+'項目'+(skipped?' / 読み飛ばし '+skipped+'件':'');
+  toast('ChatGPT整理結果を反映しました')
+}
+
+$('#historySaveBtn').onclick=saveCurrentToHistory;
+$('#historyOpenBtn').onclick=function(){renderHistoryList();$('#historySheet').classList.add('show')};
+$('#historyClose').onclick=function(){$('#historySheet').classList.remove('show')};
+$('#historySheet').onclick=function(e){if(e.target.id==='historySheet')$('#historySheet').classList.remove('show')};
+$('#historySearch').oninput=renderHistoryList;
+$('#newJobBtn').onclick=startNewJob;
+$('#backupExportBtn').onclick=exportBackup;
+$('#backupImportInput').onchange=function(){var f=this.files&&this.files[0];importBackupFile(f);this.value=''};
+$('#aiImportOpen').onclick=function(){$('#aiSheet').classList.add('show')};
+$('#aiClose').onclick=function(){$('#aiSheet').classList.remove('show')};
+$('#aiOpenChatGPT').onclick=openChatGPT;
+$('#aiCopyPrompt').onclick=copyAiPrompt;
+$('#aiSheet').onclick=function(e){if(e.target.id==='aiSheet')$('#aiSheet').classList.remove('show')};
+$('#aiApplyJson').onclick=applyAiJson;
+$('#aiPasteJson').onclick=async function(){
+  try{$('#aiJsonText').value=await navigator.clipboard.readText();$('#aiApplyStatus').textContent='貼り付けました。'}
+  catch(e){$('#aiApplyStatus').textContent='貼り付け権限が使えない場合は長押しで貼り付けてください。'}
+};
+
+var today=new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'numeric',day:'numeric'}).format(new Date());$('#today').textContent=today;
+render();
+window.addEventListener('pagehide',save);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')save()});
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
