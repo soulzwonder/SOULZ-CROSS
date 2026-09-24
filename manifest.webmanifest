@@ -1,6 +1,6 @@
 {
-  "name": "SOULZ クロス計算 SHARE",
-  "short_name": "クロス計算",
+  "name": "CROSS GPT クロッピー",
+  "short_name": "クロッピー",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

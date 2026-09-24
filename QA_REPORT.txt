@@ -1,0 +1,11 @@
+CROSS GPT クロッピー v2.58.8 RELEASE QA
+HTML embedded JS syntax: 3/3 PASS
+Service Worker syntax: PASS
+Manifest JSON: PASS
+Duplicate HTML IDs: PASS (0)
+Required UI IDs: PASS
+Android horizontal overflow guard: PASS
+Checked-meter baseline persistence: PASS
++1柄 feature present: PASS
+PWA cache strategy: navigation/index network-first
+NOTE: Android実機の最終表示確認は端末でのスモークテストが必要。
