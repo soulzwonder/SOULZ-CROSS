@@ -8,22 +8,11 @@
   "theme_color": "#08111e",
   "lang": "ja",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png"}
   ],
-  "id": "./",
-  "description": "内装クロス施工の寸法・リピート・現場管理ツール",
-  "categories": [
-    "productivity",
-    "utilities"
-  ],
-  "orientation": "portrait-primary"
+  "id":"./",
+  "description":"内装クロス施工の寸法・リピート・現場管理ツール",
+  "categories":["productivity","utilities"],
+  "orientation":"portrait-primary"
 }
