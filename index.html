@@ -1443,7 +1443,14 @@ function summaryText(){
   lines.push('────────────');
   lines.push('実寸合計  '+(t.actualCm/100).toFixed(2)+'m');
   lines.push('必要長さ  '+(t.needCm/100).toFixed(2)+'m');
-  lines.push('発注目安  '+t.order.toFixed(1)+'m');
+  lines.push('発注目安');
+  var orderGroups=[
+    {label:'天井',items:state.items.filter(function(x){return x.category==='ceiling'})},
+    {label:'壁',items:state.items.filter(function(x){return x.category==='wall'||x.category==='base'})},
+    {label:'アクセント',items:state.items.filter(function(x){return x.category==='accent'||x.category==='point'})}
+  ];
+  orderGroups.forEach(function(g){if(g.items.length)lines.push('  '+g.label+'  '+totals(g.items).order.toFixed(1)+'m')});
+  lines.push('  合計  '+t.order.toFixed(1)+'m');
   if(cutAllowanceCm()>0)lines.push('切りしろ  '+fmtCm(cutAllowanceCm())+'cm');
   if(Number(state.waste||0)>0)lines.push('ロス      '+state.waste+'%');
 
