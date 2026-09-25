@@ -923,7 +923,7 @@ window.__SOULZ_HOME_MODE = false;
 </div>
 <div class="app">
   <div class="topbar">
-    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.26</div><div class="top-date" id="topDateLabel"></div></div></div>
+    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.27</div><div class="top-date" id="topDateLabel"></div></div></div>
     <div class="top-actions"><button type="button" class="top-tool-btn" id="topFilesBtn" aria-label="現場ファイル">📁</button><button type="button" class="top-tool-btn" id="topSettingsBtn" aria-label="設定">⚙️</button><button type="button" class="top-tool-btn top-share-btn" id="topShareBtn">共有</button></div>
   </div>
   <div class="setup-note" id="setupNote"><strong>現場タブ:</strong> 現場情報・画像認識・部屋一覧をまとめています。部屋タブでは入力とカット作業に集中できます。‹ › で部屋を送れます。右の「＋」で部屋を追加できます。</div>
@@ -1585,7 +1585,7 @@ function summaryText(){
         var main=cutDisplayValue(cut)+(state.inputUnit==='mm'?'mm':'')+'-'+x.count;
         var note='';
         if(x.repeatCm)note='  ('+cutDisplayValue(x.cm)+cutDisplayUnit()+' / リピート'+cutDisplayValue(x.repeatCm)+cutDisplayUnit()+(x.extraPattern?' / ＋1柄':'')+')';
-        else if(cut!==Number(x.cm))note='  (実寸'+fmtCm(x.cm)+')';
+        else if(cut!==Number(x.cm))note='  (実寸'+cutDisplayValue(x.cm)+cutDisplayUnit()+')';
         lines.push(main+note);
       });
     });
