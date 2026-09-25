@@ -923,7 +923,7 @@ window.__SOULZ_HOME_MODE = false;
 </div>
 <div class="app">
   <div class="topbar">
-    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.27</div><div class="top-date" id="topDateLabel"></div></div></div>
+    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.28</div><div class="top-date" id="topDateLabel"></div></div></div>
     <div class="top-actions"><button type="button" class="top-tool-btn" id="topFilesBtn" aria-label="現場ファイル">📁</button><button type="button" class="top-tool-btn" id="topSettingsBtn" aria-label="設定">⚙️</button><button type="button" class="top-tool-btn top-share-btn" id="topShareBtn">共有</button></div>
   </div>
   <div class="setup-note" id="setupNote"><strong>現場タブ:</strong> 現場情報・画像認識・部屋一覧をまとめています。部屋タブでは入力とカット作業に集中できます。‹ › で部屋を送れます。右の「＋」で部屋を追加できます。</div>
@@ -1035,8 +1035,8 @@ window.__SOULZ_HOME_MODE = false;
   <section class="panel" id="cutAllowancePanel">
     <div class="cut-allowance-box">
       <details class="cut-allowance-details" id="cutAllowanceDetails">
-        <summary class="cut-allowance-summary"><div><div class="label">切りしろ</div><div class="cut-allowance-note">一度設定したら折りたたんでおけます。</div></div><div class="cut-allowance-value" id="cutAllowanceValueWrap"><span id="cutAllowanceValue">なし</span></div></summary>
-        <div class="cut-allowance-note" style="margin-bottom:8px">上下合計。採寸値は変えず、裁断必要長だけに加算します。</div>
+        <summary class="cut-allowance-summary"><div><div class="label">追加の切りしろ</div><div class="cut-allowance-note">採寸に含めている場合は「なし」</div></div><div class="cut-allowance-value" id="cutAllowanceValueWrap"><span id="cutAllowanceValue">なし</span></div></summary>
+        <div class="cut-allowance-note" style="margin-bottom:8px">上下合計を採寸値に追加します。切りしろ込みでメモした寸法には「なし」を選んでください。</div>
         <div class="cut-allowance-chips" id="cutAllowanceGroup"><button data-cutallowance="0">なし</button><button data-cutallowance="4">4cm</button><button data-cutallowance="6">6cm</button><button data-cutallowance="10">10cm</button><button id="cutAllowanceCustom">自由</button></div>
       </details>
     </div>
@@ -2049,7 +2049,7 @@ load();if(state.activeRoomId!=='site')loadRepeatForActiveSection();render();rend
       <div class="setting-row"><div><div class="setting-label">テーマ</div></div><div class="setting-chips" id="themeSetting"><button data-theme="dark">ダーク</button><button data-theme="light">ライト</button></div></div>
       <div class="setting-row"><div><div class="setting-label">文字サイズ</div></div><div class="setting-chips" id="fontSetting"><button data-font="normal">標準</button><button data-font="large">大</button><button data-font="xlarge">特大</button></div></div>
     </div>
-    <div class="settings-card"><h3>現場の標準設定</h3><div class="settings-desc">ここで選んだ単位と切りしろを、新しい現場の初期値にします。現在の現場にも反映されます。</div>
+    <div class="settings-card"><h3>現場の標準設定</h3><div class="settings-desc">採寸に切りしろ込みでメモする場合、追加の切りしろは「なし」。変更は現在の現場にも反映されます。</div>
       <div id="settingsUnitSlot"></div>
       <div id="settingsAllowanceSlot" style="margin-top:12px"></div>
     </div>
