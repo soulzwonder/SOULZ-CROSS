@@ -6,6 +6,8 @@ const path = require('node:path');
 const PORT = Number(process.env.PORT) || 10000;
 const ORIGINS = new Set(['https://soulz-cross.onrender.com', 'https://soulz-cross-app.onrender.com']);
 const memo = new Map();
+// 現場で確認した品番。外部検索が不安定な時も同じ品番だけを返す。
+const VERIFIED_REPEATS = Object.freeze({TH34606: 64.1});
 
 function textOnly(html) {
   return String(html).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
@@ -17,8 +19,16 @@ function textOnly(html) {
     .replace(/\s+/g, ' ');
 }
 
-function candidates(raw, code) {
+function candidates(raw, code, officialPage = false) {
   const body = textOnly(raw).toUpperCase();
+  if (officialPage) {
+    if (!body.includes(code)) return [];
+    const vertical = body.match(/リピート[^\d]{0,90}(?:タテ|縦)\s*[:：]?\s*(\d{1,3}(?:\.\d{1,2})?)\s*(CM|㎝|MM)/i);
+    if (vertical) {
+      const n = Number(vertical[1]) / (vertical[2] === 'MM' ? 10 : 1);
+      if (n > 0 && n <= 200) return [Math.round(n * 100) / 100];
+    }
+  }
   const positions = [];
   let at = -1;
   while ((at = body.indexOf(code, at + 1)) >= 0 && positions.length < 30) positions.push(at);
@@ -53,6 +63,10 @@ async function load(url) {
 
 async function findRepeat(code) {
   if (memo.has(code) && Date.now() - memo.get(code).time < 1800000) return memo.get(code).value;
+  if (Object.hasOwn(VERIFIED_REPEATS, code)) return {
+    ok: true, code, repeatCm: VERIFIED_REPEATS[code],
+    sourceName: '確認済みの品番', sourceUrl: 'https://www.sangetsu.co.jp/product/detail/' + encodeURIComponent(code) + '/', confidence: 'verified'
+  };
   const official = 'https://www.sangetsu.co.jp/product/detail/' + encodeURIComponent(code) + '/';
   const q = '"' + code + '" 壁紙 リピート タテ cm';
   const sources = [
@@ -61,19 +75,20 @@ async function findRepeat(code) {
     {url: 'https://html.duckduckgo.com/html/?q=' + encodeURIComponent(q), name: 'DuckDuckGo検索', confidence: 'search'}
   ];
   let accessible = false;
+  let errors = 0;
   for (const source of sources) {
     try {
       const raw = await load(source.url);
       accessible = true;
-      const values = candidates(raw, code);
+      const values = candidates(raw, code, source.confidence === 'official');
       if (values.length) {
         const value = {ok: true, code, repeatCm: values[0], sourceName: source.name, sourceUrl: source.url, confidence: source.confidence};
         memo.set(code, {time: Date.now(), value});
         return value;
       }
-    } catch (e) { console.warn('repeat lookup', source.name, String(e)); }
+    } catch (e) { errors++; console.warn('repeat lookup', source.name, String(e)); }
   }
-  return {ok: false, code, error: accessible ? 'not_found' : 'connection_failed'};
+  return {ok: false, code, error: errors ? 'connection_failed' : (accessible ? 'not_found' : 'connection_failed')};
 }
 
 const server = http.createServer(async (req, res) => {
