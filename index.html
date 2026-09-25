@@ -801,6 +801,11 @@ body.light-mode .top-share-btn{background:#dbeafe!important;color:#1d4ed8!import
 .room-tab-active #lengthField.active::after,.room-tab-active #countField.active::after{content:'入力中';position:absolute;top:8px;right:8px;border-radius:9px;padding:3px 5px;font-size:.65rem;line-height:1.2;font-weight:900;white-space:nowrap}
 .room-tab-active #lengthField.active::after{background:#216393;color:#fff}
 .room-tab-active #countField.active::after{background:#93631c;color:#fff}
+/* Keep the repeat status below the title; leave the upper right for 入力中. */
+.room-tab-active #lengthField .field-label{padding-right:55px;min-height:18px}
+.room-tab-active #measurementRepeatBadge{display:block!important;width:max-content;max-width:calc(100% + 55px);margin:6px 0 0!important;white-space:normal;line-height:1.25}
+.room-tab-active #measurementRepeatBadge[style*="display:none"]{display:none!important}
+.room-tab-active #lengthField .field-value{margin-top:8px}
 .keypad .key[data-action="focusLength"],.keypad .key[data-action="focusCount"]{font-size:.98rem!important;font-weight:950!important;min-height:53px}
 body.light-mode.room-tab-active #lengthField{background:#e6f4ff!important;border-color:#3780b4!important;color:#173e5c!important}
 body.light-mode.room-tab-active #countField{background:#fff1da!important;border-color:#b97720!important;color:#613e08!important}
@@ -904,7 +909,7 @@ window.__SOULZ_HOME_MODE = false;
 </div>
 <div class="app">
   <div class="topbar">
-    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.24</div><div class="top-date" id="topDateLabel"></div></div></div>
+    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.25</div><div class="top-date" id="topDateLabel"></div></div></div>
     <div class="top-actions"><button type="button" class="top-tool-btn" id="topFilesBtn" aria-label="現場ファイル">📁</button><button type="button" class="top-tool-btn" id="topSettingsBtn" aria-label="設定">⚙️</button><button type="button" class="top-tool-btn top-share-btn" id="topShareBtn">共有</button></div>
   </div>
   <div class="setup-note" id="setupNote"><strong>現場タブ:</strong> 現場情報・画像認識・部屋一覧をまとめています。部屋タブでは入力とカット作業に集中できます。‹ › で部屋を送れます。右の「＋」で部屋を追加できます。</div>
