@@ -857,10 +857,26 @@ window.__SOULZ_HOME_MODE = false;
     nativeRequest('soulz-action://settings?x=' + Date.now());
   };
   window.__soulzRepeatLookup = function(code, roomId, category, token){
-    nativeRequest('soulz-repeat://search?code=' + encodeURIComponent(code||'') + '&room=' + encodeURIComponent(roomId||'') + '&cat=' + encodeURIComponent(category||'') + '&token=' + encodeURIComponent(token||'') + '&x=' + Date.now());
+    var url='https://croppy-counter.onrender.com/api/repeat?code='+encodeURIComponent(code||'');
+    var finished=false;
+    var timer=setTimeout(function(){
+      if(finished)return;finished=true;
+      window.__soulzRepeatSearchResult({ok:false,code:code,roomId:roomId,category:category,token:token,error:'timeout'});
+    },45000);
+    fetch(url, {mode:'cors'}).then(function(response){
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      return response.json();
+    }).then(function(result){
+      if(finished)return;finished=true;clearTimeout(timer);
+      result.roomId=roomId;result.category=category;result.token=token;
+      window.__soulzRepeatSearchResult(result);
+    }).catch(function(e){
+      if(finished)return;finished=true;clearTimeout(timer);
+      window.__soulzRepeatSearchResult({ok:false,code:code,roomId:roomId,category:category,token:token,error:'connection_failed'});
+    });
   };
   window.__soulzOpenURL = function(url){
-    nativeRequest('soulz-action://open?url=' + encodeURIComponent(url||'') + '&x=' + Date.now());
+    if(/^https:\/\//.test(url||''))window.open(url,'_blank','noopener');
   };
 })();
 </script>
@@ -884,7 +900,7 @@ window.__SOULZ_HOME_MODE = false;
 </div>
 <div class="app">
   <div class="topbar">
-    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.22</div><div class="top-date" id="topDateLabel"></div></div></div>
+    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.23</div><div class="top-date" id="topDateLabel"></div></div></div>
     <div class="top-actions"><button type="button" class="top-tool-btn" id="topFilesBtn" aria-label="現場ファイル">📁</button><button type="button" class="top-tool-btn" id="topSettingsBtn" aria-label="設定">⚙️</button><button type="button" class="top-tool-btn top-share-btn" id="topShareBtn">共有</button></div>
   </div>
   <div class="setup-note" id="setupNote"><strong>現場タブ:</strong> 現場情報・画像認識・部屋一覧をまとめています。部屋タブでは入力とカット作業に集中できます。‹ › で部屋を送れます。右の「＋」で部屋を追加できます。</div>
@@ -1457,6 +1473,7 @@ function requestRepeatLookup(force){
   if(!force&&code===repeatLookupLastCode&&repeatLookupCandidate)return;
   repeatLookupLastCode=code;repeatLookupCandidate=null;repeatLookupToken++;
   var token=String(Date.now())+'-'+repeatLookupToken;
+  window.__soulzPendingRepeatToken=token;
   setRepeatLookupState('searching','🌐 <b>'+escText(code)+'</b> のリピートを検索中…','ネット接続が必要です',[]);
   if(window.__soulzRepeatLookup)window.__soulzRepeatLookup(code,r.id,state.activeCategory,token);
   else setRepeatLookupState('none','検索機能を開始できませんでした','',[])
@@ -1471,10 +1488,11 @@ window.__soulzRepeatSearchResult=function(res){
   try{
     var r=currentRoom(),input=$('#productCodeInput');if(!r||!input||!res)return;
     var code=cleanProductCode(input.value);
-    if(cleanProductCode(res.code)!==code||String(res.roomId||'')!==String(r.id)||String(res.category||'')!==String(state.activeCategory))return;
+    if(cleanProductCode(res.code)!==code||String(res.roomId||'')!==String(r.id)||String(res.category||'')!==String(state.activeCategory)||String(res.token||'')!==String(window.__soulzPendingRepeatToken||''))return;
     if(!res.ok||!(Number(res.repeatCm)>0)){
       repeatLookupCandidate=null;
-      setRepeatLookupState('none','リピート候補が見つかりませんでした','品番やメーカー表記を確認して、必要なら再検索してください',[
+      var errorMessage=res.error==='timeout'?'検索が時間切れになりました':res.error==='connection_failed'?'検索サーバーに接続できませんでした':'リピート候補が見つかりませんでした';
+      setRepeatLookupState('none',errorMessage,'再検索するか、右の「リピート入力」から数値を入力してください',[
         {label:'再検索',fn:function(){requestRepeatLookup(true)}}
       ]);
       return
