@@ -837,6 +837,20 @@ body.light-mode .one-line-item .cut-detail-line span{background:#e4f3e8;border-c
 .one-line-item .cut-unit{font-size:.57em;color:#a9d2ff;font-weight:900;vertical-align:baseline;margin:0 1px 0 2px}
 body.light-mode .one-line-item .cut-unit{color:#195fa9}
 </style>
+<style id="croppy-cut-memo-style">
+.cut-memo-controls{display:flex;align-items:center;gap:10px;margin:10px 2px 8px;color:#aebed2;font-size:.77rem}
+.cut-memo-controls button{border:1px solid #7bb5c1;border-radius:11px;background:#12334b;color:#f1faf9;padding:10px 15px;font-weight:900;font-size:.95rem;min-height:44px}
+.cut-memo-controls button[aria-pressed="true"]{background:#157150;border-color:#4ade80;color:white}
+.site-tab-active .cut-memo-controls,.site-tab-active .cut-memo-panel{display:none!important}
+.cut-memo-panel{border:1px solid #a4c8c7;border-radius:15px;background:#f8fdfc;color:#1b4149;margin:0 1px 12px;padding:15px}
+.cut-memo-panel[hidden]{display:none!important}
+.cut-memo-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:1.04rem;font-weight:900}
+.cut-memo-heading button{border:1px solid #8ebfc0;border-radius:10px;background:#fff;color:#1b4149;min-height:40px;padding:6px 12px;font-weight:900;white-space:nowrap}
+.cut-memo-panel pre{font:inherit;font-size:1rem;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0 0}
+body.cut-memo-mode #list{display:none!important}
+body.light-mode .cut-memo-controls{color:#416269}
+body.light-mode .cut-memo-controls button{color:#fff}
+</style>
 </head>
 <body>
 <script>
@@ -909,7 +923,7 @@ window.__SOULZ_HOME_MODE = false;
 </div>
 <div class="app">
   <div class="topbar">
-    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.25</div><div class="top-date" id="topDateLabel"></div></div></div>
+    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.26</div><div class="top-date" id="topDateLabel"></div></div></div>
     <div class="top-actions"><button type="button" class="top-tool-btn" id="topFilesBtn" aria-label="現場ファイル">📁</button><button type="button" class="top-tool-btn" id="topSettingsBtn" aria-label="設定">⚙️</button><button type="button" class="top-tool-btn top-share-btn" id="topShareBtn">共有</button></div>
   </div>
   <div class="setup-note" id="setupNote"><strong>現場タブ:</strong> 現場情報・画像認識・部屋一覧をまとめています。部屋タブでは入力とカット作業に集中できます。‹ › で部屋を送れます。右の「＋」で部屋を追加できます。</div>
@@ -993,6 +1007,8 @@ window.__SOULZ_HOME_MODE = false;
   </section>
 
   <!-- v2.32: entered dimensions immediately below dimension input -->
+  <div class="cut-memo-controls" id="cutMemoControls"><button type="button" id="cutMemoToggle" aria-pressed="false">📝 メモ表示</button><span>共有文と同じ並びで確認</span></div>
+  <div id="cutMemoPanel" class="cut-memo-panel" hidden><div class="cut-memo-heading">カット寸法メモ <button type="button" id="cutMemoCopy">全文コピー</button></div><pre id="cutMemoText"></pre></div>
   <div id="list" class="list"></div>
   <div class="footer-actions"><button class="secondary savejob" id="saveHistoryBtn">履歴に保存</button><button class="secondary" id="historyJumpBtn">履歴を見る</button></div>
 
@@ -1925,6 +1941,28 @@ function renderList(){
   els.list.querySelectorAll('[data-cutdone]').forEach(function(c){c.onclick=function(e){e.stopPropagation()};c.onchange=function(){if(!finishBeforeAction()){c.checked=!c.checked;return}window.__SOULZ_CUT_PROGRESS_OPEN=null;setCutDone(Number(c.dataset.cutdone),!!c.checked)}});renderCutSummary();updateInlineEditChrome();
 }
 /* ===== end v2.32 ===== */
+/* Memo view shares the exact same text formatter as the Share button. */
+var cutMemoMode=false;
+function renderCutMemo(){
+ var toggle=document.getElementById('cutMemoToggle'),panel=document.getElementById('cutMemoPanel'),pre=document.getElementById('cutMemoText');
+ if(!toggle||!panel||!pre)return;
+ var show=cutMemoMode&&!!currentRoom();
+ document.body.classList.toggle('cut-memo-mode',show);
+ toggle.textContent=cutMemoMode?'✂ カット操作へ戻る':'📝 メモ表示';
+ toggle.setAttribute('aria-pressed',cutMemoMode?'true':'false');
+ panel.hidden=!show;
+ if(show)pre.textContent=summaryText();
+}
+var renderListBeforeMemo=renderList;
+renderList=function(){renderListBeforeMemo();renderCutMemo()};
+document.getElementById('cutMemoToggle').addEventListener('click',function(){
+ if(inlineEditId()!=null&&!commitInlineItemEdit(true))return;
+ cutMemoMode=!cutMemoMode;
+ if(cutMemoMode&&typeof setKeypadHidden==='function')setKeypadHidden(true);
+ renderCutMemo();
+});
+document.getElementById('cutMemoCopy').addEventListener('click',copySummary);
+
 
 
 /* v2.58.3 meter baseline wiring fix */
