@@ -876,7 +876,7 @@ window.__SOULZ_HOME_MODE = false;
 </div>
 <div class="app">
   <div class="topbar">
-    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.20</div><div class="top-date" id="topDateLabel"></div></div></div>
+    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.21</div><div class="top-date" id="topDateLabel"></div></div></div>
     <div class="top-actions"><button type="button" class="top-tool-btn" id="topFilesBtn" aria-label="現場ファイル">📁</button><button type="button" class="top-tool-btn" id="topSettingsBtn" aria-label="設定">⚙️</button><button type="button" class="top-tool-btn top-share-btn" id="topShareBtn">共有</button></div>
   </div>
   <div class="setup-note" id="setupNote"><strong>現場タブ:</strong> 現場情報・画像認識・部屋一覧をまとめています。部屋タブでは入力とカット作業に集中できます。‹ › で部屋を送れます。右の「＋」で部屋を追加できます。</div>
@@ -951,7 +951,7 @@ window.__SOULZ_HOME_MODE = false;
 
   <section class="panel entry input-primary"><div class="entry-title"><span>寸法入力</span><small>入力後は下の「追加↵」</small></div>
     <div class="entry-grid">
-      <button class="field active" id="lengthField"><div class="field-label">実寸 長さ</div><div class="field-value"><span id="lengthValue">0</span><small id="lengthUnitLabel">cm</small></div></button>
+      <button class="field active" id="lengthField"><div class="field-label">実寸 長さ <span id="measurementRepeatBadge" style="display:none;margin-left:5px;padding:2px 6px;border-radius:7px;background:#36511d;color:#e7f9ba;font-size:.78rem">R適用中</span></div><div class="field-value"><span id="lengthValue">0</span><small id="lengthUnitLabel">cm</small></div></button>
       <div class="times">×</div>
       <button class="field" id="countField"><div class="field-label">枚数</div><div class="field-value"><span id="countValue">1</span><small>枚</small></div></button>
     </div>
@@ -1474,11 +1474,11 @@ window.__soulzRepeatSearchResult=function(res){
     repeatLookupCandidate=res;
     var cm=roundCm(Number(res.repeatCm));
     var source=(res.sourceName||'ネット検索')+(res.confidence==='official'?' ・ 公式候補':'');
-    setRepeatLookupState('found','候補 <b>'+fmtCm(cm)+'cm</b> を使いますか？',source,[
-      {label:'採用',cls:'adopt',fn:function(){
-        state.repeatOn=true;state.repeatCm=fmtCm(cm);applyRepeatToActiveSection(state.repeatCm,true,true);setRepeatExpanded(true,false);
-        repeatLookupCandidate=null;setRepeatLookupState('found','✓ <b>'+fmtCm(cm)+'cm</b> を採用しました',source,[]);
-        toast('リピート '+fmtCm(cm)+'cm を反映しました')
+    setRepeatLookupState('found','候補 <b>'+fmtCm(cm)+'cm</b>（採寸にはまだ反映されていません）',source,[
+      {label:'採寸に反映',cls:'adopt',fn:function(){
+        snap();state.repeatOn=true;state.repeatCm=fmtCm(cm);state.active='length';applyRepeatToActiveSection(state.repeatCm,true,true);setRepeatExpanded(true,false);
+        repeatLookupCandidate=null;setRepeatLookupState('found','✓ <b>'+fmtCm(cm)+'cm</b> を採寸に反映しました',source,[]);
+        toast('R'+fmtCm(cm)+'cm を採寸に反映しました')
       }},
       {label:'使わない',cls:'reject',fn:function(){hideRepeatLookup();toast('ネット候補は採用しませんでした')}},
       {label:'確認',fn:function(){if(res.sourceUrl&&window.__soulzOpenURL)window.__soulzOpenURL(res.sourceUrl)}}
@@ -1811,6 +1811,7 @@ function setActive(name){
 function renderEntry(){
   els.lengthValue.textContent=(state.length===''?'0':state.length||'0');els.countValue.textContent=(state.count===''?'0':state.count||'1');els.repeatValue.textContent=state.repeatCm||'0';
   els.repeatToggle.textContent=state.repeatOn?'ON':'OFF';els.repeatToggle.classList.toggle('on',state.repeatOn);var rs=$('#repeatStatus');if(rs){rs.textContent=state.repeatOn?('ON '+(state.repeatCm||'0')+'cm'):'OFF';rs.classList.toggle('on',state.repeatOn)}
+  var rb=$('#measurementRepeatBadge');if(rb){var activeRepeat=state.repeatOn&&repeatNumber(state.repeatCm)>0;rb.style.display=activeRepeat?'inline':'none';rb.textContent=activeRepeat?'R'+fmtCm(state.repeatCm)+'cm 適用中':''}
   if(els.undoKey){if(state.active==='repeat'){els.undoKey.textContent='.'}else{els.undoKey.innerHTML='<span>↶</span><small>戻る</small>'}els.undoKey.disabled=state.active==='repeat'?false:!undoStack.length;els.undoKey.classList.toggle('nav-disabled',state.active!=='repeat'&&!undoStack.length);els.undoKey.classList.toggle('blue',state.active==='repeat');els.undoKey.classList.toggle('undo-key',state.active!=='repeat')}
   if(els.redoKey){els.redoKey.disabled=!redoStack.length;els.redoKey.classList.toggle('nav-disabled',!redoStack.length)}
   els.lengthField.classList.toggle('active',state.active==='length');els.countField.classList.toggle('active',state.active==='count');els.repeatField.classList.toggle('active',state.active==='repeat');updateInlineEditChrome();
