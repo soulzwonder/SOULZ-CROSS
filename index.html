@@ -828,6 +828,10 @@ body.light-mode .one-line-item .cut-detail-line{color:#315f43}
 body.light-mode .one-line-item .cut-detail-line span{background:#e4f3e8;border-color:#b6d8bf}
 @media(max-width:390px){.one-line-item .cut-detail-line{margin-left:45px;font-size:.68rem}}
 </style>
+<style id="croppy-cut-mm-unit">
+.one-line-item .cut-unit{font-size:.57em;color:#a9d2ff;font-weight:900;vertical-align:baseline;margin:0 1px 0 2px}
+body.light-mode .one-line-item .cut-unit{color:#195fa9}
+</style>
 </head>
 <body>
 <script>
@@ -900,7 +904,7 @@ window.__SOULZ_HOME_MODE = false;
 </div>
 <div class="app">
   <div class="topbar">
-    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.23</div><div class="top-date" id="topDateLabel"></div></div></div>
+    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.24</div><div class="top-date" id="topDateLabel"></div></div></div>
     <div class="top-actions"><button type="button" class="top-tool-btn" id="topFilesBtn" aria-label="現場ファイル">📁</button><button type="button" class="top-tool-btn" id="topSettingsBtn" aria-label="設定">⚙️</button><button type="button" class="top-tool-btn top-share-btn" id="topShareBtn">共有</button></div>
   </div>
   <div class="setup-note" id="setupNote"><strong>現場タブ:</strong> 現場情報・画像認識・部屋一覧をまとめています。部屋タブでは入力とカット作業に集中できます。‹ › で部屋を送れます。右の「＋」で部屋を追加できます。</div>
@@ -1557,9 +1561,9 @@ function summaryText(){
       lines.push(d.label+(code?'  '+code:''));
       group.forEach(function(x){
         var cut=itemCutCm(x);
-        var main=fmtCm(cut)+'-'+x.count;
+        var main=cutDisplayValue(cut)+(state.inputUnit==='mm'?'mm':'')+'-'+x.count;
         var note='';
-        if(x.repeatCm)note='  ('+fmtCm(x.cm)+' / リピート'+fmtCm(x.repeatCm)+(x.extraPattern?' / ＋1柄':'')+')';
+        if(x.repeatCm)note='  ('+cutDisplayValue(x.cm)+cutDisplayUnit()+' / リピート'+cutDisplayValue(x.repeatCm)+cutDisplayUnit()+(x.extraPattern?' / ＋1柄':'')+')';
         else if(cut!==Number(x.cm))note='  (実寸'+fmtCm(x.cm)+')';
         lines.push(main+note);
       });
@@ -1860,6 +1864,8 @@ function resetField(){
   if(inlineEditId()!=null){window.__SOULZ_INLINE_EDIT_REPLACE_NEXT=false;window.__SOULZ_INLINE_EDIT_DIRTY=true;renderEntry();renderList()}else{renderEntry();saveDraft()}
 }
 function inputLengthToCm(v){var n=parseFloat(v);if(!isFinite(n))return NaN;return roundCm(state.inputUnit==='mm'?n/10:n)}
+function cutDisplayValue(cm){return state.inputUnit==='mm'?fmtCm(Number(cm)*10):fmtCm(cm)}
+function cutDisplayUnit(){return state.inputUnit==='mm'?'mm':'cm'}
 function cmToInputLength(cm){var n=Number(cm)||0;return state.inputUnit==='mm'?String(Math.round(n*10)):fmtCm(n)}
 
 /* v2.58: per-piece +1 pattern option */
@@ -1902,8 +1908,8 @@ function renderList(){
   normalizeProjectState();var room=currentRoom(),arr=room?roomItems(room.id):[],editId=inlineEditId();if(editId!=null&&!arr.some(function(x){return Number(x.id)===editId})){clearInlineEditState(false);editId=null}
   if(!room){els.list.innerHTML='';renderCutSummary();updateInlineEditChrome();return}if(!arr.length){els.list.innerHTML='<div class="empty">'+escText(room.name)+' の内訳はまだありません。<br>施工区分を選んで 長さ → 枚数 → 追加。</div>';renderCutSummary();updateInlineEditChrome();return}
   var idx=0,html='';CATEGORY_DEFS.forEach(function(d){var group=arr.filter(function(x){return x.category===d.key});if(!group.length)return;var product=(room.products&&room.products[d.key]||'').trim();html+='<div class="cut-group-head'+(state.activeCategory===d.key?' active':'')+'"><span>'+d.label+'</span><b>'+(product?escText(product):'品番未入力')+'</b></div>';group.forEach(function(x){
-    idx++;var selected=!workMode&&editId===Number(x.id),cutCount=normalizedCutCount(x);x.cutCount=cutCount;var complete=x.count>0&&cutCount>=x.count,progressOpen=window.__SOULZ_CUT_PROGRESS_OPEN===x.id;var showCm=selected?(state.length===''?'0':state.length):(repeatNumber(x.repeatCm)>0?fmtCm(itemCutCm(x)):fmtCm(x.cm)),showCount=selected?(state.count===''?'0':state.count):x.count;var repeatBadge=x.repeatCm?('<span class="one-line-badge">実寸'+fmtCm(x.cm)+' / R'+fmtCm(x.repeatCm)+'</span>'):'',sourceBadge=x.source==='ocr'?'<span class="one-line-source">📷</span>':'';
-    html+='<div class="item compact-item one-line-item'+(complete?' cut-complete':'')+(selected?' edit-selected':'')+'" data-item-select="'+x.id+'"><div class="one-line-row"><input class="cut-box" type="checkbox" data-cutdone="'+x.id+'" '+(complete?'checked':'')+' aria-label="カット完了"><span class="item-no">#'+idx+'</span><div class="one-line-code"><span class="edit-part'+(selected&&state.active==='length'?' edit-active':'')+'" data-edit-field="length" data-edit-id="'+x.id+'">'+escText(showCm)+'</span><span class="dash">-</span><span class="edit-part'+(selected&&state.active==='count'?' edit-active':'')+'" data-edit-field="count" data-edit-id="'+x.id+'">'+escText(showCount)+'</span></div>'+sourceBadge+'<button class="progress-pill" type="button" data-progress-toggle="'+x.id+'" aria-label="カット進捗を変更">'+cutCount+'/'+x.count+'</button><div class="one-line-actions"><button class="mini" data-minus="'+x.id+'" aria-label="枚数を1減らす">−1</button><button class="mini" data-plus="'+x.id+'" aria-label="枚数を1増やす">＋1</button><button class="mini del" data-del="'+x.id+'" aria-label="この項目を削除">削除</button></div></div><div class="cut-detail-line">'+(x.repeatCm?('<span>採寸 '+fmtCm(x.cm)+'cm ／ R'+fmtCm(x.repeatCm)+'cm</span>'):'<span>採寸 '+fmtCm(x.cm)+'cm</span>')+'</div><div class="one-line-progress'+(progressOpen?' open':'')+'"><input class="cut-range" type="range" min="0" max="'+x.count+'" step="1" value="'+cutCount+'" data-cutrange="'+x.id+'" aria-label="カット進捗"></div></div>'
+    idx++;var selected=!workMode&&editId===Number(x.id),cutCount=normalizedCutCount(x);x.cutCount=cutCount;var complete=x.count>0&&cutCount>=x.count,progressOpen=window.__SOULZ_CUT_PROGRESS_OPEN===x.id;var showCm=selected?(state.length===''?'0':state.length):cutDisplayValue(itemCutCm(x)),showCount=selected?(state.count===''?'0':state.count):x.count;var repeatBadge=x.repeatCm?('<span class="one-line-badge">実寸'+fmtCm(x.cm)+' / R'+fmtCm(x.repeatCm)+'</span>'):'',sourceBadge=x.source==='ocr'?'<span class="one-line-source">📷</span>':'';
+    html+='<div class="item compact-item one-line-item'+(complete?' cut-complete':'')+(selected?' edit-selected':'')+'" data-item-select="'+x.id+'"><div class="one-line-row"><input class="cut-box" type="checkbox" data-cutdone="'+x.id+'" '+(complete?'checked':'')+' aria-label="カット完了"><span class="item-no">#'+idx+'</span><div class="one-line-code"><span class="edit-part'+(selected&&state.active==='length'?' edit-active':'')+'" data-edit-field="length" data-edit-id="'+x.id+'">'+escText(showCm)+'</span>'+(state.inputUnit==='mm'?'<small class="cut-unit">mm</small>':'')+'<span class="dash">-</span><span class="edit-part'+(selected&&state.active==='count'?' edit-active':'')+'" data-edit-field="count" data-edit-id="'+x.id+'">'+escText(showCount)+'</span></div>'+sourceBadge+'<button class="progress-pill" type="button" data-progress-toggle="'+x.id+'" aria-label="カット進捗を変更">'+cutCount+'/'+x.count+'</button><div class="one-line-actions"><button class="mini" data-minus="'+x.id+'" aria-label="枚数を1減らす">−1</button><button class="mini" data-plus="'+x.id+'" aria-label="枚数を1増やす">＋1</button><button class="mini del" data-del="'+x.id+'" aria-label="この項目を削除">削除</button></div></div><div class="cut-detail-line">'+(x.repeatCm?('<span>採寸 '+cutDisplayValue(x.cm)+cutDisplayUnit()+' ／ R'+cutDisplayValue(x.repeatCm)+cutDisplayUnit()+'</span>'):'<span>採寸 '+cutDisplayValue(x.cm)+cutDisplayUnit()+'</span>')+'</div><div class="one-line-progress'+(progressOpen?' open':'')+'"><input class="cut-range" type="range" min="0" max="'+x.count+'" step="1" value="'+cutCount+'" data-cutrange="'+x.id+'" aria-label="カット進捗"></div></div>'
   })});els.list.innerHTML=html;
   els.list.querySelectorAll('[data-item-select]').forEach(function(row){row.onclick=function(e){if(workMode)return;if(e.target.closest('button,input'))return;var f=e.target.dataset&&e.target.dataset.editField?e.target.dataset.editField:'length';beginInlineItemEdit(Number(row.dataset.itemSelect),f)}});
   els.list.querySelectorAll('[data-edit-field]').forEach(function(part){part.onclick=function(e){if(workMode)return;e.stopPropagation();beginInlineItemEdit(Number(part.dataset.editId),part.dataset.editField)}});
