@@ -923,7 +923,7 @@ window.__SOULZ_HOME_MODE = false;
 </div>
 <div class="app">
   <div class="topbar">
-    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.30</div><div class="top-date" id="topDateLabel"></div></div></div>
+    <div class="brand"><button class="logo start-home" id="startHomeBtn" type="button" aria-label="最初の画面へ戻る">← 戻る</button><div><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.58.31</div><div class="top-date" id="topDateLabel"></div></div></div>
     <div class="top-actions"><button type="button" class="top-tool-btn" id="topFilesBtn" aria-label="現場ファイル">📁</button><button type="button" class="top-tool-btn" id="topSettingsBtn" aria-label="設定">⚙️</button><button type="button" class="top-tool-btn top-share-btn" id="topShareBtn">共有</button></div>
   </div>
   <div class="setup-note" id="setupNote"><strong>現場タブ:</strong> 現場情報・画像認識・部屋一覧をまとめています。部屋タブでは入力とカット作業に集中できます。‹ › で部屋を送れます。右の「＋」で部屋を追加できます。</div>
@@ -1673,6 +1673,8 @@ function normalizeProjectRecord(record){
   record.inputUnit=(record.inputUnit==='mm')?'mm':'cm';
   if(!Array.isArray(record.items))record.items=[];
   if(!Array.isArray(record.rooms))record.rooms=[];
+  var legacyRepeatRooms={};
+  record.rooms.forEach(function(r){if(r&&r.id&&(!r.repeats||typeof r.repeats!=='object'))legacyRepeatRooms[String(r.id)]=true});
   record.rooms=record.rooms.map(normalizeRoomObject);
   var legacy=null,roomIds={};
   record.rooms.forEach(function(r){roomIds[r.id]=true});
@@ -1687,7 +1689,7 @@ function normalizeProjectRecord(record){
   });
   /* migrate old projects: infer the section repeat from existing items */
   record.rooms.forEach(function(r){
-    r=normalizeRoomObject(r);
+    if(!legacyRepeatRooms[r.id])return;
     CATEGORY_DEFS.forEach(function(d){
       if(repeatNumber(r.repeats[d.key])>0)return;
       var hit=record.items.find(function(it){return it.roomId===r.id&&it.category===d.key&&repeatNumber(it.repeatCm)>0});
@@ -1701,10 +1703,6 @@ function activeSectionRepeat(){
   r.repeats=Object.assign(freshRepeats(),r.repeats||{});
   var cat=validCategory(state.activeCategory)?state.activeCategory:'wall';
   var rep=repeatNumber(r.repeats[cat]);
-  if(rep<=0){
-    var hit=state.items.find(function(it){return it.roomId===r.id&&it.category===cat&&repeatNumber(it.repeatCm)>0});
-    if(hit){rep=roundCm(repeatNumber(hit.repeatCm));r.repeats[cat]=rep}
-  }
   return rep>0?roundCm(rep):0
 }
 function mergeActiveSectionDuplicates(){
@@ -1913,7 +1911,7 @@ function addItem(){
   if(inlineEditId()!=null){commitInlineItemEdit(false);return}
   normalizeProjectState();var r=currentRoom();if(!r){toast('先に部屋タブを選んでください');return}
   var cm=inputLengthToCm(state.length),count=parseInt(state.count||'1',10);if(!isFinite(cm)||cm<=0){toast('長さを入力してください');setActive('length');return}if(!count||count<=0){toast('枚数を確認してください');setActive('count');return}
-  snap();var cat=validCategory(state.activeCategory)?state.activeCategory:'wall',rep=activeSectionRepeat();if(state.repeatOn&&repeatNumber(state.repeatCm)>0){rep=roundCm(repeatNumber(state.repeatCm));r.repeats[cat]=rep}
+  snap();var cat=validCategory(state.activeCategory)?state.activeCategory:'wall',rep=state.repeatOn?activeSectionRepeat():0;if(state.repeatOn&&repeatNumber(state.repeatCm)>0){rep=roundCm(repeatNumber(state.repeatCm));r.repeats[cat]=rep}
   var same=state.items.find(function(x){return x.roomId===r.id&&x.category===cat&&x.cm===cm&&Number(x.repeatCm||0)===Number(rep||0)&&!!x.extraPattern===(extraPatternEnabled()&&rep>0)});if(same)same.count+=count;else state.items.push({id:Date.now()+Math.random(),cm:cm,count:count,repeatCm:rep,extraPattern:(extraPatternEnabled()&&rep>0),cutCount:0,roomId:r.id,category:cat});
   state.recent=[cm].concat((state.recent||[]).filter(function(x){return x!==cm})).slice(0,8);state.length='';state.count='1';state.active='length';setExtraPattern(false);saveDraft();render();toast(r.name+' / '+categoryLabel(cat)+' に追加')
 }
