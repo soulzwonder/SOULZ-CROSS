@@ -2727,7 +2727,7 @@ function openRoomEditor(mode){
   sheet.classList.add('show');
   sheet.setAttribute('aria-hidden','false');
   document.body.classList.add('body-room-editor-open');
-  if(nextRoomMode){try{input.blur()}catch(e){}}else setTimeout(function(){try{input.focus();input.select()}catch(e){}},80);
+  setTimeout(function(){try{input.focus();input.select()}catch(e){}},80);
 }
 function closeRoomEditor(){
   var sheet=$('#roomEditorSheet');
