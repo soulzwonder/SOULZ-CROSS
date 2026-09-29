@@ -3774,13 +3774,12 @@ function renderWorkAreaTabs(){
   var box=$('#workAreaTabs'),add=$('#workAreaAdd');if(!box)return;
   normalizeProjectState();
   var visible=(state.workAreas||[]).filter(function(a){
-    if(!a)return false;
-    if(isLocationPlaceholderName(a.name)&&!locationNodeHasData(a.id)&&!locationHasChildren(a.id))return false;
+    if(!a||isLocationPlaceholderName(a.name))return false;
     if(locationIsGroup(a))return false;
     return true
   });
   var active=state.workAreas.find(function(a){return a.id===state.activeWorkAreaId});
-  if(active&&!visible.some(function(a){return a.id===active.id}))visible.unshift(active);
+  if(active&&!isLocationPlaceholderName(active.name)&&!visible.some(function(a){return a.id===active.id}))visible.unshift(active);
   box.innerHTML=visible.map(function(a){
     return '<button type="button" class="work-area-tab'+(a.id===state.activeWorkAreaId?' active':'')+'" data-area="'+escText(a.id)+'">'+escText(locationChoiceLabel(visible,a))+'</button>'
   }).join('');
