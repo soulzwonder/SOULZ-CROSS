@@ -4102,6 +4102,84 @@ load();renderSiteReuseOptions();if(state.activeRoomId!=='site')loadRepeatForActi
   if(site)site.onclick=function(){selectProjectTab('site');leave()};
   if(measure)measure.onclick=function(){requestNewDraft(function(){leave();openMeasureForActiveArea()})};
 })();
+(function(){
+  var activePlanTab='schedule';
+  function q(s){return document.querySelector(s)}
+  function qa(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
+  function fmtPlanDate(v){if(!v)return'';var p=String(v).split('-');return p.length===3?(Number(p[1])+'/'+Number(p[2])):String(v)}
+  function planningState(){state.planning=normalizePlanning(state.planning);return state.planning}
+  function planSave(){state.planning=normalizePlanning(state.planning);saveDraft()}
+  function setPlanTab(tab){
+    activePlanTab=tab||'schedule';
+    qa('[data-plan-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.planTab===activePlanTab)});
+    qa('[data-plan-panel]').forEach(function(p){p.classList.toggle('active',p.dataset.planPanel===activePlanTab)})
+  }
+  function renderPlanEvents(){
+    var p=planningState(),box=q('#planEventList');if(!box)return;
+    var arr=p.events.slice().sort(function(a,b){return String(a.date||a.deadline||'9999').localeCompare(String(b.date||b.deadline||'9999'))});
+    if(!arr.length){box.innerHTML='<div class="planning-empty">予定はまだありません。<br>設備屋・大工・クリーニングなどを追加できます。</div>';return}
+    box.innerHTML=arr.map(function(e){
+      return '<div class="planning-event'+(e.done?' done':'')+'" data-plan-event="'+escText(e.id)+'"><input class="planning-check" type="checkbox" data-plan-event-done="'+escText(e.id)+'" '+(e.done?'checked':'')+'><div><div class="planning-event-date">'+escText(fmtPlanDate(e.date)||'日付未定')+'</div><div class="planning-event-title">'+escText(e.title||'予定')+'</div>'+(e.deadline?'<div class="planning-event-deadline">→ '+escText(fmtPlanDate(e.deadline))+'まで</div>':'')+(e.target?'<div class="planning-event-target">'+escText(e.target)+'</div>':'')+'</div><button class="planning-delete" type="button" data-plan-event-del="'+escText(e.id)+'">×</button></div>'
+    }).join('');
+    box.querySelectorAll('[data-plan-event-done]').forEach(function(c){c.onchange=function(){var e=p.events.find(function(x){return x.id===c.dataset.planEventDone});if(e){e.done=!!c.checked;planSave();renderPlanEvents()}}});
+    box.querySelectorAll('[data-plan-event-del]').forEach(function(b){b.onclick=function(){p.events=p.events.filter(function(x){return x.id!==b.dataset.planEventDel});planSave();renderPlanEvents()}});
+  }
+  function renderChecklist(kind,boxSel){
+    var p=planningState(),list=p[kind],box=q(boxSel);if(!box)return;
+    box.innerHTML=list.map(function(x){
+      return '<div class="check-row'+(x.done?' done':'')+'" data-check-id="'+escText(x.id)+'"><input type="checkbox" data-check-done="'+escText(x.id)+'" '+(x.done?'checked':'')+'><div class="check-name">'+escText(x.name)+'</div><input class="check-qty" type="text" data-check-qty="'+escText(x.id)+'" value="'+escText(x.qty||'')+'" placeholder="'+(kind==='materials'?'数量 / メモ':'メモ')+'"><button class="planning-delete" type="button" data-check-del="'+escText(x.id)+'">×</button></div>'
+    }).join('');
+    box.querySelectorAll('[data-check-done]').forEach(function(c){c.onchange=function(){var x=list.find(function(v){return v.id===c.dataset.checkDone});if(x){x.done=!!c.checked;planSave();renderChecklist(kind,boxSel)}}});
+    box.querySelectorAll('[data-check-qty]').forEach(function(i){i.onchange=function(){var x=list.find(function(v){return v.id===i.dataset.checkQty});if(x){x.qty=i.value||'';planSave()}}});
+    box.querySelectorAll('[data-check-del]').forEach(function(b){b.onclick=function(){p[kind]=p[kind].filter(function(x){return x.id!==b.dataset.checkDel});planSave();renderChecklist(kind,boxSel)}});
+  }
+  function renderPlanning(){
+    normalizeProjectState();
+    var p=planningState(),name=(state.jobName||state.customerName||'').trim()||'現場未設定';
+    if(q('#planningSiteName'))q('#planningSiteName').textContent=name;
+    if(q('#planStartDate'))q('#planStartDate').value=state.startDate||'';
+    if(q('#planEndDate'))q('#planEndDate').value=state.endDate||'';
+    renderPlanEvents();renderChecklist('materials','#planMaterialList');renderChecklist('tools','#planToolList');setPlanTab(activePlanTab)
+  }
+  function openPlanning(){
+    var page=q('#planningPage'),landing=q('#startChoice');if(!page)return;
+    if(landing)landing.hidden=true;
+    try{setKeypadHidden(true)}catch(_e){}
+    renderPlanning();page.classList.add('show');page.setAttribute('aria-hidden','false');document.body.classList.add('planning-open')
+  }
+  function closePlanning(){
+    var page=q('#planningPage'),landing=q('#startChoice');if(!page)return;
+    page.classList.remove('show');page.setAttribute('aria-hidden','true');document.body.classList.remove('planning-open');
+    if(landing){renderStartRecent();landing.hidden=false}
+  }
+  var start=q('#startPlanBtn'),back=q('#planningBackBtn');if(start)start.onclick=openPlanning;if(back)back.onclick=closePlanning;
+  qa('[data-plan-tab]').forEach(function(b){b.onclick=function(){setPlanTab(b.dataset.planTab)}});
+  var sd=q('#planStartDate'),ed=q('#planEndDate');
+  if(sd)sd.onchange=function(){state.startDate=sd.value||'';saveDraft()};
+  if(ed)ed.onchange=function(){state.endDate=ed.value||'';saveDraft()};
+  var eventAdd=q('#planEventAdd');
+  if(eventAdd)eventAdd.onclick=function(){
+    var date=(q('#planEventDate')||{}).value||'',title=((q('#planEventTitle')||{}).value||'').trim(),deadline=(q('#planEventDeadline')||{}).value||'',target=((q('#planEventTarget')||{}).value||'').trim();
+    if(!date&&!title&&!deadline&&!target){toast('予定を入力してください');return}
+    var p=planningState();p.events.push({id:planningId('evt'),date:date,title:title||'予定',deadline:deadline,target:target,done:false});
+    ['#planEventDate','#planEventTitle','#planEventDeadline','#planEventTarget'].forEach(function(sel){var e=q(sel);if(e)e.value=''});
+    planSave();renderPlanEvents();toast('予定を追加しました')
+  };
+  function bindAdd(kind,inputSel,boxSel){
+    var input=q(inputSel),btn=q(inputSel+' + button');
+    return function(){
+      var name=(input&&input.value||'').trim();if(!name){toast('名前を入力してください');return}
+      var p=planningState();p[kind].push({id:planningId(kind==='materials'?'mat':'tool'),name:name,qty:'',done:false,preset:false});
+      input.value='';planSave();renderChecklist(kind,boxSel)
+    }
+  }
+  var matAdd=q('#planMaterialAdd'),toolAdd=q('#planToolAdd');
+  if(matAdd)matAdd.onclick=bindAdd('materials','#planMaterialNew','#planMaterialList');
+  if(toolAdd)toolAdd.onclick=bindAdd('tools','#planToolNew','#planToolList');
+  var matNew=q('#planMaterialNew'),toolNew=q('#planToolNew');
+  if(matNew)matNew.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();if(matAdd)matAdd.click()}};
+  if(toolNew)toolNew.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();if(toolAdd)toolAdd.click()}};
+})();
 })();
 </script>
 
@@ -4346,85 +4424,6 @@ load();renderSiteReuseOptions();if(state.activeRoomId!=='site')loadRepeatForActi
   try{render()}catch(_e){}
 })();
 </script>
-<script id="croppy-v26000-planning-script">
-(function(){
-  var activePlanTab='schedule';
-  function q(s){return document.querySelector(s)}
-  function qa(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
-  function fmtPlanDate(v){if(!v)return'';var p=String(v).split('-');return p.length===3?(Number(p[1])+'/'+Number(p[2])):String(v)}
-  function planningState(){state.planning=normalizePlanning(state.planning);return state.planning}
-  function planSave(){state.planning=normalizePlanning(state.planning);saveDraft()}
-  function setPlanTab(tab){
-    activePlanTab=tab||'schedule';
-    qa('[data-plan-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.planTab===activePlanTab)});
-    qa('[data-plan-panel]').forEach(function(p){p.classList.toggle('active',p.dataset.planPanel===activePlanTab)})
-  }
-  function renderPlanEvents(){
-    var p=planningState(),box=q('#planEventList');if(!box)return;
-    var arr=p.events.slice().sort(function(a,b){return String(a.date||a.deadline||'9999').localeCompare(String(b.date||b.deadline||'9999'))});
-    if(!arr.length){box.innerHTML='<div class="planning-empty">予定はまだありません。<br>設備屋・大工・クリーニングなどを追加できます。</div>';return}
-    box.innerHTML=arr.map(function(e){
-      return '<div class="planning-event'+(e.done?' done':'')+'" data-plan-event="'+escText(e.id)+'"><input class="planning-check" type="checkbox" data-plan-event-done="'+escText(e.id)+'" '+(e.done?'checked':'')+'><div><div class="planning-event-date">'+escText(fmtPlanDate(e.date)||'日付未定')+'</div><div class="planning-event-title">'+escText(e.title||'予定')+'</div>'+(e.deadline?'<div class="planning-event-deadline">→ '+escText(fmtPlanDate(e.deadline))+'まで</div>':'')+(e.target?'<div class="planning-event-target">'+escText(e.target)+'</div>':'')+'</div><button class="planning-delete" type="button" data-plan-event-del="'+escText(e.id)+'">×</button></div>'
-    }).join('');
-    box.querySelectorAll('[data-plan-event-done]').forEach(function(c){c.onchange=function(){var e=p.events.find(function(x){return x.id===c.dataset.planEventDone});if(e){e.done=!!c.checked;planSave();renderPlanEvents()}}});
-    box.querySelectorAll('[data-plan-event-del]').forEach(function(b){b.onclick=function(){p.events=p.events.filter(function(x){return x.id!==b.dataset.planEventDel});planSave();renderPlanEvents()}});
-  }
-  function renderChecklist(kind,boxSel){
-    var p=planningState(),list=p[kind],box=q(boxSel);if(!box)return;
-    box.innerHTML=list.map(function(x){
-      return '<div class="check-row'+(x.done?' done':'')+'" data-check-id="'+escText(x.id)+'"><input type="checkbox" data-check-done="'+escText(x.id)+'" '+(x.done?'checked':'')+'><div class="check-name">'+escText(x.name)+'</div><input class="check-qty" type="text" data-check-qty="'+escText(x.id)+'" value="'+escText(x.qty||'')+'" placeholder="'+(kind==='materials'?'数量 / メモ':'メモ')+'"><button class="planning-delete" type="button" data-check-del="'+escText(x.id)+'">×</button></div>'
-    }).join('');
-    box.querySelectorAll('[data-check-done]').forEach(function(c){c.onchange=function(){var x=list.find(function(v){return v.id===c.dataset.checkDone});if(x){x.done=!!c.checked;planSave();renderChecklist(kind,boxSel)}}});
-    box.querySelectorAll('[data-check-qty]').forEach(function(i){i.onchange=function(){var x=list.find(function(v){return v.id===i.dataset.checkQty});if(x){x.qty=i.value||'';planSave()}}});
-    box.querySelectorAll('[data-check-del]').forEach(function(b){b.onclick=function(){p[kind]=p[kind].filter(function(x){return x.id!==b.dataset.checkDel});planSave();renderChecklist(kind,boxSel)}});
-  }
-  function renderPlanning(){
-    normalizeProjectState();
-    var p=planningState(),name=(state.jobName||state.customerName||'').trim()||'現場未設定';
-    if(q('#planningSiteName'))q('#planningSiteName').textContent=name;
-    if(q('#planStartDate'))q('#planStartDate').value=state.startDate||'';
-    if(q('#planEndDate'))q('#planEndDate').value=state.endDate||'';
-    renderPlanEvents();renderChecklist('materials','#planMaterialList');renderChecklist('tools','#planToolList');setPlanTab(activePlanTab)
-  }
-  function openPlanning(){
-    var page=q('#planningPage'),landing=q('#startChoice');if(!page)return;
-    if(landing)landing.hidden=true;
-    try{setKeypadHidden(true)}catch(_e){}
-    renderPlanning();page.classList.add('show');page.setAttribute('aria-hidden','false');document.body.classList.add('planning-open')
-  }
-  function closePlanning(){
-    var page=q('#planningPage'),landing=q('#startChoice');if(!page)return;
-    page.classList.remove('show');page.setAttribute('aria-hidden','true');document.body.classList.remove('planning-open');
-    if(landing){renderStartRecent();landing.hidden=false}
-  }
-  var start=q('#startPlanBtn'),back=q('#planningBackBtn');if(start)start.onclick=openPlanning;if(back)back.onclick=closePlanning;
-  qa('[data-plan-tab]').forEach(function(b){b.onclick=function(){setPlanTab(b.dataset.planTab)}});
-  var sd=q('#planStartDate'),ed=q('#planEndDate');
-  if(sd)sd.onchange=function(){state.startDate=sd.value||'';saveDraft()};
-  if(ed)ed.onchange=function(){state.endDate=ed.value||'';saveDraft()};
-  var eventAdd=q('#planEventAdd');
-  if(eventAdd)eventAdd.onclick=function(){
-    var date=(q('#planEventDate')||{}).value||'',title=((q('#planEventTitle')||{}).value||'').trim(),deadline=(q('#planEventDeadline')||{}).value||'',target=((q('#planEventTarget')||{}).value||'').trim();
-    if(!date&&!title&&!deadline&&!target){toast('予定を入力してください');return}
-    var p=planningState();p.events.push({id:planningId('evt'),date:date,title:title||'予定',deadline:deadline,target:target,done:false});
-    ['#planEventDate','#planEventTitle','#planEventDeadline','#planEventTarget'].forEach(function(sel){var e=q(sel);if(e)e.value=''});
-    planSave();renderPlanEvents();toast('予定を追加しました')
-  };
-  function bindAdd(kind,inputSel,boxSel){
-    var input=q(inputSel),btn=q(inputSel+' + button');
-    return function(){
-      var name=(input&&input.value||'').trim();if(!name){toast('名前を入力してください');return}
-      var p=planningState();p[kind].push({id:planningId(kind==='materials'?'mat':'tool'),name:name,qty:'',done:false,preset:false});
-      input.value='';planSave();renderChecklist(kind,boxSel)
-    }
-  }
-  var matAdd=q('#planMaterialAdd'),toolAdd=q('#planToolAdd');
-  if(matAdd)matAdd.onclick=bindAdd('materials','#planMaterialNew','#planMaterialList');
-  if(toolAdd)toolAdd.onclick=bindAdd('tools','#planToolNew','#planToolList');
-  var matNew=q('#planMaterialNew'),toolNew=q('#planToolNew');
-  if(matNew)matNew.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();if(matAdd)matAdd.click()}};
-  if(toolNew)toolNew.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();if(toolAdd)toolAdd.click()}};
-})();
-</script>
+
 </body>
 </html>
