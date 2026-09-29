@@ -2957,6 +2957,19 @@ function locationChildren(parentId){
   return (state.workAreas||[]).filter(function(a){return (a.parentId==null?null:String(a.parentId))===parentId})
 }
 function locationHasChildren(id){return locationChildren(id).length>0}
+function locationNodeHasData(id){
+  var rooms=(state.rooms||[]).filter(function(r){return r.workAreaId===id});
+  return rooms.some(function(r){
+    var items=roomItems(r.id),products=r.products||{},repeats=r.repeats||{};
+    var configured=Object.keys(products).some(function(k){return String(products[k]||'').trim()})||Object.keys(repeats).some(function(k){return Number(repeats[k])>0});
+    return items.length>0||configured||normalizeRoomName(r.name)!=='未分類'
+  })
+}
+function visibleLocationChildren(parentId){
+  var kids=locationChildren(parentId),real=kids.filter(function(n){return !/^\d+件目$/.test(String(n.name||''))});
+  if(!real.length)return kids;
+  return kids.filter(function(n){return !/^\d+件目$/.test(String(n.name||''))||locationNodeHasData(n.id)||locationHasChildren(n.id)})
+}
 function locationAncestors(id){
   var out=[],seen={},n=locationNode(id),guard=0;
   while(n&&guard++<20&&!seen[n.id]){seen[n.id]=true;out.unshift(n);n=n.parentId?locationNode(n.parentId):null}
@@ -3002,7 +3015,7 @@ function quickSelectLocation(id){
 function renderLocationSiblingTabs(){
   var box=$('#locationSiblingTabs');if(!box)return;
   var active=locationNode(state.activeWorkAreaId),pid=active?(active.parentId||null):null;
-  var siblings=locationChildren(pid).filter(function(n){return !locationHasChildren(n.id)});
+  var siblings=visibleLocationChildren(pid).filter(function(n){return !locationHasChildren(n.id)});
   box.innerHTML=siblings.map(function(n){
     return '<button type="button" class="location-sibling-tab'+(n.id===state.activeWorkAreaId?' active':'')+'" data-location-sibling="'+escText(n.id)+'">'+escText(n.name)+'</button>'
   }).join('')
@@ -3025,7 +3038,7 @@ function renderContextTree(){
   if(root&&document.activeElement!==root)root.value=state.jobName||'';
   if(path)path.textContent=treePathText();
   if(up)up.disabled=contextTreeParentId==null;
-  var kids=locationChildren(contextTreeParentId);
+  var kids=visibleLocationChildren(contextTreeParentId);
   if(choices){
     choices.innerHTML=kids.length?kids.map(function(n){
       var group=locationHasChildren(n.id),current=n.id===state.activeWorkAreaId;
@@ -3050,8 +3063,10 @@ function addLocationNode(parentId,asGroup){
   var input=$('#contextTreeNewName'),name=String(input&&input.value||'').trim();
   if(!name){toast('名前を入力してください');return}
   if(locationChildren(parentId).some(function(n){return n.name===name})){toast('同じ名前があります');return}
-  var id='area_'+Date.now()+'_'+Math.floor(Math.random()*10000);
-  state.workAreas.push({id:id,name:name,parentId:parentId||null});
+  var placeholder=!asGroup&&locationChildren(parentId).find(function(n){return /^\d+件目$/.test(String(n.name||''))&&!locationHasChildren(n.id)&&!locationNodeHasData(n.id)});
+  var id='';
+  if(placeholder){placeholder.name=name;id=placeholder.id}
+  else{id='area_'+Date.now()+'_'+Math.floor(Math.random()*10000);state.workAreas.push({id:id,name:name,parentId:parentId||null})}
   if(input)input.value='';
   if(asGroup){
     contextTreeParentId=id;
