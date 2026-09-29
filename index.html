@@ -3058,7 +3058,7 @@ if(__treeClose)__treeClose.onclick=closeContextPicker;
 if(__treeRoot)__treeRoot.oninput=function(e){state.jobName=e.target.value||'';if(els.jobName)els.jobName.value=state.jobName;saveDraft();renderContextTree();refreshContextSwitch()};
 if(__treeUp)__treeUp.onclick=function(){if(contextTreeParentId==null)return;var n=locationNode(contextTreeParentId);contextTreeParentId=n?(n.parentId||null):null;contextTreeSelectedId=null;renderContextTree()};
 if(__treeAdd)__treeAdd.onclick=function(){addTreeNode(contextTreeParentId)};
-if(__treeAddChild)__treeAddChild.onclick=function(){if(!contextTreeSelectedId)return;addTreeNode(contextTreeSelectedId)};
+if(__treeAddChild)__treeAddChild.onclick=function(){if(!contextTreeSelectedId)return;var parent=contextTreeSelectedId;addTreeNode(parent);contextTreeParentId=parent;renderContextTree()};
 if(__treeUse)__treeUse.onclick=useTreeSelection;
 if(__treeDive)__treeDive.onclick=diveTreeSelection;
 if(__treeSheet)__treeSheet.addEventListener('click',function(e){if(e.target===__treeSheet)closeContextPicker()});
