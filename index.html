@@ -3770,7 +3770,25 @@ function renderProjectTabs(){
 function renderRoomOverview(){var box=$('#roomOverview');if(!box)return;var visible=state.rooms.filter(function(r){return r.workAreaId===state.activeWorkAreaId&&!isQuickCalcRoom(r)});if(!visible.length){box.innerHTML='<div class="room-overview-empty">この作業先にはまだ部屋がありません。上の部屋タブ右の「＋」で追加してください。</div>';return}box.innerHTML=visible.map(function(r){var p=roomProgress(r.id);var txt=roomProductsText(r)||'品番未入力';return'<div class="room-overview-row" data-open-room="'+escText(r.id)+'"><div class="room-overview-main"><div class="room-overview-name">'+escText(r.name)+'</div><div class="room-overview-products">'+escText(txt)+'</div></div><div class="room-overview-progress">'+p.done+'/'+p.total+'枚</div></div>'}).join('');box.querySelectorAll('[data-open-room]').forEach(function(e){e.onclick=function(){selectProjectTab(e.dataset.openRoom)}})}
 
 var workAreaExpanded=false;
-function renderWorkAreaTabs(){var box=$('#workAreaTabs'),add=$('#workAreaAdd');if(!box)return;normalizeProjectState();var wrap=$('#workAreaWrap'),toggle=$('#workAreaToggle');if(wrap)wrap.classList.toggle('expanded',workAreaExpanded);if(toggle){toggle.textContent=(workAreaExpanded?'閉じる':'一覧')+' ('+state.workAreas.length+')';toggle.setAttribute('aria-expanded',String(workAreaExpanded));toggle.onclick=function(){workAreaExpanded=!workAreaExpanded;renderWorkAreaTabs()}}var visible=workAreaExpanded?state.workAreas:state.workAreas.filter(function(a){return a.id===state.activeWorkAreaId});box.innerHTML=visible.map(function(a){return '<button type="button" class="work-area-tab'+(a.id===state.activeWorkAreaId?' active':'')+'" data-area="'+escText(a.id)+'">'+escText(a.name)+'</button>'}).join('');box.querySelectorAll('[data-area]').forEach(function(b){b.onclick=function(){if(b.dataset.area===state.activeWorkAreaId){workAreaExpanded=!workAreaExpanded;renderWorkAreaTabs()}else selectWorkArea(b.dataset.area)}});var edit=$('#workAreaEdit');if(edit)edit.onclick=renameWorkArea;var del=$('#workAreaDelete');if(del){del.disabled=state.workAreas.length<=1;del.onclick=deleteWorkArea}if(add)add.onclick=addWorkArea;}
+function renderWorkAreaTabs(){
+  var box=$('#workAreaTabs'),add=$('#workAreaAdd');if(!box)return;
+  normalizeProjectState();
+  var visible=(state.workAreas||[]).filter(function(a){
+    if(!a)return false;
+    if(isLocationPlaceholderName(a.name)&&!locationNodeHasData(a.id)&&!locationHasChildren(a.id))return false;
+    if(locationIsGroup(a))return false;
+    return true
+  });
+  var active=state.workAreas.find(function(a){return a.id===state.activeWorkAreaId});
+  if(active&&!visible.some(function(a){return a.id===active.id}))visible.unshift(active);
+  box.innerHTML=visible.map(function(a){
+    return '<button type="button" class="work-area-tab'+(a.id===state.activeWorkAreaId?' active':'')+'" data-area="'+escText(a.id)+'">'+escText(locationChoiceLabel(visible,a))+'</button>'
+  }).join('');
+  box.querySelectorAll('[data-area]').forEach(function(b){b.onclick=function(){if(b.dataset.area!==state.activeWorkAreaId)selectWorkArea(b.dataset.area)}});
+  var edit=$('#workAreaEdit');if(edit)edit.onclick=renameWorkArea;
+  var del=$('#workAreaDelete');if(del){del.disabled=visible.length<=1;del.onclick=deleteWorkArea}
+  if(add)add.onclick=addWorkArea
+}
 function deleteWorkArea(){normalizeProjectState();if(state.workAreas.length<=1){toast('最後の作業先は削除できません');return}var id=state.activeWorkAreaId,area=state.workAreas.find(function(a){return a.id===id});if(!area)return;var rooms=state.rooms.filter(function(r){return r.workAreaId===id}),roomIds={};rooms.forEach(function(r){roomIds[r.id]=true});var itemCount=state.items.filter(function(it){return roomIds[it.roomId]}).length;appConfirm('作業先「'+area.name+'」を削除しますか？\n部屋 '+rooms.length+'件・採寸 '+itemCount+'行も削除されます。\n他の作業先と現場情報は残ります。',function(){snap();state.items=state.items.filter(function(it){return !roomIds[it.roomId]});state.rooms=state.rooms.filter(function(r){return r.workAreaId!==id});state.workAreas=state.workAreas.filter(function(a){return a.id!==id});if(state.lastRoomByArea)delete state.lastRoomByArea[id];state.activeWorkAreaId=state.workAreas[0].id;var remembered=state.lastRoomByArea&&state.lastRoomByArea[state.activeWorkAreaId];var nextRoom=state.rooms.find(function(r){return r.id===remembered&&r.workAreaId===state.activeWorkAreaId})||state.rooms.find(function(r){return r.workAreaId===state.activeWorkAreaId});state.activeRoomId=nextRoom?nextRoom.id:'site';repeatLookupLastCode='';hideRepeatLookup();if(state.activeRoomId==='site')setKeypadHidden(true);else loadRepeatForActiveSection();saveDraft();render();toast(area.name+'を削除しました。戻るで復元できます')},{title:'住戸・邸名を削除',okLabel:'削除',danger:true})}
 function openMeasureForActiveArea(){
   normalizeProjectState();
