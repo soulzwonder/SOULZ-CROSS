@@ -3093,6 +3093,7 @@ function ensureRoomForArea(id){
 }
 function quickSelectLocation(id){
   var n=locationNode(id);if(!n||locationIsGroup(n))return;
+  state.activeRoomId='site';
   state.activeWorkAreaId=id;
   var r=ensureRoomForArea(id);state.activeRoomId=r?r.id:'site';
   state.lastRoomByArea=state.lastRoomByArea||{};if(r)state.lastRoomByArea[id]=r.id;
