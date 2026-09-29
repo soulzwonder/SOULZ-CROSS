@@ -4101,19 +4101,6 @@ load();renderSiteReuseOptions();if(state.activeRoomId!=='site')loadRepeatForActi
     input.parentNode.insertBefore(fieldLabel,input);
   }
 
-  var originalOpen=window.openRoomEditor;
-  if(typeof originalOpen==='function'&&!originalOpen.__v25902){
-    var wrapped=function(mode){
-      originalOpen(mode);
-      var label=q('#roomEditorFieldLabel'),inp=q('#roomEditorInput');
-      var areaMode=String(mode||'').indexOf('area-')===0;
-      if(label)label.textContent=areaMode?'場所名':'部屋名';
-      if(inp)inp.placeholder=areaMode?'例）103号室 / 田中邸':'例）寝室 / 和室';
-    };
-    wrapped.__v25902=true;
-    window.openRoomEditor=wrapped;
-  }
-
   try{render()}catch(_e){}
 })();
 </script>
