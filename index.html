@@ -3042,6 +3042,7 @@ function locationChildren(parentId){
   return (state.workAreas||[]).filter(function(a){return (a.parentId==null?null:String(a.parentId))===parentId})
 }
 function locationHasChildren(id){return locationChildren(id).length>0}
+function locationIsGroup(node){return !!(node&&(node.kind==='group'||locationHasChildren(node.id)))}
 function locationNodeHasData(id){
   var rooms=(state.rooms||[]).filter(function(r){return r.workAreaId===id});
   return rooms.some(function(r){
@@ -3090,7 +3091,7 @@ function ensureRoomForArea(id){
   return r
 }
 function quickSelectLocation(id){
-  var n=locationNode(id);if(!n||locationHasChildren(id))return;
+  var n=locationNode(id);if(!n||locationIsGroup(n))return;
   state.activeWorkAreaId=id;
   var r=ensureRoomForArea(id);state.activeRoomId=r?r.id:'site';
   state.lastRoomByArea=state.lastRoomByArea||{};if(r)state.lastRoomByArea[id]=r.id;
@@ -3100,7 +3101,7 @@ function quickSelectLocation(id){
 function renderLocationSiblingTabs(){
   var box=$('#locationSiblingTabs');if(!box)return;
   var active=locationNode(state.activeWorkAreaId),pid=active?(active.parentId||null):null;
-  var siblings=visibleLocationChildren(pid).filter(function(n){return !locationHasChildren(n.id)});
+  var siblings=visibleLocationChildren(pid).filter(function(n){return !locationIsGroup(n)});
   box.innerHTML=siblings.map(function(n){
     return '<button type="button" class="location-sibling-tab'+(n.id===state.activeWorkAreaId?' active':'')+'" data-location-sibling="'+escText(n.id)+'">'+escText(n.name)+'</button>'
   }).join('')
@@ -3129,8 +3130,8 @@ function renderContextTree(){
   }
 
   var kids=visibleLocationChildren(contextTreeParentId);
-  var groups=kids.filter(function(n){return locationHasChildren(n.id)});
-  var dests=kids.filter(function(n){return !locationHasChildren(n.id)});
+  var groups=kids.filter(function(n){return locationIsGroup(n)});
+  var dests=kids.filter(function(n){return !locationIsGroup(n)});
   if(groupSection)groupSection.hidden=!groups.length;
   if(groupChoices)groupChoices.innerHTML=groups.map(function(n){
     return '<button type="button" class="simple-location-choice group" data-location-group="'+escText(n.id)+'">'+escText(n.name)+'</button>'
@@ -3160,10 +3161,10 @@ function addLocationNode(parentId,asGroup){
   var input=$('#contextTreeNewName'),name=String(input&&input.value||'').trim();
   if(!name){toast('名前を入力してください');return}
   if(locationChildren(parentId).some(function(n){return n.name===name})){toast('同じ名前があります');return}
-  var placeholder=!asGroup&&locationChildren(parentId).find(function(n){return isLocationPlaceholderName(n.name)&&!locationHasChildren(n.id)&&!locationNodeHasData(n.id)});
+  var placeholder=!asGroup&&locationChildren(parentId).find(function(n){return isLocationPlaceholderName(n.name)&&!locationIsGroup(n)&&!locationNodeHasData(n.id)});
   var id='';
-  if(placeholder){placeholder.name=name;id=placeholder.id}
-  else{id='area_'+Date.now()+'_'+Math.floor(Math.random()*10000);state.workAreas.push({id:id,name:name,parentId:parentId||null})}
+  if(placeholder){placeholder.name=name;placeholder.kind='destination';id=placeholder.id}
+  else{id='area_'+Date.now()+'_'+Math.floor(Math.random()*10000);state.workAreas.push({id:id,name:name,parentId:parentId||null,kind:asGroup?'group':'destination'})}
   if(input)input.value='';
   if(asGroup){contextTreeParentId=id}
   else{
@@ -3334,13 +3335,15 @@ function normalizeProjectRecord(record){
   record.inputUnit=(record.inputUnit==='mm')?'mm':'cm';
   if(!Array.isArray(record.items))record.items=[];
   if(!Array.isArray(record.rooms))record.rooms=[];
-  if(!Array.isArray(record.workAreas)||!record.workAreas.length)record.workAreas=[{id:'area_1',name:'採寸先未設定',parentId:null}];
+  if(!Array.isArray(record.workAreas)||!record.workAreas.length)record.workAreas=[{id:'area_1',name:'採寸先未設定',parentId:null,kind:'destination'}];
   record.workAreas=record.workAreas.filter(function(a){return a&&a.id}).map(function(a){
-    return{id:String(a.id),name:String(a.name||'').trim()||'採寸先未設定',parentId:a.parentId==null?null:String(a.parentId)}
+    var kind=a.kind==='group'?'group':a.kind==='destination'?'destination':null;
+    return{id:String(a.id),name:String(a.name||'').trim()||'採寸先未設定',parentId:a.parentId==null?null:String(a.parentId),kind:kind}
   });
-  if(!record.workAreas.length)record.workAreas=[{id:'area_1',name:'採寸先未設定',parentId:null}];
+  if(!record.workAreas.length)record.workAreas=[{id:'area_1',name:'採寸先未設定',parentId:null,kind:'destination'}];
   var areaIds={};record.workAreas.forEach(function(a){areaIds[a.id]=true});
   record.workAreas.forEach(function(a){if(a.parentId===a.id||!areaIds[a.parentId])a.parentId=null});
+  record.workAreas.forEach(function(a){if(record.workAreas.some(function(x){return x.parentId===a.id}))a.kind='group';else if(!a.kind)a.kind='destination'});
   if(!record.workAreas.some(function(a){return a.id===record.activeWorkAreaId}))record.activeWorkAreaId=record.workAreas[0].id;
   var legacyRepeatRooms={};
   record.rooms.forEach(function(r){if(r&&r.id&&(!r.repeats||typeof r.repeats!=='object'))legacyRepeatRooms[String(r.id)]=true});
@@ -3465,7 +3468,7 @@ function commitRoomEditor(raw){
     if(roomEditorMode==='area-add'){
       var id='area_'+Date.now()+'_'+Math.floor(Math.random()*10000);
       var parentId=current?current.parentId:null;
-      state.workAreas.push({id:id,name:label,parentId:parentId||null});state.activeWorkAreaId=id;state.activeRoomId='site';
+      state.workAreas.push({id:id,name:label,parentId:parentId||null,kind:'destination'});state.activeWorkAreaId=id;state.activeRoomId='site';
     }else{if(!current)return;current.name=label}
     var added=roomEditorMode==='area-add';closeRoomEditor();saveDraft();render();toast(label+(added?'を追加しました':'に変更しました'));return
   }
