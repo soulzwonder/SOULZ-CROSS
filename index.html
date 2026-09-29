@@ -1561,6 +1561,13 @@ body[data-croppy-theme="dark"] .context-current .context-change{background:#1a34
   .context-current strong{font-size:.78rem!important}
 }
 </style>
+<style id="croppy-v25864-location-readability">
+.context-current strong{white-space:normal!important;line-height:1.35!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important}
+@media(max-width:390px){
+  .context-current{min-height:58px!important}
+  .context-current strong{font-size:.76rem!important}
+}
+</style>
 </head>
 <body data-croppy-theme="blue" class="light-mode">
 <script>
@@ -1669,7 +1676,7 @@ window.__SOULZ_HOME_MODE = false;
   <div class="setup-note" id="setupNote"><strong>現場タブ:</strong> 現場情報・画像認識・部屋一覧をまとめています。部屋タブでは入力とカット作業に集中できます。‹ › で部屋を送れます。右の「＋」で部屋を追加できます。</div>
   <div class="project-tabs-wrap"><button type="button" class="project-tab-fixed project-site-tab" id="projectSiteTab">① 現場情報</button><button type="button" class="project-tab-fixed project-measure-tab" id="projectMeasureTab">採寸・カット</button></div>
   <button type="button" class="context-switch context-current" id="contextSwitch" aria-expanded="false">
-    <span class="context-current-label">今の採寸場所</span>
+    <span class="context-current-label">採寸先</span>
     <strong id="contextSwitchLabel">物件 › 住戸・邸名 › 部屋 › 面</strong>
     <span class="context-change">変更</span>
   </button>
@@ -2996,7 +3003,7 @@ $$('#roomEditorPresets [data-room-preset]').forEach(function(b){
 });
 $('#roomEditorSheet').addEventListener('click',function(e){if(e.target===$('#roomEditorSheet'))closeRoomEditor()});
 
-els.jobName.addEventListener('input',function(e){state.jobName=e.target.value;saveDraft()});var customerNameEl=$('#customerName');if(customerNameEl)customerNameEl.addEventListener('input',function(e){state.customerName=e.target.value;saveDraft()});if(els.address)els.address.addEventListener('input',function(e){state.address=e.target.value;saveDraft()});els.memo.addEventListener('input',function(e){state.memo=e.target.value;saveDraft()});bindSiteDetailFields();$('#productCodeInput').addEventListener('input',function(e){var r=currentRoom();if(!r)return;r.products[state.activeCategory]=(e.target.value||'').toUpperCase();repeatLookupLastCode='';hideRepeatLookup();saveDraft();renderRoomOverview();updateProductRepeatCard();scheduleRepeatLookup()});
+els.jobName.addEventListener('input',function(e){state.jobName=e.target.value;saveDraft();try{refreshContextSwitch()}catch(_e){}});var customerNameEl=$('#customerName');if(customerNameEl)customerNameEl.addEventListener('input',function(e){state.customerName=e.target.value;saveDraft()});if(els.address)els.address.addEventListener('input',function(e){state.address=e.target.value;saveDraft()});els.memo.addEventListener('input',function(e){state.memo=e.target.value;saveDraft()});bindSiteDetailFields();$('#productCodeInput').addEventListener('input',function(e){var r=currentRoom();if(!r)return;r.products[state.activeCategory]=(e.target.value||'').toUpperCase();repeatLookupLastCode='';hideRepeatLookup();saveDraft();renderRoomOverview();updateProductRepeatCard();scheduleRepeatLookup()});
 $('#productCodeInput').addEventListener('change',function(){scheduleRepeatLookup()});
 $$('#inputUnitGroup [data-inputunit]').forEach(function(b){b.addEventListener('click',function(){var next=b.dataset.inputunit==='mm'?'mm':'cm';if(next===state.inputUnit)return;if(state.length){var current=inputLengthToCm(state.length);state.inputUnit=next;state.length=isFinite(current)?cmToInputLength(current):''}else state.inputUnit=next;var p=getSoulzPrefs();p.inputUnit=next;saveSoulzPrefs(p);saveDraft();render();toast('入力単位 '+next)})});$$('#cutAllowanceGroup [data-cutallowance]').forEach(function(b){b.addEventListener('click',function(){snap();state.cutAllowanceCm=Number(b.dataset.cutallowance);var p=getSoulzPrefs();p.cutAllowanceCm=state.cutAllowanceCm;saveSoulzPrefs(p);saveDraft();render();toast('切りしろ '+(state.cutAllowanceCm>0?fmtCm(state.cutAllowanceCm)+'cm':'なし'));var d=q('#cutAllowanceDetails');if(d)d.open=false})});var cutCustom=$('#cutAllowanceCustom');if(cutCustom)cutCustom.addEventListener('click',function(){appNumberPrompt('切りしろを入力','上下合計の切りしろをcmで入力してください（0〜30cm）',fmtCm(cutAllowanceCm()),function(v){var n=Number(String(v||'').replace(/[^0-9.]/g,''));if(!isFinite(n)||n<0||n>30){toast('0〜30cmで入力してください');return}snap();state.cutAllowanceCm=roundCm(n);var p=getSoulzPrefs();p.cutAllowanceCm=state.cutAllowanceCm;saveSoulzPrefs(p);saveDraft();render();toast('切りしろ '+(state.cutAllowanceCm>0?fmtCm(state.cutAllowanceCm)+'cm':'なし'));var d=$('#cutAllowanceDetails');if(d)d.open=false},{min:0,max:30,step:0.1,okLabel:'決定'})});
 $('#repeatLookupBtn').addEventListener('click',function(){requestRepeatLookup(true)});$('#renameRoomBtn').addEventListener('click',renameCurrentRoom);$('#deleteRoomBtn').addEventListener('click',deleteCurrentRoom);$$('#wasteGroup .chip').forEach(function(b){b.addEventListener('click',function(){state.waste=Number(b.dataset.waste);saveDraft();render()})});
@@ -3280,7 +3287,7 @@ load();renderSiteReuseOptions();if(state.activeRoomId!=='site')loadRepeatForActi
     <div class="settings-top"><div class="settings-titlebar"><div><div class="settings-title">使い方</div><div class="subtitle">分からない時だけここを見ればOK</div></div><button class="settings-close" id="appHelpClose">閉じる</button></div></div>
 
     <div class="help-flow">現場 → 採寸場所 → 品番・リピート → 採寸 → カット → 発注</div>
-    <details class="help-card" open><summary>採寸場所</summary><div>「今の採寸場所」の変更を押して、①物件 → ②住戸・邸名 → ③部屋 → ④面の順に選びます。例：○×マンション → 103号室 → 洗面 → 壁。戸建 → 田中邸 → 洗面 → 壁。</div></details>
+    <details class="help-card" open><summary>採寸場所</summary><div>「採寸先」の変更を押して、①物件 → ②住戸・邸名 → ③部屋 → ④面の順に選びます。例：○×マンション → 103号室 → 洗面 → 壁。戸建 → 田中邸 → 洗面 → 壁。</div></details>
 
     <details class="help-card"><summary>採寸</summary><div>長さを入力して、枚数を選び、追加します。次の寸法も同じ流れで続けます。</div></details>
     <details class="help-card"><summary>品番・リピート</summary><div>柄物や品番が分かる時に設定します。未設定の時は青く目立ちます。品番から自動検索するか、リピート幅を手入力できます。</div></details>
