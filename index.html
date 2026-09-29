@@ -3652,6 +3652,8 @@ function openRoomEditor(mode){
   var sheet=$('#roomEditorSheet'),input=$('#roomEditorInput'),title=$('#roomEditorTitle'),confirmBtn=$('#roomEditorConfirm');
   if(!sheet||!input)return;
   var areaMode=roomEditorMode.indexOf('area-')===0;
+  var fieldLabel=$('#roomEditorFieldLabel');
+  if(fieldLabel)fieldLabel.textContent=areaMode?'場所名':'部屋名';
   var presets=$('#roomEditorPresets'),help=sheet.querySelector('.room-editor-help');
   if(presets)presets.style.display=areaMode?'none':'';
   if(help)help.style.display=areaMode?'none':'';
@@ -3660,7 +3662,7 @@ function openRoomEditor(mode){
   var area=state.workAreas.find(function(a){return a.id===state.activeWorkAreaId});
   title.textContent=areaMode?(roomEditorMode==='area-rename'?'住戸・邸名を変更':'住戸・邸名を追加'):(roomEditorMode==='rename'?'部屋名を変更':'部屋を追加');
   confirmBtn.textContent=(roomEditorMode==='rename'||roomEditorMode==='area-rename')?'変更する':'追加する';
-  input.placeholder=areaMode?'例：103号室、田中邸':'部屋名を入力';
+  input.placeholder=areaMode?'例）103号室 / 田中邸':'例）寝室 / 和室';
   input.value=roomEditorMode==='area-rename'&&area?area.name:roomEditorMode==='area-add'?'':roomEditorMode==='rename'&&r?r.name:'';
   sheet.classList.add('show');
   sheet.setAttribute('aria-hidden','false');
