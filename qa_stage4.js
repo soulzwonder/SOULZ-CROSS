@@ -143,7 +143,7 @@
 
   
   check('Active input is semantic red',html.includes('id="croppy-v26309-active-extra"')&&html.includes('background:#d93645!important')&&html.includes('border-color:#d93645!important'));
-  check('Extra pattern button has explicit ON state',html.includes("b.textContent=extraPatternOn?'＋1柄 ON':'＋1柄'")&&html.includes("toast('＋1柄 ON：次に追加する採寸へ反映')"));
+  check('Extra pattern button has explicit ON state',html.includes("b.textContent=extraPatternOn?'＋1柄 ON':'＋1柄'")&&html.includes("＋1柄 ON：次に追加する採寸へ反映")&&html.includes("＋1柄 ON：編集中の採寸へ反映"));
   check('Extra pattern uses JS event binding',html.includes("extraPatternBtn.addEventListener('click'")&&!html.includes('id="extraPatternBtn" class="extra-pattern-btn" aria-pressed="false" onclick='));
   try{
     const cut=makeFn('itemCutCm',{itemBaseCutCm:x=>Number(x.cm||0),repeatNumber:x=>Number(x)||0,roundCm:x=>Math.round(Number(x)*100)/100});
@@ -162,7 +162,7 @@
     const state={length:'100',count:'1',recent:[]};
     let snapshot=false,rendered=false;
     const commit=makeFn('commitInlineItemEdit',{
-      inlineEditItem:()=>it,clearInlineEditState:()=>{},inputLengthToCm:v=>Number(v),toast:()=>{},setActive:()=>{},
+      state,inlineEditItem:()=>it,clearInlineEditState:()=>{},inputLengthToCm:v=>Number(v),toast:()=>{},setActive:()=>{},
       roundCm:v=>Number(v),repeatNumber:v=>Number(v)||0,extraPatternEnabled:()=>true,
       pushInlineEditUndoSnapshot:()=>{snapshot=true},normalizedCutCount:()=>0,setExtraPattern:()=>{},saveDraft:()=>{},render:()=>{rendered=true}
     });
