@@ -28,16 +28,16 @@ jobs:
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_iPhone_v2.63.16_REPEAT_THEME_COLORS
+          name: CROPPY_iPhone_v2.63.17_RECENT_EDIT_ISOLATION
           path: |
-            CROPPY_iPhone_v2.63.16.js
+            CROPPY_iPhone_v2.63.17.js
             QA_REPORT.txt
           if-no-files-found: error
           retention-days: 30
       - name: Android-Web package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_Android_Web_v2.63.16_REPEAT_THEME_COLORS
+          name: CROPPY_Android_Web_v2.63.17_RECENT_EDIT_ISOLATION
           path: |
             index.html
             manifest.webmanifest
