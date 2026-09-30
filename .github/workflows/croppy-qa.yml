@@ -7,10 +7,19 @@ on:
 permissions:
   contents: read
 
+# ChatGPTなどから短時間に複数ファイルを順番に更新した場合、
+# 途中commitのQAを打ち切り、最後のpushだけを検証する。
+concurrency:
+  group: croppy-qa-main
+  cancel-in-progress: true
+
 jobs:
   qa-package:
     runs-on: ubuntu-latest
     steps:
+      - name: Debounce rapid pushes
+        if: github.event_name == 'push'
+        run: sleep 45
       - uses: actions/checkout@v4
       - name: Regression and behavior QA
         run: node qa_stage4.js
