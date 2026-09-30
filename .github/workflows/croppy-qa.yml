@@ -28,16 +28,16 @@ jobs:
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_iPhone_v2.63.14_THEME_TABS_RECENT_CHIPS
+          name: CROPPY_iPhone_v2.63.15_REPEAT_BUTTON_ACTIVE
           path: |
-            CROPPY_iPhone_v2.63.14.js
+            CROPPY_iPhone_v2.63.15.js
             QA_REPORT.txt
           if-no-files-found: error
           retention-days: 30
       - name: Android-Web package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_Android_Web_v2.63.14_THEME_TABS_RECENT_CHIPS
+          name: CROPPY_Android_Web_v2.63.15_REPEAT_BUTTON_ACTIVE
           path: |
             index.html
             manifest.webmanifest
