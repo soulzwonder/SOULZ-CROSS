@@ -209,7 +209,7 @@
   check('Repeat controls follow theme colors',html.includes('id="croppy-v26316-repeat-theme-colors"')&&html.includes('.product-repeat-search')&&html.includes('color-mix(in srgb,var(--ct-accent) 6%,#fff)'));
   check('Repeat active red still wins',html.includes('#repeatManualBtn.input-active')&&html.includes('background:#fff1f2!important')&&html.includes('border:2px solid #d93645!important'));
 
-  check('Cut meter explains checkbox relationship',html.includes('✂ カット進捗')&&html.includes('✓を付けた長さを自動集計')&&html.includes('ここから作業開始')&&html.includes('開始後に✓した分'));
+  check('Cut meter explains checkbox relationship',html.includes('✂ カット進捗')&&html.includes('✓を付けた長さを自動集計')&&html.includes('ここからカット開始')&&html.includes('開始後に✓した分'));
   check('Cut checkbox follows theme',html.includes('id="croppy-v26318-cut-meter-link"')&&html.includes('.cut-box:checked')&&html.includes('background:var(--ct-accent)!important'));
   check('Inline edit uses semantic red',html.includes('.one-line-item.edit-selected .edit-part.edit-active')&&html.includes('background:#d93645!important'));
   check('Meter button state updates',activeFunction('renderMeterProgress').includes("btn.textContent='ここからカット開始'")&&activeFunction('renderMeterProgress').includes("btn.textContent='開始点を更新'"));
