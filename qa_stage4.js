@@ -1,11 +1,11 @@
 (function qaMain(){
   const fs=require('fs');
-  const VERSION='v2.63.18';
+  const VERSION='v2.63.19';
   const html=fs.readFileSync('index.html','utf8');
   const sw=fs.readFileSync('sw.js','utf8');
   const manifest=fs.readFileSync('manifest.webmanifest','utf8');
   const server=fs.readFileSync('server.js','utf8');
-  const iphone=fs.readFileSync('CROPPY_iPhone_v2.63.18.js','utf8');
+  const iphone=fs.readFileSync('CROPPY_iPhone_v2.63.19.js','utf8');
   const checks=[];
   const check=(name,ok,detail='')=>checks.push({name,ok:!!ok,detail});
   function extractFunctions(src,name){
@@ -32,8 +32,8 @@
     const keys=Object.keys(deps),vals=keys.map(k=>deps[k]);
     return Function(...keys,'return ('+src+');')(...vals);
   }
-  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.63.18</title>'));
-  check('Visible version',html.includes('クロッピー / v2.63.18'));
+  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.63.19</title>'));
+  check('Visible version',html.includes('クロッピー / v2.63.19'));
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),syntaxErr=[];
   scripts.forEach((s,i)=>{try{new Function(s)}catch(e){syntaxErr.push('script'+(i+1)+':'+e.message)}});
   check('HTML embedded JS syntax',syntaxErr.length===0,syntaxErr.join(' | '));
@@ -131,7 +131,7 @@
   try{
     const start=iphone.indexOf('var b64 = '),end=iphone.indexOf(';\nvar htmlData',start),expr=iphone.slice(start+'var b64 = '.length,end);
     const chunks=[...expr.matchAll(/'([^']*)'/g)].map(m=>m[1]),embedded=Buffer.from(chunks.join(''),'base64').toString('utf8');
-    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.63.18</title>')&&embedded.includes('クロッピー / v2.63.18'));
+    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.63.19</title>')&&embedded.includes('クロッピー / v2.63.19'));
     check('iPhone embedded home flow',['⚡ すぐ計算','📐 現場を開く','📋 予定・準備'].every(s=>embedded.includes(s)));
     check('iPhone embedded quick separation',embedded.includes('quickCalcByArea')&&embedded.includes('function realProjectItems()'));
     check('iPhone native bridge',embedded.includes('soulz-save://')&&embedded.includes('soulz-repeat://search')&&embedded.includes('soulz-share://summary'));
@@ -212,15 +212,18 @@
   check('Cut meter explains checkbox relationship',html.includes('✂ カット進捗')&&html.includes('✓を付けた長さを自動集計')&&html.includes('ここから作業開始')&&html.includes('開始後に✓した分'));
   check('Cut checkbox follows theme',html.includes('id="croppy-v26318-cut-meter-link"')&&html.includes('.cut-box:checked')&&html.includes('background:var(--ct-accent)!important'));
   check('Inline edit uses semantic red',html.includes('.one-line-item.edit-selected .edit-part.edit-active')&&html.includes('background:#d93645!important'));
-  check('Meter button state updates',activeFunction('renderMeterProgress').includes("btn.textContent='ここから作業開始'")&&activeFunction('renderMeterProgress').includes("btn.textContent='開始点を更新'"));
+  check('Meter button state updates',activeFunction('renderMeterProgress').includes("btn.textContent='ここからカット開始'")&&activeFunction('renderMeterProgress').includes("btn.textContent='開始点を更新'"));
+  check('Per-row cut status label present',activeFunction('renderList').includes('cut-state-label')&&activeFunction('renderList').includes("complete?'済':'未'")&&activeFunction('renderList').includes("カット '+cutCount+'/'+x.count"));
+  check('Cut progress live label stays explicit',activeFunction('renderList').includes("pill.textContent='カット '+it.cutCount+'/'+it.count"));
+  check('Cut row status follows theme',html.includes('id="croppy-v26319-cut-row-status"')&&html.includes('.cut-box:checked + .cut-state-label'));
 
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-63-18'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-v2-63-19'));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
-  const lines=['CROSS GPT クロッピー '+VERSION+' CUT METER LINK - QA REPORT','','変更:','- 入力・描画・OCR系の旧上書き関数も legacy_ へ退避','- 現場操作の正規関数を単一定義化し、クイック計算分離を維持','- テンキー枚数入力、クイック追加、計算、iPhone埋め込みHTMLの動作QAを実施','','自動検証:'];
+  const lines=['CROSS GPT クロッピー '+VERSION+' CUT ROW STATUS - QA REPORT','','変更:','- 入力・描画・OCR系の旧上書き関数も legacy_ へ退避','- 現場操作の正規関数を単一定義化し、クイック計算分離を維持','- テンキー枚数入力、クイック追加、計算、iPhone埋め込みHTMLの動作QAを実施','','自動検証:'];
   for(const c of checks)lines.push('- '+c.name+': '+(c.ok?'PASS':'FAIL')+(c.detail?' ('+c.detail+')':''));
   lines.push('','残る重複関数: '+remaining.length+'種類','残る重複はIIFE内のローカル補助関数 q / qa と、別スコープの fallbackCopy のみ。','','注意:','- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。','- 外部品番検索はネットワーク先の応答に依存。','');
   fs.writeFileSync('QA_REPORT.txt',lines.join('\n'));console.log(lines.join('\n'));
