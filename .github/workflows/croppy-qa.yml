@@ -1,0 +1,39 @@
+name: CROPPY QA and Packages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regression QA
+        run: node qa_stage4.js
+      - name: iPhone package
+        uses: actions/upload-artifact@v4
+        with:
+          name: CROPPY_iPhone_v2.63.03_STAGE4_PASS2
+          path: |
+            CROPPY_iPhone_v2.63.03.js
+            QA_REPORT.txt
+          if-no-files-found: error
+          retention-days: 30
+      - name: Android-Web package
+        uses: actions/upload-artifact@v4
+        with:
+          name: CROPPY_Android_Web_v2.63.03_STAGE4_PASS2
+          path: |
+            index.html
+            manifest.webmanifest
+            sw.js
+            server.js
+            icon-192.png
+            icon-512.png
+            QA_REPORT.txt
+          if-no-files-found: error
+          retention-days: 30
