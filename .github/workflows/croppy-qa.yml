@@ -12,21 +12,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Regression QA
+      - name: Regression and behavior QA
         run: node qa_stage4.js
+      - name: API server smoke test
+        run: |
+          node server.js > /tmp/croppy-server.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID || true" EXIT
+          for i in 1 2 3 4 5; do
+            sleep 1
+            if curl -fsS http://127.0.0.1:10000/health | grep -q '^ok$'; then exit 0; fi
+          done
+          cat /tmp/croppy-server.log
+          exit 1
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_iPhone_v2.63.03_STAGE4_PASS2
+          name: CROPPY_iPhone_v2.63.04_STAGE4_PASS3
           path: |
-            CROPPY_iPhone_v2.63.03.js
+            CROPPY_iPhone_v2.63.04.js
             QA_REPORT.txt
           if-no-files-found: error
           retention-days: 30
       - name: Android-Web package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_Android_Web_v2.63.03_STAGE4_PASS2
+          name: CROPPY_Android_Web_v2.63.04_STAGE4_PASS3
           path: |
             index.html
             manifest.webmanifest

@@ -1,33 +1,16 @@
-CROSS GPT クロッピー v2.63.03 STAGE4 PASS2 - QA REPORT
+CROSS GPT クロッピー v2.63.04 STAGE4 PASS3 - PRE-RELEASE QA
 
 変更:
-- 第4段階 cleanup Pass 2
-- 旧リピート重複ヘルパー2系統を legacy 化し、実行中の正規関数を1系統へ整理
-- 自動回帰QAを追加
-- iPhone Scriptable版をWeb最新版と同じUI/ロジックへ更新
+- 履歴・保存・採寸データ層の旧上書き関数を legacy_ 化
+- 正規関数を単一定義化
+- QAに計算・クイック分離・iPhone埋め込みHTMLの動作テストを追加
+- API server health smoke testを追加
 
-自動検証:
-- Version title: PASS
-- Visible version: PASS
-- HTML embedded JS syntax: PASS
-- Service worker syntax: PASS
-- Manifest JSON: PASS
-- Server JS syntax: PASS
+- Critical single definitions: PASS
+- HTML JS syntax: PASS
+- SW syntax: PASS
+- Server syntax: PASS
 - iPhone Scriptable syntax: PASS
-- Duplicate HTML IDs: PASS
-- Required UI IDs: PASS
-- Internal hierarchy words hidden: PASS
-- Home 3 actions: PASS
-- Quick store separated: PASS
-- Legacy quick migration: PASS
-- Pass2 legacy helpers: PASS
-- One active repeat merge helper: PASS
-- One active repeat apply helper: PASS
-- SW cache version: PASS
-- iPhone same release UI: PASS
-- iPhone native persistence bridge: PASS
-
-注意:
-- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。
-- 外部品番検索はネットワーク先の応答に依存。
-- 公開はRenderのlive deployを別途確認する。
+- Home flow: PASS
+- Quick separation: PASS
+- Version: PASS
