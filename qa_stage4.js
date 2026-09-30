@@ -1,11 +1,11 @@
 (function qaMain(){
   const fs=require('fs');
-  const VERSION='v2.63.16';
+  const VERSION='v2.63.17';
   const html=fs.readFileSync('index.html','utf8');
   const sw=fs.readFileSync('sw.js','utf8');
   const manifest=fs.readFileSync('manifest.webmanifest','utf8');
   const server=fs.readFileSync('server.js','utf8');
-  const iphone=fs.readFileSync('CROPPY_iPhone_v2.63.16.js','utf8');
+  const iphone=fs.readFileSync('CROPPY_iPhone_v2.63.17.js','utf8');
   const checks=[];
   const check=(name,ok,detail='')=>checks.push({name,ok:!!ok,detail});
   function extractFunctions(src,name){
@@ -32,8 +32,8 @@
     const keys=Object.keys(deps),vals=keys.map(k=>deps[k]);
     return Function(...keys,'return ('+src+');')(...vals);
   }
-  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.63.16</title>'));
-  check('Visible version',html.includes('クロッピー / v2.63.16'));
+  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.63.17</title>'));
+  check('Visible version',html.includes('クロッピー / v2.63.17'));
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),syntaxErr=[];
   scripts.forEach((s,i)=>{try{new Function(s)}catch(e){syntaxErr.push('script'+(i+1)+':'+e.message)}});
   check('HTML embedded JS syntax',syntaxErr.length===0,syntaxErr.join(' | '));
@@ -131,7 +131,7 @@
   try{
     const start=iphone.indexOf('var b64 = '),end=iphone.indexOf(';\nvar htmlData',start),expr=iphone.slice(start+'var b64 = '.length,end);
     const chunks=[...expr.matchAll(/'([^']*)'/g)].map(m=>m[1]),embedded=Buffer.from(chunks.join(''),'base64').toString('utf8');
-    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.63.16</title>')&&embedded.includes('クロッピー / v2.63.16'));
+    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.63.17</title>')&&embedded.includes('クロッピー / v2.63.17'));
     check('iPhone embedded home flow',['⚡ すぐ計算','📐 現場を開く','📋 予定・準備'].every(s=>embedded.includes(s)));
     check('iPhone embedded quick separation',embedded.includes('quickCalcByArea')&&embedded.includes('function realProjectItems()'));
     check('iPhone native bridge',embedded.includes('soulz-save://')&&embedded.includes('soulz-repeat://search')&&embedded.includes('soulz-share://summary'));
@@ -164,7 +164,7 @@
     const commit=makeFn('commitInlineItemEdit',{
       state,inlineEditItem:()=>it,clearInlineEditState:()=>{},inputLengthToCm:v=>Number(v),toast:()=>{},setActive:()=>{},
       roundCm:v=>Number(v),repeatNumber:v=>Number(v)||0,extraPatternEnabled:()=>true,
-      pushInlineEditUndoSnapshot:()=>{snapshot=true},normalizedCutCount:()=>0,setExtraPattern:()=>{},saveDraft:()=>{},render:()=>{rendered=true}
+      pushInlineEditUndoSnapshot:()=>{snapshot=true},normalizedCutCount:()=>0,rememberRecentLength:()=>{},setExtraPattern:()=>{},saveDraft:()=>{},render:()=>{rendered=true}
     });
     const ok=commit(false);
     check('Behavior: editing can add +1 pattern',ok===true&&it.extraPattern===true&&snapshot&&rendered,JSON.stringify(it));
@@ -181,6 +181,8 @@
   
   check('Quick buttons use only entered lengths',html.includes('function activeRecentLengthsStore()')&&html.includes('function rememberRecentLength(cm)')&&!html.includes('var base=[90,180,240,250,270,300]'));
   check('Site recent shared and quick isolated',html.includes("if(isQuickCalcRoom(r)){if(!Array.isArray(r.recent))r.recent=[];return r.recent}")&&html.includes('q.recent=Array.isArray(q.recent)'));
+  check('Inline edit uses shared recent helper',activeFunction('commitInlineItemEdit').includes('rememberRecentLength(cm)')&&!activeFunction('commitInlineItemEdit').includes('state.recent='));
+  check('Render keeps repeat manual active chrome synced',activeFunction('renderEntry').includes("repeatManual.classList.toggle('input-active',state.active==='repeat')")&&activeFunction('renderEntry').includes("repeatManual.setAttribute('aria-pressed',state.active==='repeat'?'true':'false')"));
   check('New site clears length shortcuts',html.includes("recent:[],repeatOn:false"));
   check('Repeat manual button gets red active state',html.includes('#repeatManualBtn.input-active')&&html.includes("repeatManual.classList.toggle('input-active',name==='repeat')"));
   try{
@@ -213,7 +215,7 @@
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
-  const lines=['CROSS GPT クロッピー '+VERSION+' REPEAT THEME COLORS - QA REPORT','','変更:','- 入力・描画・OCR系の旧上書き関数も legacy_ へ退避','- 現場操作の正規関数を単一定義化し、クイック計算分離を維持','- テンキー枚数入力、クイック追加、計算、iPhone埋め込みHTMLの動作QAを実施','','自動検証:'];
+  const lines=['CROSS GPT クロッピー '+VERSION+' RECENT EDIT ISOLATION - QA REPORT','','変更:','- 入力・描画・OCR系の旧上書き関数も legacy_ へ退避','- 現場操作の正規関数を単一定義化し、クイック計算分離を維持','- テンキー枚数入力、クイック追加、計算、iPhone埋め込みHTMLの動作QAを実施','','自動検証:'];
   for(const c of checks)lines.push('- '+c.name+': '+(c.ok?'PASS':'FAIL')+(c.detail?' ('+c.detail+')':''));
   lines.push('','残る重複関数: '+remaining.length+'種類','残る重複はIIFE内のローカル補助関数 q / qa と、別スコープの fallbackCopy のみ。','','注意:','- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。','- 外部品番検索はネットワーク先の応答に依存。','');
   fs.writeFileSync('QA_REPORT.txt',lines.join('\n'));console.log(lines.join('\n'));
