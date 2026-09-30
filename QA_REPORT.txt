@@ -1,17 +1,8 @@
-CROSS GPT クロッピー v2.63.05 STAGE4 PASS4 - PRE-RELEASE QA
+CROSS GPT クロッピー v2.63.06 CLEAN THEME - PRE-RELEASE QA
 
 変更:
-- 入力・描画・OCR系の旧上書き関数を legacy_ 化
-- 現場操作の正規関数を単一定義化
-- 「このこの場所」表示誤字を修正
-- テンキー/クイック追加の動作QAを追加
-
-- HTML JS syntax: PASS
-- SW syntax: PASS
-- Server syntax: PASS
-- iPhone Scriptable syntax: PASS
-- Pass4 active single definitions: PASS
-- Only scoped duplicates remain: PASS ([["fallbackCopy",2],["q",5],["qa",2]])
-- UI typo fixed: PASS
-- Quick separation: PASS
-- Home flow: PASS
+- 背景色を全テーマでほぼ白レベルの薄い色へ調整
+- 長さ/枚数の固定青・黄配色を廃止しテーマ色へ統一
+- 「入力中」をテーマ色の高視認バッジへ変更
+- テンキー全体をテーマ連動、数字キーは明るく、追加ボタンは強調
+- iPhone版も同一HTMLから再生成
