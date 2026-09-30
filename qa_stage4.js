@@ -100,7 +100,7 @@
     const state={length:'250',count:'2',activeCategory:'wall',repeatOn:false,repeatCm:'',recent:[],active:'length'};
     const quick={id:'quick::area_1',name:'計算だけ',quickCalc:true,repeats:{wall:0},items:[]};
     const addItem=makeFn('addItem',{
-      state,inlineEditId:()=>null,commitInlineItemEdit:()=>{},normalizeProjectState:()=>{},currentRoom:()=>quick,inputLengthToCm:v=>Number(v),setActive:()=>{},toast:()=>{},snap:()=>{},validCategory:c=>c==='wall',activeSectionRepeat:()=>0,repeatNumber:v=>Number(v)||0,roundCm:v=>Math.round(v*100)/100,itemStoreForRoom:r=>r.items,extraPatternEnabled:()=>false,setExtraPattern:()=>{},saveDraft:()=>{},render:()=>{},categoryLabel:c=>c
+      state,inlineEditId:()=>null,commitInlineItemEdit:()=>{},normalizeProjectState:()=>{},currentRoom:()=>quick,inputLengthToCm:v=>Number(v),setActive:()=>{},toast:()=>{},snap:()=>{},validCategory:c=>c==='wall',activeSectionRepeat:()=>0,repeatNumber:v=>Number(v)||0,roundCm:v=>Math.round(v*100)/100,itemStoreForRoom:r=>r.items,extraPatternEnabled:()=>false,setExtraPattern:()=>{},rememberRecentLength:cm=>{quick.recent=[cm]},saveDraft:()=>{},render:()=>{},categoryLabel:c=>c
     });
     addItem();
     check('Behavior: quick add stays in quick store',quick.items.length===1&&quick.items[0].cm===250&&quick.items[0].count===2&&quick.items[0].roomId==='quick::area_1'&&state.length===''&&state.count==='1',JSON.stringify(quick.items));
