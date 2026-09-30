@@ -209,7 +209,7 @@
   check('Repeat controls follow theme colors',html.includes('id="croppy-v26316-repeat-theme-colors"')&&html.includes('.product-repeat-search')&&html.includes('color-mix(in srgb,var(--ct-accent) 6%,#fff)'));
   check('Repeat active red still wins',html.includes('#repeatManualBtn.input-active')&&html.includes('background:#fff1f2!important')&&html.includes('border:2px solid #d93645!important'));
 
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-63-16'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-v2-63-17'));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
