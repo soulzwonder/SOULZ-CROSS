@@ -122,7 +122,7 @@
     check('iPhone embedded quick separation',embedded.includes('quickCalcByArea')&&embedded.includes('function realProjectItems()'));
     check('iPhone native bridge',embedded.includes('soulz-save://')&&embedded.includes('soulz-repeat://search')&&embedded.includes('soulz-share://summary'));
   }catch(e){check('iPhone embedded HTML decode',false,e.message)}
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-63-04'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-v2-63-05'));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
