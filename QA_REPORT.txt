@@ -1,7 +1,8 @@
-CROSS GPT クロッピー v2.63.11 ACTIVE RED FINAL - PRE-RELEASE QA
+CROSS GPT クロッピー v2.63.12 SEMANTIC ACTIVE RED - PRE-RELEASE QA
 
 変更:
-- 上の採寸カードの「入力中」も赤＋白文字へ固定
-- 長さ/枚数のアクティブ枠も赤へ固定
-- テンキー側の赤と完全統一
+- 上の長さ/枚数の入力中をテーマCSSより強い赤指定へ
+- リピート幅入力も赤枠＋赤い入力中バッジへ
+- テンキーのリピート入力表示も赤へ統一
+- Rxxcm 適用中は設定状態なのでテーマ色を維持
 - iPhone版も同期
