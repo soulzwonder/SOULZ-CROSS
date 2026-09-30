@@ -3588,7 +3588,7 @@ function locationNodeHasData(id){
     return items.length>0||configured||normalizeRoomName(r.name)!=='未分類'
   })
 }
-function isLocationPlaceholderName(name){return /^(?:\d+件目|場所未設定)$/.test(String(name||'').trim())}
+function isLocationPlaceholderName(name){return /^(?:\d+件目|採寸先未設定|場所未設定)$/.test(String(name||'').trim())}
 function sameLocationName(a,b){return String(a||'').trim()===String(b||'').trim()}
 function visibleLocationChildren(parentId,seen){
   seen=seen||{};
