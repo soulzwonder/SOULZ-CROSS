@@ -1,11 +1,11 @@
-CROSS GPT クロッピー v2.64.14 REPEAT FOCUS - QA REPORT
+CROSS GPT クロッピー v2.64.15 REPEAT SIGNAL - QA REPORT
 
 変更:
-- テンキーの戻る/進むボタンを削除
-- 0・.・Cの4段テンキーで完結
-- リピートON入力中は赤枠+太い黄色外周+薄い黄色背景で強調
-- リピート表示を「リピートON 52.5cm」の黄色バッジへ変更
-- 赤い入力中バッジにも黄色リングを追加
+- リピート表示を「リピート入力中 52.5cm」へ明確化
+- リピート適用へ切替時だけ黄色外周を一度強調
+- 強調は0.62秒で終了し常時点滅しない
+- 視差/動き低減設定ではアニメーションを停止
+- 4段テンキーと0・.・C配置は維持
 
 自動検証:
 - Version title: PASS
@@ -33,7 +33,7 @@ CROSS GPT クロッピー v2.64.14 REPEAT FOCUS - QA REPORT
 - Behavior: count digit replaces default 1: PASS (count=5)
 - Behavior: count backspace returns to 1: PASS (count=1)
 - Behavior: count reset returns to 1: PASS (count=1)
-- Behavior: quick add stays in quick store: PASS ([{"id":1790855827685.1736,"cm":250,"count":2,"repeatCm":0,"extraPattern":false,"cutCount":0,"roomId":"quick::area_1","category":"wall"}])
+- Behavior: quick add stays in quick store: PASS ([{"id":1790856713605.999,"cm":250,"count":2,"repeatCm":0,"extraPattern":false,"cutCount":0,"roomId":"quick::area_1","category":"wall"}])
 - OCR enriched handler active: PASS
 - Behavior: totals calculation: PASS ({"actualCm":500,"needCm":550,"pieces":3,"cutPieces":2,"allowanceExtraCm":18,"repeatExtraCm":32,"totalCutExtraCm":50,"withWasteM":6.050000000000001,"wasteExtraM":0.5500000000000007,"order":6.5})
 - Behavior: quick calculation normalization: PASS ({"items":[{"count":3,"cutCount":3,"category":"wall","roomId":"quick::area_1"}],"id":"quick::area_1","name":"計算だけ","quickCalc":true,"workAreaId":"area_1","products":{"ceil":"","wall":"","accent":""},"repeats":{"ceil":0,"wall":0,"accent":0},"recent":[]})
@@ -65,8 +65,11 @@ CROSS GPT クロッピー v2.64.14 REPEAT FOCUS - QA REPORT
 - Plus1 ON uses deeper amber: PASS
 - Repeat plus active input uses red and amber rings: PASS
 - Repeat active input has strong amber outline: PASS
-- Repeat active badge explicitly says ON: PASS
+- Repeat active badge explicitly says input in progress: PASS
 - Repeat active input badge gets amber ring: PASS
+- Repeat focus flashes once on state entry: PASS
+- Repeat focus flash respects reduced motion: PASS
+- Repeat focus flash is not continuous: PASS
 - Keypad active input also gets amber repeat ring: PASS
 - Repeat-active body class excludes repeat-width edit: PASS
 - Repeat capsule order is repeat + plus1 + off: PASS
@@ -115,7 +118,7 @@ CROSS GPT クロッピー v2.64.14 REPEAT FOCUS - QA REPORT
 - Product change clears active repeat only on commit: PASS
 - Cut estimate opens calculation detail: PASS
 - Keypad +1 pattern control present: PASS
-- Behavior: repeat stays on while +1 pattern is one-shot: PASS ([{"id":1790855827841.0293,"cm":30,"count":1,"repeatCm":52.5,"extraPattern":true,"cutCount":0,"roomId":"r1","category":"wall"},{"id":1790855827841.5706,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0,"roomId":"r1","category":"wall"}])
+- Behavior: repeat stays on while +1 pattern is one-shot: PASS ([{"id":1790856713777.2058,"cm":30,"count":1,"repeatCm":52.5,"extraPattern":true,"cutCount":0,"roomId":"r1","category":"wall"},{"id":1790856713777.0342,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0,"roomId":"r1","category":"wall"}])
 - Behavior: inline repeat changes selected row only: PASS ([{"id":1,"cm":30,"count":1,"repeatCm":0,"extraPattern":false,"cutCount":0},{"id":2,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0}])
 - Inline edit owns its repeat: PASS
 - Inline edit restores sticky repeat state: PASS
