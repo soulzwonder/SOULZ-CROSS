@@ -1,10 +1,10 @@
-CROSS GPT クロッピー v2.64.12 KEYPAD CLARITY - QA REPORT
+CROSS GPT クロッピー v2.64.13 KEYPAD LAYOUT - QA REPORT
 
 変更:
-- 見える小数点キーをテンキーへ復活
-- 長さ52.5 / リピート52.5の両方を小数入力可能に
-- リピートOFFのタップ幅と文字を拡大
-- 既存の数字キー位置・赤/黄の状態色・1段リピートUIは維持
+- 小数点を0の右へ移動し、0・.・Cを同じ段へ配置
+- 戻る/進むは細い補助列へ分離
+- 追加ボタンの縦長位置は維持
+- 長さ/リピートの小数入力とリピートOFF拡大は維持
 
 自動検証:
 - Version title: PASS
@@ -32,7 +32,7 @@ CROSS GPT クロッピー v2.64.12 KEYPAD CLARITY - QA REPORT
 - Behavior: count digit replaces default 1: PASS (count=5)
 - Behavior: count backspace returns to 1: PASS (count=1)
 - Behavior: count reset returns to 1: PASS (count=1)
-- Behavior: quick add stays in quick store: PASS ([{"id":1790854732911.0667,"cm":250,"count":2,"repeatCm":0,"extraPattern":false,"cutCount":0,"roomId":"quick::area_1","category":"wall"}])
+- Behavior: quick add stays in quick store: PASS ([{"id":1790855301265.5854,"cm":250,"count":2,"repeatCm":0,"extraPattern":false,"cutCount":0,"roomId":"quick::area_1","category":"wall"}])
 - OCR enriched handler active: PASS
 - Behavior: totals calculation: PASS ({"actualCm":500,"needCm":550,"pieces":3,"cutPieces":2,"allowanceExtraCm":18,"repeatExtraCm":32,"totalCutExtraCm":50,"withWasteM":6.050000000000001,"wasteExtraM":0.5500000000000007,"order":6.5})
 - Behavior: quick calculation normalization: PASS ({"items":[{"count":3,"cutCount":3,"category":"wall","roomId":"quick::area_1"}],"id":"quick::area_1","name":"計算だけ","quickCalc":true,"workAreaId":"area_1","products":{"ceil":"","wall":"","accent":""},"repeats":{"ceil":0,"wall":0,"accent":0},"recent":[]})
@@ -51,7 +51,9 @@ CROSS GPT クロッピー v2.64.12 KEYPAD CLARITY - QA REPORT
 - Dynamic keypad bottom clearance: PASS
 - Keypad hide button is visible and labeled: PASS
 - Visible decimal key restored: PASS
-- Decimal key preserves existing number positions: PASS
+- Decimal key sits beside zero: PASS
+- Numeric bottom row is 0 decimal clear: PASS
+- Undo redo moved to slim utility row: PASS
 - Decimal handler supports length and repeat: PASS
 - Repeat OFF target enlarged: PASS
 - Repeat controls stay inside one capsule: PASS
@@ -109,7 +111,7 @@ CROSS GPT クロッピー v2.64.12 KEYPAD CLARITY - QA REPORT
 - Product change clears active repeat only on commit: PASS
 - Cut estimate opens calculation detail: PASS
 - Keypad +1 pattern control present: PASS
-- Behavior: repeat stays on while +1 pattern is one-shot: PASS ([{"id":1790854733042.7153,"cm":30,"count":1,"repeatCm":52.5,"extraPattern":true,"cutCount":0,"roomId":"r1","category":"wall"},{"id":1790854733042.864,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0,"roomId":"r1","category":"wall"}])
+- Behavior: repeat stays on while +1 pattern is one-shot: PASS ([{"id":1790855301407.7715,"cm":30,"count":1,"repeatCm":52.5,"extraPattern":true,"cutCount":0,"roomId":"r1","category":"wall"},{"id":1790855301407.6118,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0,"roomId":"r1","category":"wall"}])
 - Behavior: inline repeat changes selected row only: PASS ([{"id":1,"cm":30,"count":1,"repeatCm":0,"extraPattern":false,"cutCount":0},{"id":2,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0}])
 - Inline edit owns its repeat: PASS
 - Inline edit restores sticky repeat state: PASS
