@@ -23,5 +23,7 @@ CROSS GPT クロッピー v2.64.4 REVIEW IMPROVEMENTS - QA REPORT
 - 50cm + リピート52.5 + 切りしろ6cm = 105cm
 - 上記に＋1柄 = 157.5cm
 
+Publish trigger: v2.64.4 final release
+
 備考:
 - 実機タップ感、OS共有シート、ホーム画面追加は実機最終確認対象。
