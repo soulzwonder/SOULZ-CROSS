@@ -1,13 +1,10 @@
-CROSS GPT クロッピー v2.64.22 DATA SAFETY - QA REPORT
+CROSS GPT クロッピー v2.64.23 IPHONE TOP COMPACT - QA REPORT
 
 変更:
-- 設定にバックアップ書き出し / 復元 / 直前状態へ戻すを追加
-- 現場・部屋・採寸・カット・メモ・履歴・設定をJSONへ保存
-- 復元前に現在状態を自動退避しワンタップで復帰可能
-- 復元ファイルは形式・現場データ・履歴を検証してから適用
-- iPhoneはiCloud Drive / Scriptable / CROPPY_Backupsへ保存
-- iPhone自動更新HTMLにもnative保存ブリッジを再注入
-- Web/AndroidはJSONを通常ダウンロード
+- ScriptableのClose / Share帯はネイティブUIのためHTMLから非表示にできないことを確認
+- iPhone版だけWebView内の二重safe-area上余白を圧縮
+- Android/Webのレイアウトは変更なし
+- native保存・共有・品番検索・バックアップ・自動更新bridgeを維持
 
 自動検証:
 - Version title: PASS
@@ -51,6 +48,7 @@ CROSS GPT クロッピー v2.64.22 DATA SAFETY - QA REPORT
 - iPhone auto-update prevents downgrade: PASS
 - iPhone keeps stable local data origin: PASS
 - iPhone keypad clarity layer: PASS
+- iPhone top safe-area compact layer: PASS
 - iPhone update source is visible: PASS
 - iPhone update badge distinguishes latest cache bundled: PASS
 - iPhone update badge uses dedicated marker: PASS
