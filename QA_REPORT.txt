@@ -1,30 +1,17 @@
-CROSS GPT クロッピー v2.64.5 SIMPLE MEMO + FOLDING REPEAT - QA REPORT
+CROSS GPT クロッピー v2.64.6 DIRECT REPEAT - QA REPORT
 
 変更:
-- メモ/共有から 0%予備・予備込み・重複合計・品番未入力 を削除
-- 発注表示を「必要 / 発注 / 実寸 / 内訳」へ整理
-- 品番がある時だけ品番を表示
-- カット寸法は「200-3 → 224cm」のように1行化
-- テンキーのリピートを細い要約バーへ折りたたみ
-- リピート操作を開いた時だけ「リピート / ＋1柄」を表示
+- リピートを1回押すだけで即入力
+- 二段式リピートUIを撤去
+- リピートOFFを専用×ボタンへ分離
+- ＋1柄はリピート設定時だけ表示
+- テンキーを畳むボタンを「▼ 閉じる」で強調
+- 畳んだ時は「▲ テンキー」
 - 数字テンキー配列は変更なし
-- 連続リピートと＋1柄1回使い切りを維持
+- v2.64.5のシンプルメモ表示を維持
 
 回帰QA:
-- 116 PASS / 0 FAIL
-- JS構文 / Service Worker / Manifest / server.js
-- HTML ID重複
-- Quick計算分離
-- テンキー数字配列
-- 小数点52.5
-- 連続リピート
-- ＋1柄
-- 既存寸法編集
-- カットON/OFF
-- カットスライダー非存在
-- iPhone native bridge
-- コンパクトメモ出力
-- リピート折りたたみ
-
-備考:
-- iPhone/Android実機の最終タップ感は実機確認対象。
+- 117 PASS / 0 FAIL
+- 小数点52.5 / 連続リピート / ＋1柄 / 既存寸法編集
+- Quick計算分離 / カットON-OFF / iPhone native bridge
+- JS / Service Worker / Manifest / server.js
