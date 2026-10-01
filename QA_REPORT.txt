@@ -1,12 +1,11 @@
-CROSS GPT クロッピー v2.64.19 IPHONE AUTO UPDATE - QA REPORT
+CROSS GPT クロッピー v2.64.20 IPHONE STATUS + SHARE - QA REPORT
 
 変更:
-- iPhone版は起動時に公開版の最新版HTMLを自動取得
-- 通信失敗時は前回キャッシュ→内蔵版の順で起動
-- 公開版が内蔵版より古い場合は自動ダウングレードしない
-- soulz.local originを維持し既存データを保護
-- iPhoneだけ数字キー・C・削除・決定の視認性を強化
-- Web版のキーボード外観は変更しない
+- iPhone上部に自動更新状態を表示：最新 / キャッシュ / 内蔵版
+- 最新は緑、キャッシュは黄、内蔵版は中立色で表示
+- 共有シート失敗時は内容を自動コピーして通知
+- 自動更新・キャッシュ・soulz.localデータ保護を維持
+- iPhone専用の見やすいテンキーを維持
 
 自動検証:
 - Version title: PASS
@@ -34,7 +33,7 @@ CROSS GPT クロッピー v2.64.19 IPHONE AUTO UPDATE - QA REPORT
 - Behavior: count digit replaces default 1: PASS (count=5)
 - Behavior: count backspace returns to 1: PASS (count=1)
 - Behavior: count reset returns to 1: PASS (count=1)
-- Behavior: quick add stays in quick store: PASS ([{"id":1790860182998.8923,"cm":250,"count":2,"repeatCm":0,"extraPattern":false,"cutCount":0,"roomId":"quick::area_1","category":"wall"}])
+- Behavior: quick add stays in quick store: PASS ([{"id":1790861359061.6392,"cm":250,"count":2,"repeatCm":0,"extraPattern":false,"cutCount":0,"roomId":"quick::area_1","category":"wall"}])
 - OCR enriched handler active: PASS
 - Behavior: totals calculation: PASS ({"actualCm":500,"needCm":550,"pieces":3,"cutPieces":2,"allowanceExtraCm":18,"repeatExtraCm":32,"totalCutExtraCm":50,"withWasteM":6.050000000000001,"wasteExtraM":0.5500000000000007,"order":6.5})
 - Behavior: quick calculation normalization: PASS ({"items":[{"count":3,"cutCount":3,"category":"wall","roomId":"quick::area_1"}],"id":"quick::area_1","name":"計算だけ","quickCalc":true,"workAreaId":"area_1","products":{"ceil":"","wall":"","accent":""},"repeats":{"ceil":0,"wall":0,"accent":0},"recent":[]})
@@ -48,6 +47,10 @@ CROSS GPT クロッピー v2.64.19 IPHONE AUTO UPDATE - QA REPORT
 - iPhone auto-update prevents downgrade: PASS
 - iPhone keeps stable local data origin: PASS
 - iPhone keypad clarity layer: PASS
+- iPhone update source is visible: PASS
+- iPhone update badge distinguishes latest cache bundled: PASS
+- iPhone share fallback copies on failure: PASS
+- iPhone share bridge uses resilient helper: PASS
 - Repeat keypad dedicated mode: PASS
 - Repeat first digit replaces existing value: PASS
 - Repeat status contrast: PASS
@@ -124,7 +127,7 @@ CROSS GPT クロッピー v2.64.19 IPHONE AUTO UPDATE - QA REPORT
 - Product change clears active repeat only on commit: PASS
 - Cut estimate opens calculation detail: PASS
 - Keypad +1 pattern control present: PASS
-- Behavior: repeat stays on while +1 pattern is one-shot: PASS ([{"id":1790860183191.6367,"cm":30,"count":1,"repeatCm":52.5,"extraPattern":true,"cutCount":0,"roomId":"r1","category":"wall"},{"id":1790860183191.9617,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0,"roomId":"r1","category":"wall"}])
+- Behavior: repeat stays on while +1 pattern is one-shot: PASS ([{"id":1790861359240.2983,"cm":30,"count":1,"repeatCm":52.5,"extraPattern":true,"cutCount":0,"roomId":"r1","category":"wall"},{"id":1790861359240.4578,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0,"roomId":"r1","category":"wall"}])
 - Behavior: inline repeat changes selected row only: PASS ([{"id":1,"cm":30,"count":1,"repeatCm":0,"extraPattern":false,"cutCount":0},{"id":2,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0}])
 - Inline edit owns its repeat: PASS
 - Inline edit restores sticky repeat state: PASS
