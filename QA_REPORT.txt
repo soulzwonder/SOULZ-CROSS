@@ -1,11 +1,13 @@
-CROSS GPT クロッピー v2.64.24 BACKUP STATUS - QA REPORT
+CROSS GPT クロッピー v2.64.25 RECOVERY GUARD - QA REPORT
 
 変更:
-- データ管理に最終バックアップ日時と保存先を追加
-- 成功したバックアップだけ最終日時を更新
-- 復元前退避の状態表示を明示的にリセット
-- 古いiPhoneコピー導線を最新版へ更新
-- iPhone native保存・共有・品番検索・バックアップ・自動更新bridgeを維持
+- Web/Androidに直前正常データの自動復旧ガードを追加
+- 履歴起動時の空配列優先を修正しlocalStorage fallbackを有効化
+- 画面を閉じる/バックグラウンド移行時に最終draft+history保存を強化
+- iPhone native JSONを現行+直前正常版の二重化
+- iPhone起動時にnative draft/history/homeModeをHTMLへ確実に注入
+- 保存エラー検出時は警告表示
+- 既存のバックアップ・共有・品番検索・自動更新bridgeを維持
 
 自動検証:
 - Version title: PASS
@@ -192,6 +194,10 @@ CROSS GPT クロッピー v2.64.24 BACKUP STATUS - QA REPORT
 壁 5.5m
 アクセント 8.5m)
 - Data safety settings UI: PASS
+- Recovery guard keys present: PASS
+- Web boot history allows localStorage fallback: PASS
+- Background safety flush saves draft and history: PASS
+- Behavior: corrupted primary auto-recovers: PASS
 - Backup success status persists separately: PASS
 - Backup status shows time and destination: PASS
 - Backup schema and app version: PASS
@@ -204,6 +210,9 @@ CROSS GPT クロッピー v2.64.24 BACKUP STATUS - QA REPORT
 - Behavior: iPhone native data bridge is injected: PASS
 - iPhone backup saves to iCloud Scriptable folder: PASS
 - iPhone backup bridge avoids URL payload size: PASS
+- iPhone native files keep previous valid copy: PASS
+- iPhone native boot state is injected: PASS
+- Behavior: iPhone boot injection carries native data: PASS
 - iPhone copy installer follows latest: PASS
 - SW cache version: PASS
 - Only scoped helper duplicates remain: PASS (remaining=3 q:5,fallbackCopy:2,qa:2)
