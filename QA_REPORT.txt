@@ -1,16 +1,14 @@
-CROSS GPT クロッピー v2.64.8 REPEAT CAPSULE - QA REPORT
+CROSS GPT クロッピー v2.64.9 REPEAT ROW CSS HOTFIX - QA REPORT
 
 変更:
-- リピートOFFと「▼ 閉じる」を常に横並び
-- リピートON時は「リピート値 / ＋1柄 / OFF」を1つのカプセル内で完結
-- 2段目を完全撤去
-- リピート値タップで即再入力
-- ＋1柄は次の1寸法だけ
+- v2.64.8で残っていた旧CSSの grid-column:1/-1!important を削除
+- 「リピートカプセル / ▼ 閉じる」をスマホ幅でも同じ1段に強制
+- リピートON時は「リピート値 / ＋1柄 / OFF」をカプセル内で完結
 - 数字テンキー配列は変更なし
-- シンプルメモ表示を維持
 
 回帰QA:
-- 119 PASS / 0 FAIL
+- 121 PASS / 0 FAIL
+- 旧CSSが閉じるを2段目へ押し出さないことをQA固定
 - JS / Service Worker / Manifest / server.js
 - Quick計算 / 小数点52.5 / 連続リピート / ＋1柄
-- 既存寸法編集 / カット / iPhone native bridge
+- iPhone native bridge
