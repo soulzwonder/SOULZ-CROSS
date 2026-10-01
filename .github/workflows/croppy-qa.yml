@@ -37,16 +37,16 @@ jobs:
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_iPhone_v2.64.11_INPUT_STATE_MIX
+          name: CROPPY_iPhone_v2.64.12_KEYPAD_CLARITY
           path: |
-            CROPPY_iPhone_v2.64.11.js
+            CROPPY_iPhone_v2.64.12.js
             QA_REPORT.txt
           if-no-files-found: error
           retention-days: 30
       - name: Android-Web package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_Android_Web_v2.64.11_INPUT_STATE_MIX
+          name: CROPPY_Android_Web_v2.64.12_KEYPAD_CLARITY
           path: |
             index.html
             manifest.webmanifest
