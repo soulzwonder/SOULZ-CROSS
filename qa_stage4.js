@@ -159,7 +159,7 @@
   check('Inline +1 preview is immediate',html.includes('{cm:measureCm,extraPattern:extraPatternEnabled()}')&&html.includes('(selected?extraPatternEnabled():x.extraPattern)'));
   try{
     const it={cm:100,count:1,cutCount:0,repeatCm:52.5,extraPattern:false};
-    const state={length:'100',count:'1',recent:[]};
+    const state={length:'100',count:'1',recent:[],repeatOn:true,repeatCm:'52.5'};
     let snapshot=false,rendered=false;
     const commit=makeFn('commitInlineItemEdit',{
       state,inlineEditItem:()=>it,clearInlineEditState:()=>{},inputLengthToCm:v=>Number(v),toast:()=>{},setActive:()=>{},
@@ -213,8 +213,8 @@
   check('Cut checkbox follows theme',html.includes('id="croppy-v26318-cut-meter-link"')&&html.includes('.cut-box:checked')&&html.includes('background:var(--ct-accent)!important'));
   check('Inline edit uses semantic red',html.includes('.one-line-item.edit-selected .edit-part.edit-active')&&html.includes('background:#d93645!important'));
   check('Meter button state updates',activeFunction('renderMeterProgress').includes("btn.textContent='ここからカット開始'")&&activeFunction('renderMeterProgress').includes("btn.textContent='開始点を更新'")&&activeFunction('renderMeterProgress').includes("run.textContent='● 今回計測中'"));
-  check('Per-row cut status is concise',activeFunction('renderList').includes('cut-state-label')&&activeFunction('renderList').includes("complete?'済':''")&&activeFunction('renderList').includes("complete?'✓ カット済み':'カット '+cutCount+'/'+x.count"));
-  check('Cut progress live label stays explicit',activeFunction('renderList').includes("doneNow?'✓ カット済み':'カット '+it.cutCount+'/'+it.count"));
+  check('Per-row cut status is concise',activeFunction('renderList').includes('cut-state-label')&&activeFunction('renderList').includes("complete?'済':''")&&activeFunction('renderList').includes("complete?'✓ カット済み':'未カット'"));
+  check('Cut progress has no extra slider operation',!activeFunction('renderList').includes('data-cutrange')&&!activeFunction('renderList').includes('data-progress-toggle'));
   check('Cut row status follows theme',html.includes('id="croppy-v26319-cut-row-status"')&&html.includes('.cut-box:checked + .cut-state-label'));
   check('Cut session emphasis style present',html.includes('id="croppy-v26320-cut-session"')&&html.includes('#checkedMeterSince')&&html.includes('.meter-run-state.active'));
   check('Cut baseline stored in site state',activeFunction('setMeterBaseline').includes('state.cutMeterBaseline=checkedMeterTotal()')&&html.includes('cutMeterBaseline:state.cutMeterBaseline')&&html.includes('state.cutMeterBaseline=(h.cutMeterBaseline===null'));
