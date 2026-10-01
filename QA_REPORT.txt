@@ -1,11 +1,11 @@
-CROSS GPT クロッピー v2.64.16 REPEAT MEMORY - QA REPORT
+CROSS GPT クロッピー v2.64.17 REPEAT MEMORY UI - QA REPORT
 
 変更:
-- リピートOFFで入力済みの幅を消さず保持
-- 52.5cm→OFF→ONで52.5cmを即復帰
+- リピートOFF中に記憶値を「前回 52.5」と小さく表示
+- 記憶値はグレー表示でONの黄色と区別
+- 52.5cm→OFF→ONで52.5cmを即復帰する動作は維持
 - OFF中は保持値を計算へ使わない
-- 値を変更したい時はON中のリピート操作から再入力
-- 既存行へリピートを遡って適用しない仕様は維持
+- ボタン追加なし・1段レイアウト維持
 
 自動検証:
 - Version title: PASS
@@ -33,7 +33,7 @@ CROSS GPT クロッピー v2.64.16 REPEAT MEMORY - QA REPORT
 - Behavior: count digit replaces default 1: PASS (count=5)
 - Behavior: count backspace returns to 1: PASS (count=1)
 - Behavior: count reset returns to 1: PASS (count=1)
-- Behavior: quick add stays in quick store: PASS ([{"id":1790857648466.1958,"cm":250,"count":2,"repeatCm":0,"extraPattern":false,"cutCount":0,"roomId":"quick::area_1","category":"wall"}])
+- Behavior: quick add stays in quick store: PASS ([{"id":1790858361064.2922,"cm":250,"count":2,"repeatCm":0,"extraPattern":false,"cutCount":0,"roomId":"quick::area_1","category":"wall"}])
 - OCR enriched handler active: PASS
 - Behavior: totals calculation: PASS ({"actualCm":500,"needCm":550,"pieces":3,"cutPieces":2,"allowanceExtraCm":18,"repeatExtraCm":32,"totalCutExtraCm":50,"withWasteM":6.050000000000001,"wasteExtraM":0.5500000000000007,"order":6.5})
 - Behavior: quick calculation normalization: PASS ({"items":[{"count":3,"cutCount":3,"category":"wall","roomId":"quick::area_1"}],"id":"quick::area_1","name":"計算だけ","quickCalc":true,"workAreaId":"area_1","products":{"ceil":"","wall":"","accent":""},"repeats":{"ceil":0,"wall":0,"accent":0},"recent":[]})
@@ -118,7 +118,7 @@ CROSS GPT クロッピー v2.64.16 REPEAT MEMORY - QA REPORT
 - Product change clears active repeat only on commit: PASS
 - Cut estimate opens calculation detail: PASS
 - Keypad +1 pattern control present: PASS
-- Behavior: repeat stays on while +1 pattern is one-shot: PASS ([{"id":1790857648580.108,"cm":30,"count":1,"repeatCm":52.5,"extraPattern":true,"cutCount":0,"roomId":"r1","category":"wall"},{"id":1790857648580.0574,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0,"roomId":"r1","category":"wall"}])
+- Behavior: repeat stays on while +1 pattern is one-shot: PASS ([{"id":1790858361265.6587,"cm":30,"count":1,"repeatCm":52.5,"extraPattern":true,"cutCount":0,"roomId":"r1","category":"wall"},{"id":1790858361265.3816,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0,"roomId":"r1","category":"wall"}])
 - Behavior: inline repeat changes selected row only: PASS ([{"id":1,"cm":30,"count":1,"repeatCm":0,"extraPattern":false,"cutCount":0},{"id":2,"cm":40,"count":1,"repeatCm":52.5,"extraPattern":false,"cutCount":0}])
 - Inline edit owns its repeat: PASS
 - Inline edit restores sticky repeat state: PASS
@@ -149,6 +149,9 @@ CROSS GPT クロッピー v2.64.16 REPEAT MEMORY - QA REPORT
 - Repeat without stored value starts input directly: PASS
 - Repeat OFF preserves stored value: PASS
 - Repeat OFF to ON reuses stored value: PASS
+- Repeat OFF shows remembered value: PASS
+- Remembered repeat hint is visually neutral: PASS
+- Remembered repeat hint has accessible OFF label: PASS
 - Manual repeat button still opens value editor: PASS
 - Legacy repeat toggle shares memory behavior: PASS
 - Behavior: OFF keeps 52.5 in memory: PASS ({"active":"length","repeatOn":false,"repeatCm":"52.5"})
