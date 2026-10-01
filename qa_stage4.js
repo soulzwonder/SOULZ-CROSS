@@ -1,11 +1,11 @@
 (function qaMain(){
   const fs=require('fs');
-  const VERSION='v2.64.18';
+  const VERSION='v2.64.19';
   const html=fs.readFileSync('index.html','utf8');
   const sw=fs.readFileSync('sw.js','utf8');
   const manifest=fs.readFileSync('manifest.webmanifest','utf8');
   const server=fs.readFileSync('server.js','utf8');
-  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.18.js','utf8');
+  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.19.js','utf8');
   const checks=[];
   const check=(name,ok,detail='')=>checks.push({name,ok:!!ok,detail});
   function extractFunctions(src,name){
@@ -32,8 +32,8 @@
     const keys=Object.keys(deps),vals=keys.map(k=>deps[k]);
     return Function(...keys,'return ('+src+');')(...vals);
   }
-  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.18</title>'));
-  check('Visible version',html.includes('クロッピー / v2.64.18'));
+  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.19</title>'));
+  check('Visible version',html.includes('クロッピー / v2.64.19'));
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),syntaxErr=[];
   scripts.forEach((s,i)=>{try{new Function(s)}catch(e){syntaxErr.push('script'+(i+1)+':'+e.message)}});
   check('HTML embedded JS syntax',syntaxErr.length===0,syntaxErr.join(' | '));
@@ -129,10 +129,15 @@
   try{
     const start=iphone.indexOf('var b64 = '),end=iphone.indexOf(';\nvar htmlData',start),expr=iphone.slice(start+'var b64 = '.length,end);
     const chunks=[...expr.matchAll(/'([^']*)'/g)].map(m=>m[1]),embedded=Buffer.from(chunks.join(''),'base64').toString('utf8');
-    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.18</title>')&&embedded.includes('クロッピー / v2.64.18'));
+    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.19</title>')&&embedded.includes('クロッピー / v2.64.19'));
     check('iPhone embedded home flow',['⚡ すぐ計算','📐 現場を開く','📋 予定・準備'].every(s=>embedded.includes(s)));
     check('iPhone embedded quick separation',embedded.includes('quickCalcByArea')&&embedded.includes('function realProjectItems()'));
     check('iPhone native bridge',iphone.includes('soulz-save://')&&iphone.includes('soulz-repeat://search')&&iphone.includes('soulz-share://summary'));
+    check('iPhone auto-update source',iphone.includes('var AUTO_UPDATE_URL = "https://soulz-cross.onrender.com/";')&&iphone.includes('async function croppyLoadLatestHTML(bundled)')&&iphone.includes('croppy_iphone_update='));
+    check('iPhone auto-update cache fallback',iphone.includes('SOULZ_CROSS_app_cache.html')&&iphone.includes('fm.fileExists(appCachePath)')&&iphone.includes('fm.writeString(appCachePath, remote)')&&iphone.includes('using cached/bundled app'));
+    check('iPhone auto-update prevents downgrade',iphone.includes('croppyCompareVersion(remoteVersion, croppyHTMLVersion(bundled)) >= 0')&&iphone.includes('croppyCompareVersion(remoteVersion, bestVersion) >= 0'));
+    check('iPhone keeps stable local data origin',iphone.includes('await web.loadHTML(html, "https://soulz.local/");'));
+    check('iPhone keypad clarity layer',iphone.includes('croppy-iphone-keypad-clarity')&&iphone.includes('#keypad .key[data-key]{font-size:1.30rem!important')&&iphone.includes('#keypad .flow-enter{border-width:3px!important')&&iphone.includes('croppyInjectIPhoneKeypadClarity(html)'));
   }catch(e){check('iPhone embedded HTML decode',false,e.message)}
   
   check('Repeat keypad dedicated mode',html.includes("strip.classList.toggle('repeat-mode',repeatMode)")&&html.includes("label.textContent=repeatMode?'リピート':'長さ'")&&html.includes("repeatMode?'決定 → 長さ':'枚数へ ↵'"));
@@ -371,13 +376,13 @@
 
 
 
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-18'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-19'));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
-  const lines=['CROSS GPT クロッピー '+VERSION+' REPEAT STATE FINAL - QA REPORT','','変更:','- OFF中の「前回 52.5」を「記憶 52.5」へ変更','- 3状態を固定：OFF / ON / リピート入力中','- 記憶値はグレー表示でONの黄色と区別','- 52.5cm→OFF→ONで52.5cm即復帰を維持','- ボタン追加なし・4段テンキー維持','','自動検証:'];
+  const lines=['CROSS GPT クロッピー '+VERSION+' IPHONE AUTO UPDATE - QA REPORT','','変更:','- iPhone版は起動時に公開版の最新版HTMLを自動取得','- 通信失敗時は前回キャッシュ→内蔵版の順で起動','- 公開版が内蔵版より古い場合は自動ダウングレードしない','- soulz.local originを維持し既存データを保護','- iPhoneだけ数字キー・C・削除・決定の視認性を強化','- Web版のキーボード外観は変更しない','','自動検証:'];
   for(const c of checks)lines.push('- '+c.name+': '+(c.ok?'PASS':'FAIL')+(c.detail?' ('+c.detail+')':''));
   lines.push('','legacy_ 関数: '+([...html.matchAll(/function\s+legacy_[A-Za-z0-9_$]+\s*\(/g)].length)+'個','残る重複関数: '+remaining.length+'種類','残る重複はIIFE内のローカル補助関数 q / qa と、別スコープの fallbackCopy のみ。','','注意:','- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。','- 外部品番検索はネットワーク先の応答に依存。','');
   fs.writeFileSync('QA_REPORT.txt',lines.join('\n'));console.log(lines.join('\n'));
