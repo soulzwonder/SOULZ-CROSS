@@ -1,16 +1,16 @@
-CROSS GPT クロッピー v2.64.10 UI FINISH - QA REPORT
+CROSS GPT クロッピー v2.64.11 INPUT STATE MIX - QA REPORT
 
 変更:
-- リピートONを黄色〜アンバーで明示
-- ＋1柄ONは濃いアンバー
-- リピート入力中は赤を維持
-- OFFは中立色、通常操作はテーマ色
-- 1段リピートカプセル / 閉じる横並びを維持
-- 数字テンキー配置は変更なし
+- リピートON中の入力欄を「赤い入力中 + 黄色/アンバー外周」の二重状態へ
+- 上側の長さ/枚数カードと固定テンキー入力欄の両方に適用
+- 入力中ラベルは赤を維持
+- リピートバッジはアンバーへ統一
+- リピート幅そのものを編集中は従来どおり赤のみ
+- 操作方法・テンキー配列・計算ロジックは変更なし
 
 回帰QA:
-- 124 PASS / 0 FAIL
+- 127 PASS / 0 FAIL
+- Web / iPhone embedded HTML 完全同期
 - JS / Service Worker / Manifest / server.js
 - Quick計算 / 小数点52.5 / 連続リピート / ＋1柄
 - 既存寸法編集 / カット / iPhone native bridge
-- リピートON=アンバー / 入力中=赤 をQA固定
