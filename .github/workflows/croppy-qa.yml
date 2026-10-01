@@ -37,16 +37,16 @@ jobs:
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_iPhone_v2.64.13_KEYPAD_LAYOUT
+          name: CROPPY_iPhone_v2.64.14_REPEAT_FOCUS
           path: |
-            CROPPY_iPhone_v2.64.13.js
+            CROPPY_iPhone_v2.64.14.js
             QA_REPORT.txt
           if-no-files-found: error
           retention-days: 30
       - name: Android-Web package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_Android_Web_v2.64.13_KEYPAD_LAYOUT
+          name: CROPPY_Android_Web_v2.64.14_REPEAT_FOCUS
           path: |
             index.html
             manifest.webmanifest
