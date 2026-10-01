@@ -421,7 +421,7 @@
   check('iPhone backup saves to iCloud Scriptable folder',iphone.includes('FileManager.iCloud()')&&iphone.includes('"CROPPY_Backups"')&&iphone.includes('croppyBackupFM.writeString(path'));
   check('iPhone backup bridge avoids URL payload size',iphone.includes('window.__croppyBackupPayload||')&&iphone.includes('soulz-backup://export?x=')&&!iphone.includes('soulz-backup://export?data='));
   check('iPhone copy installer follows latest',iphoneCopy.includes('v2.64.24')&&iphoneCopy.includes('./CROPPY_iPhone_v2.64.24.js')&&!iphoneCopy.includes('v2.58.27'));
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-23'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-24'));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);

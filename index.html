@@ -5263,8 +5263,7 @@ function closeSiteMemo(){var sh=$('#siteMemoSheet');if(!sh)return;sh.classList.r
   }
   function croppyFormatBackupTime(value){
     var d=new Date(value);if(!isFinite(d.getTime()))return '';
-    function pad(n){return String(n).padStart(2,'0')}
-    return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+    return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
   }
   function croppyReadLastBackupMeta(){
     try{
