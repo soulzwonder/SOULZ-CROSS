@@ -1,10 +1,11 @@
-CROSS GPT クロッピー v2.64.23 IPHONE TOP COMPACT - QA REPORT
+CROSS GPT クロッピー v2.64.24 BACKUP STATUS - QA REPORT
 
 変更:
-- ScriptableのClose / Share帯はネイティブUIのためHTMLから非表示にできないことを確認
-- iPhone版だけWebView内の二重safe-area上余白を圧縮
-- Android/Webのレイアウトは変更なし
-- native保存・共有・品番検索・バックアップ・自動更新bridgeを維持
+- データ管理に最終バックアップ日時と保存先を追加
+- 成功したバックアップだけ最終日時を更新
+- 復元前退避の状態表示を明示的にリセット
+- 古いiPhoneコピー導線を最新版へ更新
+- iPhone native保存・共有・品番検索・バックアップ・自動更新bridgeを維持
 
 自動検証:
 - Version title: PASS
@@ -191,6 +192,8 @@ CROSS GPT クロッピー v2.64.23 IPHONE TOP COMPACT - QA REPORT
 壁 5.5m
 アクセント 8.5m)
 - Data safety settings UI: PASS
+- Backup success status persists separately: PASS
+- Backup status shows time and destination: PASS
 - Backup schema and app version: PASS
 - Backup captures draft history and Croppy storage: PASS
 - Restore validates before writing: PASS
@@ -201,8 +204,18 @@ CROSS GPT クロッピー v2.64.23 IPHONE TOP COMPACT - QA REPORT
 - Behavior: iPhone native data bridge is injected: PASS
 - iPhone backup saves to iCloud Scriptable folder: PASS
 - iPhone backup bridge avoids URL payload size: PASS
+- iPhone copy installer follows latest: PASS
 - SW cache version: PASS
 - Only scoped helper duplicates remain: PASS (remaining=3 q:5,fallbackCopy:2,qa:2)
+
+実機確認（5分）:
+1. 起動 → 採寸画面まで進む
+2. 長さ → 枚数 → 追加を3回繰り返す
+3. リピートOFF記憶 → ON復帰 → +1柄の1回使い切りを確認
+4. カット済みチェック → 保存 → 再起動で保持を確認
+5. バックアップ書き出し → 最終日時/保存先の更新を確認
+6. 共有シートとホーム画面起動を確認
+7. オフライン再起動でキャッシュ起動を確認
 
 legacy_ 関数: 0個
 残る重複関数: 3種類
