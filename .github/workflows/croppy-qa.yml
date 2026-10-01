@@ -37,16 +37,16 @@ jobs:
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_iPhone_v2.64.15_REPEAT_SIGNAL
+          name: CROPPY_iPhone_v2.64.16_REPEAT_MEMORY
           path: |
-            CROPPY_iPhone_v2.64.15.js
+            CROPPY_iPhone_v2.64.16.js
             QA_REPORT.txt
           if-no-files-found: error
           retention-days: 30
       - name: Android-Web package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_Android_Web_v2.64.15_REPEAT_SIGNAL
+          name: CROPPY_Android_Web_v2.64.16_REPEAT_MEMORY
           path: |
             index.html
             manifest.webmanifest

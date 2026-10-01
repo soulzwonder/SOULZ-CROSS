@@ -1,11 +1,11 @@
 (function qaMain(){
   const fs=require('fs');
-  const VERSION='v2.64.15';
+  const VERSION='v2.64.16';
   const html=fs.readFileSync('index.html','utf8');
   const sw=fs.readFileSync('sw.js','utf8');
   const manifest=fs.readFileSync('manifest.webmanifest','utf8');
   const server=fs.readFileSync('server.js','utf8');
-  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.15.js','utf8');
+  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.16.js','utf8');
   const checks=[];
   const check=(name,ok,detail='')=>checks.push({name,ok:!!ok,detail});
   function extractFunctions(src,name){
@@ -32,8 +32,8 @@
     const keys=Object.keys(deps),vals=keys.map(k=>deps[k]);
     return Function(...keys,'return ('+src+');')(...vals);
   }
-  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.15</title>'));
-  check('Visible version',html.includes('クロッピー / v2.64.15'));
+  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.16</title>'));
+  check('Visible version',html.includes('クロッピー / v2.64.16'));
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),syntaxErr=[];
   scripts.forEach((s,i)=>{try{new Function(s)}catch(e){syntaxErr.push('script'+(i+1)+':'+e.message)}});
   check('HTML embedded JS syntax',syntaxErr.length===0,syntaxErr.join(' | '));
@@ -129,7 +129,7 @@
   try{
     const start=iphone.indexOf('var b64 = '),end=iphone.indexOf(';\nvar htmlData',start),expr=iphone.slice(start+'var b64 = '.length,end);
     const chunks=[...expr.matchAll(/'([^']*)'/g)].map(m=>m[1]),embedded=Buffer.from(chunks.join(''),'base64').toString('utf8');
-    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.15</title>')&&embedded.includes('クロッピー / v2.64.15'));
+    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.16</title>')&&embedded.includes('クロッピー / v2.64.16'));
     check('iPhone embedded home flow',['⚡ すぐ計算','📐 現場を開く','📋 予定・準備'].every(s=>embedded.includes(s)));
     check('iPhone embedded quick separation',embedded.includes('quickCalcByArea')&&embedded.includes('function realProjectItems()'));
     check('iPhone native bridge',iphone.includes('soulz-save://')&&iphone.includes('soulz-repeat://search')&&iphone.includes('soulz-share://summary'));
@@ -308,8 +308,47 @@
   check('Keypad repeat control does not resize number keys',html.includes('id="croppy-v2641-keypad-repeat"')&&html.includes('.keypad-wrap.collapsed .keypad-repeat-btn{display:none!important}'));
   check('Keypad repeat button shows off on and input states',activeFunction('refreshInputLoop').includes("'リピート OFF'")&&activeFunction('refreshInputLoop').includes("'リピート入力中'")&&activeFunction('refreshInputLoop').includes("'リピート '+fmtCm(state.repeatCm)"));
   check('Keypad repeat control enters direct input mode',html.includes("$('#keypadRepeatBtn').addEventListener('click',function(){beginRepeatInput()")&&activeFunction('beginRepeatInput').includes("state.repeatOn=true")&&activeFunction('beginRepeatInput').includes("setActive('repeat')"));
-  check('Repeat starts input directly from one tap',html.includes("$('#keypadRepeatBtn').addEventListener('click',function(){beginRepeatInput()")&&activeFunction('beginRepeatInput').includes("setActive('repeat')")&&activeFunction('beginRepeatInput').includes('__SOULZ_REPEAT_REPLACE_NEXT=true'));
-  check('Repeat has labeled OFF button',html.includes('id="keypadRepeatOffBtn"')&&html.includes('hidden>OFF</button>')&&html.includes("$('#keypadRepeatOffBtn').addEventListener('click',function(){disableRepeatInput()")&&activeFunction('disableRepeatInput').includes("state.repeatOn=false;state.repeatCm=''"));
+  check('Repeat without stored value starts input directly',html.includes("$('#keypadRepeatBtn').addEventListener('click',function(){beginRepeatInput()")&&activeFunction('beginRepeatInput').includes("saved=repeatNumber(state.repeatCm)")&&activeFunction('beginRepeatInput').includes("setActive('repeat')")&&activeFunction('beginRepeatInput').includes('__SOULZ_REPEAT_REPLACE_NEXT=true'));
+  check('Repeat OFF preserves stored value',html.includes('id="keypadRepeatOffBtn"')&&html.includes('hidden>OFF</button>')&&html.includes("$('#keypadRepeatOffBtn').addEventListener('click',function(){disableRepeatInput()")&&activeFunction('disableRepeatInput').includes("state.repeatOn=false")&&!activeFunction('disableRepeatInput').includes("state.repeatCm=''")&&activeFunction('disableRepeatInput').includes("cmを保持"));
+  check('Repeat OFF to ON reuses stored value',activeFunction('beginRepeatInput').includes("forceEdit!==true&&!state.repeatOn&&saved>0")&&activeFunction('beginRepeatInput').includes("state.repeatOn=true;window.__SOULZ_REPEAT_REPLACE_NEXT=false")&&activeFunction('beginRepeatInput').includes("setActive('length')"));
+  check('Manual repeat button still opens value editor',html.includes("repeatManualBtn.addEventListener('click',function(){beginRepeatInput(true)}"));
+  check('Legacy repeat toggle shares memory behavior',html.includes("els.repeatToggle.addEventListener('click',function(){if(state.repeatOn)disableRepeatInput();else beginRepeatInput()})"));
+
+  try{
+    global.window={__SOULZ_REPEAT_REPLACE_NEXT:false,__SOULZ_INLINE_EDIT_DIRTY:false};
+    const state={active:'length',repeatOn:true,repeatCm:'52.5'};
+    let extra=true,active='length',message='';
+    const off=makeFn('disableRepeatInput',{
+      state,inlineEditId:()=>null,repeatNumber:v=>Number(v)||0,window:global.window,setExtraPattern:v=>{extra=!!v},
+      setActive:n=>{state.active=n;active=n},renderEntry:()=>{},saveDraft:()=>{},refreshInputLoop:()=>{},toast:m=>{message=m},fmtCm:v=>String(Number(v))
+    });
+    off();
+    check('Behavior: OFF keeps 52.5 in memory',state.repeatOn===false&&state.repeatCm==='52.5'&&!extra&&active==='length'&&message.includes('52.5cmを保持'),JSON.stringify(state));
+  }catch(e){check('Behavior: OFF keeps 52.5 in memory',false,e.message)}
+  try{
+    global.window={__SOULZ_REPEAT_REPLACE_NEXT:false,__SOULZ_INLINE_EDIT_DIRTY:false};
+    const state={active:'length',repeatOn:false,repeatCm:'52.5'};
+    let active='length',message='';
+    const begin=makeFn('beginRepeatInput',{
+      state,inlineEditId:()=>null,repeatNumber:v=>Number(v)||0,keypadHidden:false,setKeypadHidden:()=>{},window:global.window,
+      setRepeatExpanded:()=>{},setActive:n=>{state.active=n;active=n},renderEntry:()=>{},saveDraft:()=>{},refreshInputLoop:()=>{},
+      toast:m=>{message=m},fmtCm:v=>String(Number(v))
+    });
+    begin();
+    check('Behavior: ON restores remembered 52.5',state.repeatOn===true&&state.repeatCm==='52.5'&&active==='length'&&global.window.__SOULZ_REPEAT_REPLACE_NEXT===false&&message.includes('52.5cm ON'),JSON.stringify(state));
+  }catch(e){check('Behavior: ON restores remembered 52.5',false,e.message)}
+  try{
+    global.window={__SOULZ_REPEAT_REPLACE_NEXT:false,__SOULZ_INLINE_EDIT_DIRTY:false};
+    const state={active:'length',repeatOn:false,repeatCm:''};
+    let active='length';
+    const begin=makeFn('beginRepeatInput',{
+      state,inlineEditId:()=>null,repeatNumber:v=>Number(v)||0,keypadHidden:false,setKeypadHidden:()=>{},window:global.window,
+      setRepeatExpanded:()=>{},setActive:n=>{state.active=n;active=n},renderEntry:()=>{},saveDraft:()=>{},refreshInputLoop:()=>{},
+      toast:()=>{},fmtCm:v=>String(Number(v))
+    });
+    begin();
+    check('Behavior: empty memory opens repeat input',state.repeatOn===true&&active==='repeat'&&global.window.__SOULZ_REPEAT_REPLACE_NEXT===true,JSON.stringify(state));
+  }catch(e){check('Behavior: empty memory opens repeat input',false,e.message)}
   check('Numeric keypad grid unchanged by direct repeat control',html.includes('<div class="keypad" id="keypad">')&&html.includes('<button class="key" data-key="7">7</button><button class="key" data-key="8">8</button><button class="key" data-key="9">9</button>'));
   check('Memo summary removes zero-value clutter',!activeFunction('summaryText').includes("'予備込み")&&!activeFunction('summaryText').includes("'品番ごとの発注")&&!activeFunction('summaryText').includes("'発注合計")&&!activeFunction('summaryText').includes("'↓ 0.5m単位"));
   check('Memo summary hides missing product wording',!activeFunction('summaryText').includes('品番未入力')&&activeFunction('summaryText').includes("'内訳'"));
@@ -327,13 +366,13 @@
 
 
 
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-15'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-16'));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
-  const lines=['CROSS GPT クロッピー '+VERSION+' REPEAT SIGNAL - QA REPORT','','変更:','- リピート表示を「リピート入力中 52.5cm」へ明確化','- リピート適用へ切替時だけ黄色外周を一度強調','- 強調は0.62秒で終了し常時点滅しない','- 視差/動き低減設定ではアニメーションを停止','- 4段テンキーと0・.・C配置は維持','','自動検証:'];
+  const lines=['CROSS GPT クロッピー '+VERSION+' REPEAT MEMORY - QA REPORT','','変更:','- リピートOFFで入力済みの幅を消さず保持','- 52.5cm→OFF→ONで52.5cmを即復帰','- OFF中は保持値を計算へ使わない','- 値を変更したい時はON中のリピート操作から再入力','- 既存行へリピートを遡って適用しない仕様は維持','','自動検証:'];
   for(const c of checks)lines.push('- '+c.name+': '+(c.ok?'PASS':'FAIL')+(c.detail?' ('+c.detail+')':''));
   lines.push('','legacy_ 関数: '+([...html.matchAll(/function\s+legacy_[A-Za-z0-9_$]+\s*\(/g)].length)+'個','残る重複関数: '+remaining.length+'種類','残る重複はIIFE内のローカル補助関数 q / qa と、別スコープの fallbackCopy のみ。','','注意:','- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。','- 外部品番検索はネットワーク先の応答に依存。','');
   fs.writeFileSync('QA_REPORT.txt',lines.join('\n'));console.log(lines.join('\n'));
