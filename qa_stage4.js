@@ -1,11 +1,11 @@
 (function qaMain(){
   const fs=require('fs');
-  const VERSION='v2.64.17';
+  const VERSION='v2.64.18';
   const html=fs.readFileSync('index.html','utf8');
   const sw=fs.readFileSync('sw.js','utf8');
   const manifest=fs.readFileSync('manifest.webmanifest','utf8');
   const server=fs.readFileSync('server.js','utf8');
-  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.17.js','utf8');
+  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.18.js','utf8');
   const checks=[];
   const check=(name,ok,detail='')=>checks.push({name,ok:!!ok,detail});
   function extractFunctions(src,name){
@@ -32,8 +32,8 @@
     const keys=Object.keys(deps),vals=keys.map(k=>deps[k]);
     return Function(...keys,'return ('+src+');')(...vals);
   }
-  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.17</title>'));
-  check('Visible version',html.includes('クロッピー / v2.64.17'));
+  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.18</title>'));
+  check('Visible version',html.includes('クロッピー / v2.64.18'));
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),syntaxErr=[];
   scripts.forEach((s,i)=>{try{new Function(s)}catch(e){syntaxErr.push('script'+(i+1)+':'+e.message)}});
   check('HTML embedded JS syntax',syntaxErr.length===0,syntaxErr.join(' | '));
@@ -129,7 +129,7 @@
   try{
     const start=iphone.indexOf('var b64 = '),end=iphone.indexOf(';\nvar htmlData',start),expr=iphone.slice(start+'var b64 = '.length,end);
     const chunks=[...expr.matchAll(/'([^']*)'/g)].map(m=>m[1]),embedded=Buffer.from(chunks.join(''),'base64').toString('utf8');
-    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.17</title>')&&embedded.includes('クロッピー / v2.64.17'));
+    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.18</title>')&&embedded.includes('クロッピー / v2.64.18'));
     check('iPhone embedded home flow',['⚡ すぐ計算','📐 現場を開く','📋 予定・準備'].every(s=>embedded.includes(s)));
     check('iPhone embedded quick separation',embedded.includes('quickCalcByArea')&&embedded.includes('function realProjectItems()'));
     check('iPhone native bridge',iphone.includes('soulz-save://')&&iphone.includes('soulz-repeat://search')&&iphone.includes('soulz-share://summary'));
@@ -311,9 +311,11 @@
   check('Repeat without stored value starts input directly',html.includes("$('#keypadRepeatBtn').addEventListener('click',function(){beginRepeatInput()")&&activeFunction('beginRepeatInput').includes("saved=repeatNumber(state.repeatCm)")&&activeFunction('beginRepeatInput').includes("setActive('repeat')")&&activeFunction('beginRepeatInput').includes('__SOULZ_REPEAT_REPLACE_NEXT=true'));
   check('Repeat OFF preserves stored value',html.includes('id="keypadRepeatOffBtn"')&&html.includes('hidden>OFF</button>')&&html.includes("$('#keypadRepeatOffBtn').addEventListener('click',function(){disableRepeatInput()")&&activeFunction('disableRepeatInput').includes("state.repeatOn=false")&&!activeFunction('disableRepeatInput').includes("state.repeatCm=''")&&activeFunction('disableRepeatInput').includes("cmを保持"));
   check('Repeat OFF to ON reuses stored value',activeFunction('beginRepeatInput').includes("forceEdit!==true&&!state.repeatOn&&saved>0")&&activeFunction('beginRepeatInput').includes("state.repeatOn=true;window.__SOULZ_REPEAT_REPLACE_NEXT=false")&&activeFunction('beginRepeatInput').includes("setActive('length')"));
-  check('Repeat OFF shows remembered value',activeFunction('refreshInputLoop').includes("memoryOff=!state.repeatOn&&!repeatMode&&savedRepeat>0")&&activeFunction('refreshInputLoop').includes("class=\"repeat-memory\">前回 ")&&activeFunction('refreshInputLoop').includes("rpt.classList.toggle('memory-off',memoryOff)"));
+  check('Repeat OFF shows remembered value',activeFunction('refreshInputLoop').includes("memoryOff=!state.repeatOn&&!repeatMode&&savedRepeat>0")&&activeFunction('refreshInputLoop').includes("class=\"repeat-memory\">記憶 ")&&activeFunction('refreshInputLoop').includes("rpt.classList.toggle('memory-off',memoryOff)"));
   check('Remembered repeat hint is visually neutral',html.includes('id="croppy-v26417-repeat-memory-ui"')&&html.includes('color:#7b8796!important')&&html.includes('border-left:1px solid rgba(100,116,139,.38)!important'));
-  check('Remembered repeat hint has accessible OFF label',activeFunction('refreshInputLoop').includes("リピート OFF。前回 ")&&activeFunction('refreshInputLoop').includes("cmを記憶"));
+  check('Remembered repeat hint has accessible OFF label',activeFunction('refreshInputLoop').includes("リピート OFF。記憶 ")&&activeFunction('refreshInputLoop').includes("cm"));
+  check('Repeat three-state wording is fixed',activeFunction('refreshInputLoop').includes("'リピート OFF'")&&activeFunction('refreshInputLoop').includes("'リピート '+fmtCm(state.repeatCm)")&&activeFunction('refreshInputLoop').includes("'リピート入力中'")&&activeFunction('refreshInputLoop').includes("class=\"repeat-memory\">記憶 "));
+  check('Remembered state stays neutral not amber',html.includes('#keypadRepeatBtn.memory-off .repeat-memory')&&html.includes('color:#7b8796!important')&&!html.includes('#keypadRepeatBtn.memory-off .repeat-memory{color:#f4c95f'));
   check('Manual repeat button still opens value editor',html.includes("repeatManualBtn.addEventListener('click',function(){beginRepeatInput(true)}"));
   check('Legacy repeat toggle shares memory behavior',html.includes("els.repeatToggle.addEventListener('click',function(){if(state.repeatOn)disableRepeatInput();else beginRepeatInput()})"));
 
@@ -369,13 +371,13 @@
 
 
 
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-17'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-18'));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
-  const lines=['CROSS GPT クロッピー '+VERSION+' REPEAT MEMORY UI - QA REPORT','','変更:','- リピートOFF中に記憶値を「前回 52.5」と小さく表示','- 記憶値はグレー表示でONの黄色と区別','- 52.5cm→OFF→ONで52.5cmを即復帰する動作は維持','- OFF中は保持値を計算へ使わない','- ボタン追加なし・1段レイアウト維持','','自動検証:'];
+  const lines=['CROSS GPT クロッピー '+VERSION+' REPEAT STATE FINAL - QA REPORT','','変更:','- OFF中の「前回 52.5」を「記憶 52.5」へ変更','- 3状態を固定：OFF / ON / リピート入力中','- 記憶値はグレー表示でONの黄色と区別','- 52.5cm→OFF→ONで52.5cm即復帰を維持','- ボタン追加なし・4段テンキー維持','','自動検証:'];
   for(const c of checks)lines.push('- '+c.name+': '+(c.ok?'PASS':'FAIL')+(c.detail?' ('+c.detail+')':''));
   lines.push('','legacy_ 関数: '+([...html.matchAll(/function\s+legacy_[A-Za-z0-9_$]+\s*\(/g)].length)+'個','残る重複関数: '+remaining.length+'種類','残る重複はIIFE内のローカル補助関数 q / qa と、別スコープの fallbackCopy のみ。','','注意:','- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。','- 外部品番検索はネットワーク先の応答に依存。','');
   fs.writeFileSync('QA_REPORT.txt',lines.join('\n'));console.log(lines.join('\n'));
