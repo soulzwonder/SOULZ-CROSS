@@ -1,17 +1,16 @@
-CROSS GPT クロッピー v2.64.6 DIRECT REPEAT - QA REPORT
+CROSS GPT クロッピー v2.64.7 UI POLISH - QA REPORT
 
 変更:
-- リピートを1回押すだけで即入力
-- 二段式リピートUIを撤去
-- リピートOFFを専用×ボタンへ分離
-- ＋1柄はリピート設定時だけ表示
-- テンキーを畳むボタンを「▼ 閉じる」で強調
-- 畳んだ時は「▲ テンキー」
+- OFF時は「リピート OFF / ▼ 閉じる」の2操作
+- ON時は「リピート値 / ＋1柄 / OFF」を1段目に整理
+- ×記号を文字OFFへ変更
+- ON時の「▼ 閉じる」は2段目いっぱいに配置
+- 1タップ即リピート入力を維持
 - 数字テンキー配列は変更なし
-- v2.64.5のシンプルメモ表示を維持
+- シンプルメモ表示を維持
 
 回帰QA:
-- 117 PASS / 0 FAIL
-- 小数点52.5 / 連続リピート / ＋1柄 / 既存寸法編集
-- Quick計算分離 / カットON-OFF / iPhone native bridge
+- 119 PASS / 0 FAIL
 - JS / Service Worker / Manifest / server.js
+- Quick計算 / 小数点52.5 / 連続リピート / ＋1柄
+- 既存寸法編集 / カット / iPhone native bridge

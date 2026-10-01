@@ -1,11 +1,11 @@
 (function qaMain(){
   const fs=require('fs');
-  const VERSION='v2.64.6';
+  const VERSION='v2.64.7';
   const html=fs.readFileSync('index.html','utf8');
   const sw=fs.readFileSync('sw.js','utf8');
   const manifest=fs.readFileSync('manifest.webmanifest','utf8');
   const server=fs.readFileSync('server.js','utf8');
-  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.6.js','utf8');
+  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.7.js','utf8');
   const checks=[];
   const check=(name,ok,detail='')=>checks.push({name,ok:!!ok,detail});
   function extractFunctions(src,name){
@@ -32,8 +32,8 @@
     const keys=Object.keys(deps),vals=keys.map(k=>deps[k]);
     return Function(...keys,'return ('+src+');')(...vals);
   }
-  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.6</title>'));
-  check('Visible version',html.includes('クロッピー / v2.64.6'));
+  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.7</title>'));
+  check('Visible version',html.includes('クロッピー / v2.64.7'));
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),syntaxErr=[];
   scripts.forEach((s,i)=>{try{new Function(s)}catch(e){syntaxErr.push('script'+(i+1)+':'+e.message)}});
   check('HTML embedded JS syntax',syntaxErr.length===0,syntaxErr.join(' | '));
@@ -129,7 +129,7 @@
   try{
     const start=iphone.indexOf('var b64 = '),end=iphone.indexOf(';\nvar htmlData',start),expr=iphone.slice(start+'var b64 = '.length,end);
     const chunks=[...expr.matchAll(/'([^']*)'/g)].map(m=>m[1]),embedded=Buffer.from(chunks.join(''),'base64').toString('utf8');
-    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.6</title>')&&embedded.includes('クロッピー / v2.64.6'));
+    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.7</title>')&&embedded.includes('クロッピー / v2.64.7'));
     check('iPhone embedded home flow',['⚡ すぐ計算','📐 現場を開く','📋 予定・準備'].every(s=>embedded.includes(s)));
     check('iPhone embedded quick separation',embedded.includes('quickCalcByArea')&&embedded.includes('function realProjectItems()'));
     check('iPhone native bridge',iphone.includes('soulz-save://')&&iphone.includes('soulz-repeat://search')&&iphone.includes('soulz-share://summary'));
@@ -153,6 +153,8 @@
   
   check('Dynamic keypad bottom clearance',html.includes('--croppy-keypad-inset:292px')&&html.includes('function updateKeypadInset()')&&html.includes('ResizeObserver')&&html.includes("getBoundingClientRect().height"));
   check('Keypad hide button is visible and labeled',html.includes('keypad-toggle-direct')&&activeFunction('setKeypadHidden').includes("b.textContent=keypadHidden?'▲ テンキー':'▼ 閉じる'"));
+  check('Repeat-ready controls use polished two-row layout',html.includes('id="keypadControlStrip"')&&html.includes('.keypad-control-strip.repeat-active')&&html.includes('.keypad-control-strip.repeat-active .keypad-toggle-direct{grid-column:1/-1')&&activeFunction('refreshInputLoop').includes("classList.toggle('repeat-ready'"));
+  check('Repeat-ready control order is repeat + plus1 + off',html.indexOf('id="keypadRepeatBtn"')<html.indexOf('id="keypadExtraPatternBtn"')&&html.indexOf('id="keypadExtraPatternBtn"')<html.indexOf('id="keypadRepeatOffBtn"'));
   check('Inline edit carries +1 pattern',html.includes('setExtraPattern(!!it.extraPattern&&repeatNumber(it.repeatCm)>0)')&&html.includes('it.extraPattern=!!nextExtra'));
   check('Inline +1 preview is immediate',html.includes('{cm:measureCm,extraPattern:extraPatternEnabled()}')&&html.includes('(selected?extraPatternEnabled():x.extraPattern)'));
   try{
@@ -278,14 +280,14 @@
   check('Repeat digits stay raw until commit',!activeFunction('inputDigit').includes('applyRepeatToActiveSection(state.repeatCm')&&activeFunction('nextInputStep').includes('state.repeatCm=fmtCm(repeatNumber(state.repeatCm))'));
   check('Input handler monkey patches removed',!html.includes('var oldHandleKeyButton=handleKeyButton')&&!html.includes('var oldRenderEntry=renderEntry')&&!html.includes('var oldSetActive=setActive'));
   check('Canonical handlers refresh keypad directly',activeFunction('setActive').includes('refreshInputLoop()')&&activeFunction('renderEntry').includes('refreshInputLoop()')&&activeFunction('handleKeyButton').includes("a==='flowEnter'"));
-  check('Cleanup markers present',html.includes('id="croppy-v2640-cleanup"')&&html.includes('v2.64.6 CLEANUP 2'));
+  check('Cleanup markers present',html.includes('id="croppy-v2640-cleanup"')&&html.includes('v2.64.7 CLEANUP 2'));
   check('Dead cut slider CSS removed',!html.includes('.cut-range{')&&!html.includes('.cut-progress{')&&!html.includes('.one-line-progress{')&&!html.includes('__SOULZ_CUT_PROGRESS_OPEN'));
   check('Keypad repeat control outside number grid',html.includes('id="keypadRepeatBtn"')&&html.indexOf('id="keypadRepeatBtn"')<html.indexOf('<div class="keypad" id="keypad">'));
   check('Keypad repeat control does not resize number keys',html.includes('id="croppy-v2641-keypad-repeat"')&&html.includes('.keypad-wrap.collapsed .keypad-repeat-btn{display:none!important}'));
   check('Keypad repeat button shows off on and input states',activeFunction('refreshInputLoop').includes("'リピート OFF'")&&activeFunction('refreshInputLoop').includes("'リピート入力中'")&&activeFunction('refreshInputLoop').includes("'リピート '+fmtCm(state.repeatCm)"));
   check('Keypad repeat control enters direct input mode',html.includes("$('#keypadRepeatBtn').addEventListener('click',function(){beginRepeatInput()")&&activeFunction('beginRepeatInput').includes("state.repeatOn=true")&&activeFunction('beginRepeatInput').includes("setActive('repeat')"));
   check('Repeat starts input directly from one tap',html.includes("$('#keypadRepeatBtn').addEventListener('click',function(){beginRepeatInput()")&&activeFunction('beginRepeatInput').includes("setActive('repeat')")&&activeFunction('beginRepeatInput').includes('__SOULZ_REPEAT_REPLACE_NEXT=true'));
-  check('Repeat has dedicated off button',html.includes('id="keypadRepeatOffBtn"')&&html.includes("$('#keypadRepeatOffBtn').addEventListener('click',function(){disableRepeatInput()")&&activeFunction('disableRepeatInput').includes("state.repeatOn=false;state.repeatCm=''"));
+  check('Repeat has labeled OFF button',html.includes('id="keypadRepeatOffBtn"')&&html.includes('hidden>OFF</button>')&&html.includes("$('#keypadRepeatOffBtn').addEventListener('click',function(){disableRepeatInput()")&&activeFunction('disableRepeatInput').includes("state.repeatOn=false;state.repeatCm=''"));
   check('Numeric keypad grid unchanged by direct repeat control',html.includes('<div class="keypad" id="keypad">')&&html.includes('<button class="key" data-key="7">7</button><button class="key" data-key="8">8</button><button class="key" data-key="9">9</button>'));
   check('Memo summary removes zero-value clutter',!activeFunction('summaryText').includes("'予備込み")&&!activeFunction('summaryText').includes("'品番ごとの発注")&&!activeFunction('summaryText').includes("'発注合計")&&!activeFunction('summaryText').includes("'↓ 0.5m単位"));
   check('Memo summary hides missing product wording',!activeFunction('summaryText').includes('品番未入力')&&activeFunction('summaryText').includes("'内訳'"));
@@ -303,13 +305,13 @@
 
 
 
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-6'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-7'));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
-  const lines=['CROSS GPT クロッピー '+VERSION+' DIRECT REPEAT + VISIBLE CLOSE - QA REPORT','','変更:','- メモ/共有のシンプル表示を維持','- リピートを1回タップで即入力へ変更','- リピートOFFを×ボタンへ分離','- テンキーを閉じるボタンを見やすく強調','- 数字テンキー配列と＋1柄1回仕様を維持','','自動検証:'];
+  const lines=['CROSS GPT クロッピー '+VERSION+' UI POLISH - QA REPORT','','変更:','- リピートOFF時はリピート/閉じるの2操作だけ','- リピートON時はリピート/+1柄/OFFを1段目へ整理','- ×を文字OFFへ変更','- 閉じるは2段目いっぱいに配置して視認性を確保','- 1タップ即リピート入力と数字テンキー配列を維持','','自動検証:'];
   for(const c of checks)lines.push('- '+c.name+': '+(c.ok?'PASS':'FAIL')+(c.detail?' ('+c.detail+')':''));
   lines.push('','legacy_ 関数: '+([...html.matchAll(/function\s+legacy_[A-Za-z0-9_$]+\s*\(/g)].length)+'個','残る重複関数: '+remaining.length+'種類','残る重複はIIFE内のローカル補助関数 q / qa と、別スコープの fallbackCopy のみ。','','注意:','- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。','- 外部品番検索はネットワーク先の応答に依存。','');
   fs.writeFileSync('QA_REPORT.txt',lines.join('\n'));console.log(lines.join('\n'));
