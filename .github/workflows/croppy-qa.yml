@@ -37,16 +37,16 @@ jobs:
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_iPhone_v2.64.27_SOFT_CORNERS
+          name: CROPPY_iPhone_v2.64.28_BACKUP_INTEGRITY
           path: |
-            CROPPY_iPhone_v2.64.27.js
+            CROPPY_iPhone_v2.64.28.js
             QA_REPORT.txt
           if-no-files-found: error
           retention-days: 30
       - name: Android-Web package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_Android_Web_v2.64.27_SOFT_CORNERS
+          name: CROPPY_Android_Web_v2.64.28_BACKUP_INTEGRITY
           path: |
             index.html
             manifest.webmanifest

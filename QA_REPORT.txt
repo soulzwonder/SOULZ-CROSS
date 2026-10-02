@@ -1,10 +1,11 @@
-CROSS GPT クロッピー v2.64.27 SOFT CORNERS - QA REPORT
+CROSS GPT クロッピー v2.64.28 BACKUP INTEGRITY - QA REPORT
 
 変更:
-- カード・入力欄・主要ボタンの角丸を約2pxだけ柔らかく調整
-- ピル型UIと作業モードの密度は維持
-- テンキーも操作面積を変えず角だけ少し柔らかく調整
-- v2.64.26の保存・復旧・バックアップ保護をそのまま維持
+- UIと操作は変更せずバックアップ整合性チェックを追加
+- 新規バックアップにfnv1a32チェックサムを保存
+- 復元前にチェックサム不一致を検出して破損ファイルを停止
+- 旧バックアップはチェックサム無しでも従来どおり復元可能
+- v2.64.27の角丸・保存・復旧保護を維持
 
 自動検証:
 - Version title: PASS
@@ -204,11 +205,14 @@ CROSS GPT クロッピー v2.64.27 SOFT CORNERS - QA REPORT
 - Backup status shows time and destination: PASS
 - Backup schema and app version: PASS
 - Backup captures draft history and Croppy storage: PASS
+- Backup integrity metadata is generated: PASS
+- Restore rejects checksum mismatch but allows legacy backups: PASS
 - Restore validates before writing: PASS
 - Restore auto-saves previous state: PASS
 - Restore syncs native draft and history: PASS
 - Behavior: backup validator accepts valid schema: PASS
 - Behavior: backup validator rejects invalid schema: PASS
+- Behavior: backup integrity detects tampering: PASS
 - Behavior: iPhone native data bridge is injected: PASS
 - iPhone backup saves to iCloud Scriptable folder: PASS
 - iPhone backup bridge avoids URL payload size: PASS
