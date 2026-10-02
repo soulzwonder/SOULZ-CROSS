@@ -24,7 +24,7 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR structure version marker',html.includes('<title>CROSS GPT クロッピー | v2.64.46</title>'));
+  check('OCR structure version marker',html.includes('<title>CROSS GPT クロッピー | v2.64.47</title>'));
   check('Connected-component segmentation enabled',html.includes('function ocrFindInkComponents'));
   check('Skew estimation enabled',html.includes('function ocrEstimateSkew'));
   check('Row structure clustering enabled',html.includes('function ocrClusterRows'));
@@ -97,12 +97,18 @@ try{
   check('Field sample: separated count becomes 182x2',p&&p.fixed==='182×2'&&p.confidence>=3,JSON.stringify(p));
   const repair=make('ocrDimensionRepairLine',{normalizeOCRText:x=>String(x)});
   check('Short dimension: 15x2 remains candidate',repair('15 - 2')==='15×2',repair('15 - 2'));
-  const resolve=make('ocrResolveEnginePicksV26446');
+  const resolve=make('ocrResolveEnginePicksV26447');
   let resolved=resolve({fixed:'160×1',raw:'160',confidence:3},{fixed:'160×1',raw:'160',confidence:3});
   check('Cross-engine: matching 160 is verified',resolved.length===1&&resolved[0].fixed==='160×1'&&resolved[0].verified===true,JSON.stringify(resolved));
   resolved=resolve({fixed:'141×1',raw:'141',confidence:3},{fixed:'160×1',raw:'160',confidence:3});
-  check('Cross-engine: disagreement stays unchecked',resolved.length===2&&resolved.every(x=>x.fixed.startsWith('? '))&&resolved.every(x=>x.verified===false),JSON.stringify(resolved));
+  check('Cross-engine: strong disagreement is not emitted as a dimension',resolved.length===1&&resolved[0].unresolved===true&&resolved[0].fixed===''&&resolved[0].verified===false,JSON.stringify(resolved));
+  resolved=resolve({fixed:'141×1',raw:'141',confidence:1},{fixed:'160×1',raw:'160',confidence:3});
+  check('Cross-engine: strong numeric verifier beats weak AI once',resolved.length===1&&resolved[0].fixed==='? 160×1'&&resolved[0].verified===false,JSON.stringify(resolved));
+  resolved=resolve({fixed:'236×1',raw:'236',confidence:3},{fixed:'388×1',raw:'388',confidence:3});
+  check('Field sample: 236 vs 388 conflict is withheld',resolved.length===1&&resolved[0].unresolved===true&&resolved[0].fixed==='',JSON.stringify(resolved));
   check('Line-level numeric verifier enabled',html.includes('function ocrTessReadV26446')&&html.includes("progress('数字照合 ")&&html.includes("tessedit_pageseg_mode:'7'"));
+  check('Precision gate: unresolved rows are shown but not parsed',html.includes("var note='? 行'")&&html.includes("読取不一致")&&html.includes("v.unresolved"));
+  check('Precision gate: one row cannot emit two conflicting dimensions',html.includes("reason:'engine-disagreement'")&&!html.includes("add(aiPick,'AI');add(tessPick,'OCR')"));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
