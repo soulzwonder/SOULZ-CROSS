@@ -128,6 +128,18 @@ try{
   check('Precision gate: unresolved rows are shown without dimensions',html.includes("ordered.push('要確認 行'+rowNo+' 読取不一致')"));
   check('Precision gate: no first-candidate fallback',!extract('ocrPickStructuredRow').includes('chosen=d1||d2||df'));
   check('Line-level numeric verifier enabled',html.includes('function ocrTessReadV26446')&&html.includes("progress('数字照合 ")&&html.includes("tessedit_pageseg_mode:'7'"));
+  const scriptPath='v2.64.48_CROPPY_OCR.js';
+  check('Scriptable package uses version-first filename',fs.existsSync(scriptPath));
+  if(fs.existsSync(scriptPath)){
+    const ocrScript=fs.readFileSync(scriptPath,'utf8');
+    const bm=ocrScript.match(/var b64 = '([^']+)'/);
+    const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
+    check('Scriptable package header is v2.64.48',ocrScript.includes('クロッピー v2.64.48 OCR CAMERA')&&ocrScript.includes('OCR v2.64.48 / auto-update'));
+    check('Scriptable package bundled HTML is v2.64.48',bundled.includes('<title>CROSS GPT クロッピー | v2.64.48</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.48</span>'));
+    check('Scriptable package keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
+  }
+  const copyPage=fs.readFileSync('iphone-copy.html','utf8');
+  check('OCR copy page points to version-first package',copyPage.includes('./v2.64.48_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.48'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
