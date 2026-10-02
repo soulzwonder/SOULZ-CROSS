@@ -26,6 +26,8 @@ try{
   check('Prototype iPhone syntax',(()=>{try{new Function('return (async function(){\n'+iphone+'\n})');return true}catch(e){return false}})());
   check('Camera capture input',html.includes('id="ocrCameraInput"')&&html.includes('capture="environment"'));
   check('Camera-first UI',html.indexOf('id="ocrCameraBtn"')<html.indexOf('id="ocrPickBtn"')&&html.includes('カメラで寸法メモを撮る'));
+  check('Dimension-only multi-pass OCR',html.includes('function preprocessImageVariant(file,mode)')&&html.includes("threshold205")&&html.includes("threshold225")&&html.includes("tessedit_char_whitelist:'0123456789xX*.- '"));
+  check('Loose separator repair enabled',html.includes('function ocrDimensionRepairLine(line)')&&html.includes("return nums[0]+'×'+nums[1]"));
   check('Confirmation warning',html.includes('必ず数字を確認してから追加')&&html.includes('確認した寸法を採寸へ追加'));
   check('Stable data isolated',iphone.includes('SOULZ_CROSS_OCR_TEST_draft.json')&&iphone.includes('SOULZ_CROSS_OCR_TEST_history.json')&&iphone.includes('SOULZ_CROSS_OCR_TEST_app_cache.html'));
   check('Prototype localStorage isolated',iphone.includes('https://soulz-ocr-test.local/'));
@@ -45,6 +47,13 @@ try{
     const got=out.items.map(x=>x.cm+'x'+x.count).join(',');
     check('Handwritten-dimension parser case '+(i+1),got==='360x4,240x8,40x4,110x2'&&out.items.every(x=>x.roomName==='洋間3'&&x.productCode==='LD4121'),got);
   }
+  const normSrc=extract(html,'normalizeOCRText').replace(/^function\s+normalizeOCRText/,'function');
+  const norm=Function('return ('+normSrc+');')();
+  const repairSrc=extract(html,'ocrDimensionRepairLine').replace(/^function\s+ocrDimensionRepairLine/,'function');
+  const repair=Function('normalizeOCRText','return ('+repairSrc+');')(norm);
+  check('Dimension repair spaced pair',repair('260 3')==='260×3',repair('260 3'));
+  check('Dimension repair dash pair',repair('15 - 2')==='15×2',repair('15 - 2'));
+  check('Dimension repair OCR O to zero',repair('36O x 4')==='360×4',repair('36O x 4'));
 }catch(e){check('Prototype QA harness',false,e.stack||String(e));}
 
 const pass=checks.filter(x=>x.ok).length,fail=checks.length-pass;
