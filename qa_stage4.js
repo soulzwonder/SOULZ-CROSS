@@ -1,11 +1,11 @@
 (function qaMain(){
   const fs=require('fs');
-  const VERSION='v2.64.37';
+  const VERSION='v2.64.38';
   const html=fs.readFileSync('index.html','utf8');
   const sw=fs.readFileSync('sw.js','utf8');
   const manifest=fs.readFileSync('manifest.webmanifest','utf8');
   const server=fs.readFileSync('server.js','utf8');
-  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.37.js','utf8');
+  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.38.js','utf8');
   const iphoneCopy=fs.readFileSync('iphone-copy.html','utf8');
   const checks=[];
   const check=(name,ok,detail='')=>checks.push({name,ok:!!ok,detail});
@@ -33,8 +33,8 @@
     const keys=Object.keys(deps),vals=keys.map(k=>deps[k]);
     return Function(...keys,'return ('+src+');')(...vals);
   }
-  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.37</title>'));
-  check('Visible version',html.includes('クロッピー / v2.64.37'));
+  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.38</title>'));
+  check('Visible version',html.includes('クロッピー / v2.64.38'));
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),syntaxErr=[];
   scripts.forEach((s,i)=>{try{new Function(s)}catch(e){syntaxErr.push('script'+(i+1)+':'+e.message)}});
   check('HTML embedded JS syntax',syntaxErr.length===0,syntaxErr.join(' | '));
@@ -165,14 +165,14 @@
   try{
     const start=iphone.indexOf('var b64 = '),end=iphone.indexOf(';\nvar htmlData',start),expr=iphone.slice(start+'var b64 = '.length,end);
     const chunks=[...expr.matchAll(/'([^']*)'/g)].map(m=>m[1]),embedded=Buffer.from(chunks.join(''),'base64').toString('utf8');
-    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.37</title>')&&embedded.includes('クロッピー / v2.64.37'));
+    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.38</title>')&&embedded.includes('クロッピー / v2.64.38'));
     check('iPhone embedded home flow',['⚡ すぐ計算','📐 現場を開く','📋 予定・準備'].every(s=>embedded.includes(s)));
     check('iPhone embedded quick separation',embedded.includes('quickCalcByArea')&&embedded.includes('function realProjectItems()'));
     try{
       const statusFns=extractFunctions(iphone,'croppyInjectIPhoneUpdateStatus');
       const statusSrc=statusFns[statusFns.length-1].replace(/^function\s+croppyInjectIPhoneUpdateStatus/,'function');
       const injectStatus=Function('croppyUpdateVersion','croppyUpdateSource','return ('+statusSrc+');')([2,64,21],'最新');
-      const sample='<html><head></head><body><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.64.37</div></body></html>';
+      const sample='<html><head></head><body><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.64.38</div></body></html>';
       const once=injectStatus(sample),twice=injectStatus(once);
       check('Behavior: iPhone update badge is actually injected',once.includes('data-croppy-update-badge="1"')&&once.includes('自動更新・最新 v2.64.21')&&once.includes('id="croppy-iphone-update-status-style"'));
       check('Behavior: iPhone update badge does not duplicate',(twice.match(/data-croppy-update-badge="1"/g)||[]).length===1&&(twice.match(/id="croppy-iphone-update-status-style"/g)||[]).length===1);
@@ -184,15 +184,16 @@
     check('iPhone auto-update source',iphone.includes('var AUTO_UPDATE_URL = "https://soulz-cross.onrender.com/";')&&iphone.includes('async function croppyLoadLatestHTML(bundled)')&&iphone.includes('croppy_iphone_update='));
     check('iPhone auto-update cache fallback',iphone.includes('SOULZ_CROSS_app_cache.html')&&iphone.includes('fm.fileExists(appCachePath)')&&iphone.includes('croppyWriteVerifiedCache(remote)')&&iphone.includes('using cached/bundled app'));
     check('iPhone staged update cache recovers on launch',iphone.includes('var cacheCandidates = [appCachePath, appCacheTempPath]')&&iphone.includes('cacheCandidate === appCacheTempPath')&&iphone.includes('croppyWriteVerifiedCache(cached)'));
+    check('iPhone invalid update cache is cleaned',iphone.includes('var cachedValid = croppyValidHTML(cached)')&&iphone.includes('else if (!cachedValid)')&&iphone.includes('fm.remove(cacheCandidate)'));
     check('iPhone auto-update prevents downgrade',iphone.includes('croppyCompareVersion(remoteVersion, croppyHTMLVersion(bundled)) >= 0')&&iphone.includes('croppyCompareVersion(remoteVersion, bestVersion) >= 0'));
     try{
       const vf=extractFunctions(iphone,'croppyHTMLVersion');const vs=vf[vf.length-1].replace(/^function\s+croppyHTMLVersion/,'function');
       const version=Function('return ('+vs+');')();
       const cf=extractFunctions(iphone,'croppyValidHTML');const cs=cf[cf.length-1].replace(/^function\s+croppyValidHTML/,'function');
       const valid=Function('croppyHTMLVersion','return ('+cs+');')(version);
-      const good='<!doctype html><html><head><title>CROSS GPT クロッピー | v2.64.37</title></head><body><button id="startMeasureBtn"></button><div id="workAreaTabs"></div><button id="lengthField"></button><button id="countField"></button><div id="keypadWrap"></div><button id="keypadRepeatBtn"></button><button id="historyAllBtn"></button></body></html>';
+      const good='<!doctype html><html><head><title>CROSS GPT クロッピー | v2.64.38</title></head><body><button id="startMeasureBtn"></button><div id="workAreaTabs"></div><button id="lengthField"></button><button id="countField"></button><div id="keypadWrap"></div><button id="keypadRepeatBtn"></button><button id="historyAllBtn"></button></body></html>';
       const truncated=good.slice(0,-14);
-      const noVersion=good.replace('CROSS GPT クロッピー | v2.64.37','CROSS GPT クロッピー');
+      const noVersion=good.replace('CROSS GPT クロッピー | v2.64.38','CROSS GPT クロッピー');
       const missingId=good.replace('id="lengthField"','id="missingLengthField"');
       const brokenEnd=good.replace(/<\/body><\/html>$/,'');
       check('Behavior: truncated update HTML is rejected',valid(good)===true&&valid(truncated)===false);
@@ -262,6 +263,7 @@
       check('Behavior: offline launch uses valid cache',u.result===cacheNew&&u.source==='キャッシュ',JSON.stringify({source:u.source}));
       u=runUpdateScenario({remoteError:true,files:{CACHE:'<html>broken cache</html>'}});
       check('Behavior: broken cache plus remote failure uses bundled',u.result===bundled&&u.source==='内蔵',JSON.stringify({source:u.source}));
+      check('Behavior: broken primary update cache is cleaned',u.removed.includes('CACHE')&&!Object.prototype.hasOwnProperty.call(u.store,'CACHE'),JSON.stringify({removed:u.removed,keys:Object.keys(u.store)}));
       u=runUpdateScenario({remoteError:true});
       check('Behavior: remote fetch failure uses bundled fallback',u.result===bundled&&u.source==='内蔵',JSON.stringify({source:u.source}));
       u=runUpdateScenario({remoteError:true,files:{CACHE:'<html>broken cache</html>',TEMP:tempNew}});
@@ -277,6 +279,7 @@
         'Behavior: older remote cannot downgrade bundled app',
         'Behavior: offline launch uses valid cache',
         'Behavior: broken cache plus remote failure uses bundled',
+        'Behavior: broken primary update cache is cleaned',
         'Behavior: remote fetch failure uses bundled fallback',
         'Behavior: verified staged cache recovers after interrupted update',
         'Behavior: partially downloaded remote falls back safely'
@@ -534,6 +537,62 @@
   check('Web staged save keys present',html.includes("DRAFT_STAGE_KEY='SOULZ_CROSS_STAGE_DRAFT_V1'")&&html.includes("HISTORY_STAGE_KEY='SOULZ_CROSS_STAGE_HISTORY_V1'"));
   check('Web staged save verifies before promote',activeFunction('croppyWriteWithRecovery').includes("staged save verification failed")&&activeFunction('croppyWriteWithRecovery').includes("primary save verification failed")&&activeFunction('croppyWriteWithRecovery').includes('localStorage.removeItem(stageKey)'));
   check('Backup excludes staged snapshots',activeFunction('croppyIsRecoveryKey').includes("SOULZ_CROSS_STAGE_"));
+  check('Backup requires verified latest primary',html.includes('function croppyVerifyLatestBeforeBackup()')&&activeFunction('croppyBuildBackup').includes('croppyVerifyLatestBeforeBackup()')&&activeFunction('croppyBuildBackup').includes('croppyValidateBackup(backup)'));
+  check('Backup save functions report write result',activeFunction('saveDraft').includes('return ok!==false')&&activeFunction('saveHistoryStore').includes('return ok!==false'));
+  check('Backup export aborts safely on verification failure',activeFunction('croppyExportBackup').includes('バックアップを作成できませんでした')&&activeFunction('croppyExportBackup').includes('return false'));
+  try{
+    const parse=makeFn('croppyStoredValue',{});
+    function runFault(kind){
+      const store={P:'{"n":1}',R:'{"n":1}'},faults=[];let enabled=true;
+      const ls={
+        getItem:k=>Object.prototype.hasOwnProperty.call(store,k)?store[k]:null,
+        setItem:(k,v)=>{
+          if(enabled&&kind==='stage'&&k==='S')throw new Error('stage write fault');
+          if(enabled&&kind==='recovery'&&k==='R')throw new Error('recovery write fault');
+          if(enabled&&kind==='primary'&&k==='P')throw new Error('primary write fault');
+          store[k]=v;
+        },
+        removeItem:k=>{delete store[k]}
+      };
+      const write=makeFn('croppyWriteWithRecovery',{localStorage:ls,croppyStoredValue:parse,croppyNotifyStorageFault:e=>faults.push(String(e&&e.message||e)),DRAFT_STAGE_KEY:'S',HISTORY_STAGE_KEY:'HS',JSON,Error});
+      const ok=write('P','R',{n:2},'draft');
+      enabled=false;
+      return {ok,store,faults,ls};
+    }
+    let x=runFault('stage');
+    check('Behavior: stage write fault leaves primary untouched',x.ok===false&&x.store.P==='{"n":1}'&&!Object.prototype.hasOwnProperty.call(x.store,'S')&&x.faults.length===1,JSON.stringify(x.store));
+    x=runFault('recovery');
+    const recovered=[],win={};
+    const read1=makeFn('croppyReadWithRecovery',{localStorage:x.ls,croppyStoredValue:parse,croppyRecoveredKinds:recovered,window:win,DRAFT_STAGE_KEY:'S',HISTORY_STAGE_KEY:'HS'});
+    const got1=read1('P','R','draft');
+    check('Behavior: recovery write fault keeps stage recoverable',x.ok===false&&got1&&got1.n===2&&x.store.P==='{"n":2}'&&!Object.prototype.hasOwnProperty.call(x.store,'S'),JSON.stringify({store:x.store,recovered}));
+    x=runFault('primary');
+    const recovered2=[],win2={};
+    const read2=makeFn('croppyReadWithRecovery',{localStorage:x.ls,croppyStoredValue:parse,croppyRecoveredKinds:recovered2,window:win2,DRAFT_STAGE_KEY:'S',HISTORY_STAGE_KEY:'HS'});
+    const got2=read2('P','R','draft');
+    check('Behavior: primary write fault keeps verified stage recoverable',x.ok===false&&got2&&got2.n===2&&x.store.P==='{"n":2}'&&!Object.prototype.hasOwnProperty.call(x.store,'S'),JSON.stringify({store:x.store,recovered:recovered2}));
+  }catch(e){
+    check('Behavior: stage write fault leaves primary untouched',false,e.message);
+    check('Behavior: recovery write fault keeps stage recoverable',false,e.message);
+    check('Behavior: primary write fault keeps verified stage recoverable',false,e.message);
+  }
+  try{
+    const parse=makeFn('croppyStoredValue',{});
+    const stateNow={jobName:'最新'},historyNow=[{id:'h1'}];
+    const store={D:'{"jobName":"古い"}',H:'[{"id":"h1"}]'};
+    const ls={getItem:k=>Object.prototype.hasOwnProperty.call(store,k)?store[k]:null};
+    const verify=makeFn('croppyVerifyLatestBeforeBackup',{state:stateNow,history:historyNow,localStorage:ls,DRAFT_KEY:'D',HISTORY_KEY:'H',croppyStoredValue:parse,JSON,Error});
+    let staleRejected=false;try{verify()}catch(e){staleRejected=String(e.message).includes('バックアップを中止')}
+    store.D=JSON.stringify(stateNow);
+    const freshAccepted=verify()===true;
+    check('Behavior: backup rejects stale primary and accepts fresh readback',staleRejected&&freshAccepted,JSON.stringify(store));
+    const build=makeFn('croppyBuildBackup',{saveDraft:()=>false,saveHistoryStore:()=>true,croppyVerifyLatestBeforeBackup:()=>true,Error});
+    let saveFailureRejected=false;try{build()}catch(e){saveFailureRejected=String(e.message).includes('バックアップを中止')}
+    check('Behavior: backup aborts when pre-save reports failure',saveFailureRejected);
+  }catch(e){
+    check('Behavior: backup rejects stale primary and accepts fresh readback',false,e.message);
+    check('Behavior: backup aborts when pre-save reports failure',false,e.message);
+  }
   check('Storage quota gets specific guidance',html.includes("function croppyStorageFaultInfo(err)")&&html.includes("保存容量がいっぱいです。バックアップ後に履歴を整理してください")&&html.includes("__CROPPY_STORAGE_FAULT_REASON=info.reason"));
   try{
     const info=makeFn('croppyStorageFaultInfo',{String,Number});
@@ -560,7 +619,7 @@
     const got=read('p','r','draft');
     check('Behavior: interrupted staged save recovers latest',got&&got.jobName==='途中保存'&&store.p==='{"jobName":"途中保存"}'&&!Object.prototype.hasOwnProperty.call(store,'sd')&&win.__CROPPY_RECOVERED_ON_LOAD===true,JSON.stringify({got,store,recovered,win}));
   }catch(e){check('Behavior: interrupted staged save recovers latest',false,e.message)}
-  check('Backup schema and app version',html.includes("format:'CROPPY_BACKUP'")&&html.includes("formatVersion:1")&&html.includes("appVersion:'v2.64.37'"));
+  check('Backup schema and app version',html.includes("format:'CROPPY_BACKUP'")&&html.includes("formatVersion:1")&&html.includes("appVersion:'v2.64.38'"));
   check('Backup captures draft history and Croppy storage',html.includes("key===DRAFT_KEY||key===HISTORY_KEY")&&html.includes("key.indexOf('SOULZ_CROSS_')===0")&&html.includes("key.indexOf('soulz_cross_')===0"));
   check('Backup excludes stale recovery snapshots',html.includes('function croppyIsRecoveryKey(key)')&&html.includes("croppyIsDataKey(k)&&!croppyIsRecoveryKey(k)"));
   check('Restore reseeds recovery from restored primary',html.includes("localStorage.setItem(DRAFT_RECOVERY_KEY,restoredDraft)")&&html.includes("localStorage.setItem(HISTORY_RECOVERY_KEY,restoredHistory)"));
@@ -655,7 +714,7 @@
     const valf=extractFunctions(iphone,'croppyValidHTML');const validSrc=valf[valf.length-1].replace(/^function\s+croppyValidHTML/,'function');
     const validFn=Function('croppyHTMLVersion','return ('+validSrc+');')(versionFn);
     const wf=extractFunctions(iphone,'croppyWriteVerifiedCache');const writeSrc=wf[wf.length-1].replace(/^function\s+croppyWriteVerifiedCache/,'function');
-    const sample='<!doctype html><html><head><title>CROSS GPT クロッピー | v2.64.37</title></head><body><button id="startMeasureBtn"></button><div id="workAreaTabs"></div><button id="lengthField"></button><button id="countField"></button><div id="keypadWrap"></div><button id="keypadRepeatBtn"></button><button id="historyAllBtn"></button></body></html>';
+    const sample='<!doctype html><html><head><title>CROSS GPT クロッピー | v2.64.38</title></head><body><button id="startMeasureBtn"></button><div id="workAreaTabs"></div><button id="lengthField"></button><button id="countField"></button><div id="keypadWrap"></div><button id="keypadRepeatBtn"></button><button id="historyAllBtn"></button></body></html>';
     const files={};let failFinal=true;
     const fmMock={writeString:function(p,v){if(p==='CACHE'&&failFinal)throw new Error('simulated cache final write failure');files[p]=v},readString:function(p){return files[p]},fileExists:function(p){return Object.prototype.hasOwnProperty.call(files,p)},remove:function(p){delete files[p]}};
     const write=Function('fm','appCacheTempPath','appCachePath','croppyValidHTML','croppyCompareVersion','croppyHTMLVersion','console','return ('+writeSrc+');')(fmMock,'TEMP','CACHE',validFn,compareFn,versionFn,{log:function(){}});
@@ -739,14 +798,14 @@
     const sample='window.__SOULZ_BOOT_DRAFT = null;\nwindow.__SOULZ_BOOT_HISTORY = null;\nwindow.__SOULZ_HOME_MODE = false;\nwindow.__SOULZ_NATIVE_RECOVERED = false;';
     const out=inject(sample);check('Behavior: iPhone boot injection carries native data',out.includes('復旧テスト')&&out.includes('"id":"h1"')&&out.includes('__SOULZ_HOME_MODE = true')&&out.includes('__SOULZ_NATIVE_RECOVERED = true'),out);
   }catch(e){check('Behavior: iPhone boot injection carries native data',false,e.message)}
-  check('iPhone copy installer follows latest',iphoneCopy.includes('v2.64.37')&&iphoneCopy.includes('./CROPPY_iPhone_v2.64.37.js')&&!iphoneCopy.includes('v2.58.27'));
+  check('iPhone copy installer follows latest',iphoneCopy.includes('v2.64.38')&&iphoneCopy.includes('./CROPPY_iPhone_v2.64.38.js')&&!iphoneCopy.includes('v2.58.27'));
   check('SW cache version',sw.includes('cross-gpt-croppy-'+VERSION.split('.').join('-')));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
-  const lines=['CROSS GPT クロッピー '+VERSION+' CACHE FAILSAFE - QA REPORT','','変更:','- UIと操作は変更せずWeb/Android保存を段階書き込み化','- 一時保存を読戻し検証してから本番データへ昇格','- 保存途中で終了した場合は次回起動時に検証済み一時保存から復旧','- 一時保存キーはバックアップ対象から除外','- v2.64.35の復元ロールバック・容量不足警告・iPhone保護を維持','- iPhone自動更新は必須UI・HTML終端・remote/cache/bundled異常系を挙動QA','- 検証済み更新tmpを最終cache書込み失敗時にも保持','- 旧Recovery/Stage入りバックアップと履歴1000件を復元QA','- Service Workerのオフラインindex/asset fallbackを挙動QA','','自動検証:'];
+  const lines=['CROSS GPT クロッピー '+VERSION+' BACKUP COMMIT GUARD - QA REPORT','','変更:','- UIと操作は変更せずWeb/Android保存を段階書き込み化','- 一時保存を読戻し検証してから本番データへ昇格','- 保存途中で終了した場合は次回起動時に検証済み一時保存から復旧','- 一時保存キーはバックアップ対象から除外','- v2.64.35の復元ロールバック・容量不足警告・iPhone保護を維持','- iPhone自動更新は必須UI・HTML終端・remote/cache/bundled異常系を挙動QA','- 検証済み更新tmpを最終cache書込み失敗時にも保持','- 旧Recovery/Stage入りバックアップと履歴1000件を復元QA','- Service Workerのオフラインindex/asset fallbackを挙動QA','- バックアップ直前の保存結果とlocalStorage読戻し一致を必須化','- stage/recovery/primary書込み故障を注入し次回復旧を挙動QA','- 壊れたiPhone更新cacheは自動削除して内蔵版へ安全fallback','','自動検証:'];
   for(const c of checks)lines.push('- '+c.name+': '+(c.ok?'PASS':'FAIL')+(c.detail?' ('+c.detail+')':''));
   lines.push('','実機確認（5分）:','1. 起動 → 採寸画面まで進む','2. 長さ → 枚数 → 追加を3回繰り返す','3. リピートOFF記憶 → ON復帰 → +1柄の1回使い切りを確認','4. カット済みチェック → 保存 → 再起動で保持を確認','5. バックアップ書き出し → 最終日時/保存先の更新を確認','6. 共有シートとホーム画面起動を確認','7. オフライン再起動でキャッシュ起動を確認','','legacy_ 関数: '+([...html.matchAll(/function\s+legacy_[A-Za-z0-9_$]+\s*\(/g)].length)+'個','残る重複関数: '+remaining.length+'種類','残る重複はIIFE内のローカル補助関数 q / qa と、別スコープの fallbackCopy のみ。','','注意:','- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。','- 外部品番検索はネットワーク先の応答に依存。','');
   fs.writeFileSync('QA_REPORT.txt',lines.join('\n'));console.log(lines.join('\n'));
