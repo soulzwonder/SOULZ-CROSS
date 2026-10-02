@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.59',html.includes('<title>CROSS GPT クロッピー | v2.64.59</title>'));
-  check('OCR visible badge v2.64.59',html.includes('<span class="ocr-version-badge">v2.64.59</span>'));
+  check('OCR version marker v2.64.60',html.includes('<title>CROSS GPT クロッピー | v2.64.60</title>'));
+  check('OCR visible badge v2.64.60',html.includes('<span class="ocr-version-badge">v2.64.60</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -221,6 +221,7 @@ try{
     ['2',{ratio:1.5938,density:.0862,holes:0,topSpan:.5196,midSpan:.1863,botSpan:.8824,topMean:.2475,midMean:.4411,botMean:.4775,compCount:1}]
   ];
   check('Current field photo direct geometry digits all match',field56.every(function(t){return classify56(t[1]).digit===t[0]}),field56.map(function(t){return t[0]+'='+classify56(t[1]).digit}).join(','));
+  check('iPhone 1800px: handwritten 3 in 35 survives scale',classify56({ratio:.4356435644,density:.1755175518,holes:0,topSpan:.8636363636,midSpan:.6136363636,botSpan:.7727272727,topMean:.5086722488,midMean:.7369417863,botMean:.5696480938,compCount:1}).digit==='3');
   check('Current field photo: bare handwritten 5 is classified',classify56({ratio:.4819,density:.1801,holes:0,topSpan:.7000,midSpan:.8500,botSpan:.6250,topMean:.3203,midMean:.2917,botMean:.7411,compCount:1}).digit==='5');
   check('Current field photo: 236 middle glyph stays 3 not 7',classify56({ratio:.8611,density:.0948,holes:0,topSpan:.9677,midSpan:.2258,botSpan:.3226,topMean:.5042,midMean:.9011,botMean:.6899,compCount:1}).digit==='3');
   check('Representative handwritten 7 remains 7',classify56({ratio:.9000,density:.0900,holes:0,topSpan:.9500,midSpan:.2500,botSpan:.3000,topMean:.5500,midMean:.4500,botMean:.3500,compCount:1}).digit==='7');
@@ -281,18 +282,18 @@ try{
   check('OSS diagnostics are visible',extract('ocrDiagTextV26453').includes("' / OSS補助 '"));
   const notice59=fs.readFileSync('OCR_THIRD_PARTY_NOTICES.md','utf8');
   check('Guten OCR MIT attribution is retained',notice59.includes('Guten OCR')&&notice59.includes('MIT License')&&notice59.includes('b00d56c95a268bafd719c39eb22fbfb2d2a92a35'));
-  const scriptPath='v2.64.59_CROPPY_OCR.js';
-  check('Scriptable v2.64.59 package exists',fs.existsSync(scriptPath));
+  const scriptPath='v2.64.60_CROPPY_OCR.js';
+  check('Scriptable v2.64.60 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.59',ocrScript.includes('クロッピー v2.64.59 OCR CAMERA')&&ocrScript.includes('OCR v2.64.59 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.59',bundled.includes('<title>CROSS GPT クロッピー | v2.64.59</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.59</span>'));
+    check('Scriptable header is version-first v2.64.60',ocrScript.includes('クロッピー v2.64.60 OCR CAMERA')&&ocrScript.includes('OCR v2.64.60 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.60',bundled.includes('<title>CROSS GPT クロッピー | v2.64.60</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.60</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.59 version-first package',copyPage.includes('./v2.64.59_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.59'));
+  check('OCR copy page points to v2.64.60 version-first package',copyPage.includes('./v2.64.60_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.60'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
