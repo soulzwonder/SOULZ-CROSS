@@ -7,6 +7,7 @@
   const server=fs.readFileSync('server.js','utf8');
   const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.38.js','utf8');
   const iphoneCopy=fs.readFileSync('iphone-copy.html','utf8');
+  const ocrProto=fs.readFileSync('ocr-camera-prototype.html','utf8');
   const checks=[];
   const check=(name,ok,detail='')=>checks.push({name,ok:!!ok,detail});
   function extractFunctions(src,name){
@@ -33,8 +34,41 @@
     const keys=Object.keys(deps),vals=keys.map(k=>deps[k]);
     return Function(...keys,'return ('+src+');')(...vals);
   }
+  function protoFn(name,deps){
+    const a=extractFunctions(ocrProto,name);if(!a.length)throw new Error('missing OCR prototype '+name);
+    const src=a[a.length-1].replace(new RegExp('^function\\s+'+name.replace(/\$/g,'\\$&')),'function');
+    const keys=Object.keys(deps||{}),vals=keys.map(k=>(deps||{})[k]);
+    return Function(...keys,'return ('+src+');')(...vals);
+  }
   check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.38</title>'));
   check('Visible version',html.includes('クロッピー / v2.64.38'));
+  check('OCR analysis prototype version',ocrProto.includes('<title>CROSS GPT クロッピー | v2.64.45</title>'));
+  const ocrScripts=[...ocrProto.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),ocrSyntaxErr=[];
+  ocrScripts.forEach((x,i)=>{try{new Function(x)}catch(e){ocrSyntaxErr.push('ocr-script'+(i+1)+':'+e.message)}});
+  check('OCR analysis prototype JS syntax',ocrSyntaxErr.length===0,ocrSyntaxErr.join(' | '));
+  check('OCR smart connected-component segmentation',ocrProto.includes('function findOCRRowsSmartV26445')&&ocrProto.includes('new Uint8Array(gw*gh)')&&ocrProto.includes('row.contrast<12'));
+  check('OCR multi-engine row ensemble',ocrProto.includes('recognizeTesseractLinesV26445')&&ocrProto.includes('ocrConsensusRowsV26445')&&ocrProto.includes("variant:'blue'")&&ocrProto.includes("variant:'gray'"));
+  check('OCR uncertainty never auto-selects',ocrProto.includes('explicitUncertain=')&&ocrProto.includes('use:!suspicious'));
+  try{
+    const normalize=protoFn('normalizeOCRText',{});
+    const repair=protoFn('ocrDimensionRepairLine',{normalizeOCRText:normalize,isFinite,parseFloat,parseInt});
+    check('Behavior: OCR keeps 15cm short dimension',repair('15 - 2')==='15×2',repair('15 - 2'));
+    check('Behavior: OCR repairs O to zero',repair('16O x 1')==='160×1',repair('16O x 1'));
+    const consensus=protoFn('ocrConsensusRowsV26445',{parseFloat,isFinite,Object,Math});
+    let ai=[{row:0,fixed:'141×1',engine:'ai',variant:'blue'},{row:0,fixed:'160×1',engine:'ai',variant:'gray'},{row:1,fixed:'53×2',engine:'ai',variant:'blue'}];
+    let tess=[{row:0,fixed:'160×1',engine:'tess',variant:'blue'},{row:0,fixed:'160×1',engine:'tess',variant:'gray'},{row:1,fixed:'53×2',engine:'tess',variant:'gray'}];
+    let voted=consensus(ai,tess,2);
+    check('Behavior: cross-engine agreement wins OCR row',voted[0]==='160×1'&&voted[1]==='53×2',JSON.stringify(voted));
+    ai=[{row:0,fixed:'141×1',engine:'ai',variant:'blue'},{row:0,fixed:'141×1',engine:'ai',variant:'gray'}];
+    tess=[{row:0,fixed:'160×1',engine:'tess',variant:'blue'},{row:0,fixed:'160×1',engine:'tess',variant:'gray'}];
+    voted=consensus(ai,tess,1);
+    check('Behavior: OCR engine disagreement stays unchecked',voted.length>=1&&voted.every(x=>x.startsWith('? ')),JSON.stringify(voted));
+  }catch(e){
+    check('Behavior: OCR keeps 15cm short dimension',false,e.message);
+    check('Behavior: OCR repairs O to zero',false,e.message);
+    check('Behavior: cross-engine agreement wins OCR row',false,e.message);
+    check('Behavior: OCR engine disagreement stays unchecked',false,e.message);
+  }
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),syntaxErr=[];
   scripts.forEach((s,i)=>{try{new Function(s)}catch(e){syntaxErr.push('script'+(i+1)+':'+e.message)}});
   check('HTML embedded JS syntax',syntaxErr.length===0,syntaxErr.join(' | '));
