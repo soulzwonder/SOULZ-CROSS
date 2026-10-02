@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.51',html.includes('<title>CROSS GPT クロッピー | v2.64.51</title>'));
-  check('OCR visible badge v2.64.51',html.includes('<span class="ocr-version-badge">v2.64.51</span>'));
+  check('OCR version marker v2.64.52',html.includes('<title>CROSS GPT クロッピー | v2.64.52</title>'));
+  check('OCR visible badge v2.64.52',html.includes('<span class="ocr-version-badge">v2.64.52</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -45,7 +45,7 @@ try{
   const fixed=make('ocrFixedParts',{ocrDimensionRepairLine:repair});
   const vote=make('ocrVoteValuesV26449');
   const pick=make('ocrPickStructuredRow',{ocrMainNumber:main,ocrFixedParts:fixed,ocrCountNumber:count,ocrVoteValuesV26449:vote});
-  const resolve=make('ocrResolveEnginePicksV26450');
+  const resolve=make('ocrResolveEnginePicksV26452');
 
   const wallItems=[{"x":523,"y":73,"w":14,"h":17,"area":80,"cx":530.56,"cy":80.99},{"x":524,"y":214,"w":16,"h":22,"area":92,"cx":531.46,"cy":225.27},{"x":971,"y":259,"w":18,"h":22,"area":80,"cx":980.55,"cy":269.46},{"x":212,"y":292,"w":48,"h":54,"area":444,"cx":231.8,"cy":318.11},{"x":251,"y":321,"w":56,"h":25,"area":287,"cx":278.46,"cy":337.26},{"x":243,"y":325,"w":9,"h":47,"area":106,"cx":246.13,"cy":347.45},{"x":862,"y":342,"w":135,"h":160,"area":1765,"cx":949.52,"cy":409.62},{"x":205,"y":382,"w":22,"h":39,"area":113,"cx":215.6,"cy":401.62},{"x":540,"y":397,"w":67,"h":163,"area":1544,"cx":573.41,"cy":473.66},{"x":700,"y":420,"w":134,"h":40,"area":557,"cx":764.77,"cy":442.55},{"x":426,"y":466,"w":66,"h":96,"area":735,"cx":457.84,"cy":508.92},{"x":332,"y":477,"w":60,"h":169,"area":557,"cx":357.07,"cy":562.76},{"x":147,"y":532,"w":53,"h":85,"area":525,"cx":169.84,"cy":564.07},{"x":174,"y":599,"w":53,"h":25,"area":190,"cx":200.43,"cy":609.43},{"x":826,"y":632,"w":84,"h":126,"area":1497,"cx":869.65,"cy":708.82},{"x":454,"y":676,"w":97,"h":111,"area":1517,"cx":497.39,"cy":722.34},{"x":140,"y":699,"w":70,"h":113,"area":798,"cx":173.88,"cy":750.86},{"x":679,"y":701,"w":133,"h":22,"area":294,"cx":741.99,"cy":711.33},{"x":403,"y":717,"w":25,"h":55,"area":228,"cx":410.21,"cy":747.05},{"x":307,"y":728,"w":74,"h":79,"area":564,"cx":333.2,"cy":769.12},{"x":612,"y":865,"w":99,"h":81,"area":1016,"cx":658.01,"cy":907.88},{"x":416,"y":878,"w":62,"h":63,"area":585,"cx":448.12,"cy":909.62},{"x":377,"y":895,"w":20,"h":63,"area":178,"cx":385.75,"cy":926.71},{"x":527,"y":894,"w":41,"h":10,"area":116,"cx":546.49,"cy":898.6},{"x":481,"y":1007,"w":94,"h":63,"area":683,"cx":522.18,"cy":1039.23},{"x":397,"y":1009,"w":78,"h":81,"area":573,"cx":438.39,"cy":1046.28},{"x":534,"y":1119,"w":19,"h":90,"area":385,"cx":539.77,"cy":1165.22},{"x":598,"y":1129,"w":84,"h":78,"area":764,"cx":636.62,"cy":1171.28},{"x":381,"y":1130,"w":63,"h":67,"area":464,"cx":420.53,"cy":1158.5},{"x":445,"y":1184,"w":56,"h":13,"area":149,"cx":470.46,"cy":1188.81}];
   const wallSlope=estimate(wallItems,1152,1536);
@@ -116,7 +116,7 @@ try{
   repaired=repairOne({fixed:'208×1',raw:'208',confidence:3},{fixed:'218×1',raw:'形状',confidence:3});
   check('Shape repair does not change non-1 disagreement',repaired&&repaired.fixed==='208×1'&&!repaired.repairedByShape,JSON.stringify(repaired));
 
-  const resolve3=make('ocrResolveEnginePicksV26450');
+  const resolve3=make('ocrResolveEnginePicksV26452');
   let r3=resolve3({fixed:'108×3',raw:'ai',confidence:3},{fixed:'8×3',raw:'ocr',confidence:3},{fixed:'108×3',raw:'shape',confidence:3});
   check('Three-engine majority returns medium candidate',r3.length===1&&r3[0].fixed==='108×3'&&r3[0].tier==='medium'&&!r3[0].verified,JSON.stringify(r3));
   r3=resolve3({fixed:'218×6',raw:'ai',confidence:3},{fixed:'218×6',raw:'ocr',confidence:3},{fixed:'218×6',raw:'shape',confidence:3});
@@ -124,19 +124,51 @@ try{
   r3=resolve3(null,null,{fixed:'212×1',raw:'shape',confidence:3});
   check('Shape-only strong candidate is medium, never auto-high',r3.length===1&&r3[0].fixed==='212×1'&&r3[0].tier==='medium'&&!r3[0].verified,JSON.stringify(r3));
   check('Digit-shape engine is wired into line crops',extract('makeOCRLineCrops').includes('shapeMain:ocrCanvasDigitShapeV26450')&&extract('makeOCRLineCrops').includes('shapeRight:rightInkCv?ocrCanvasDigitShapeV26450'));
-  check('Three-engine resolver is wired',extract('recognizeHandwritingLines').includes('ocrResolveEnginePicksV26450(aiPick,tessPick,shapePick)'));
-  const scriptPath='v2.64.51_CROPPY_OCR.js';
-  check('Scriptable v2.64.51 package exists',fs.existsSync(scriptPath));
+  check('Three-engine resolver is wired',extract('recognizeHandwritingLines').includes('ocrResolveEnginePicksV26452(aiPick,tessPick,shapePick)'));
+  check('Free PaddleOCR official SDK is pinned',html.includes('https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/+esm'));
+  check('PaddleOCR uses PP-OCRv5 English handwriting model selection',extract('loadPaddleOCRV26452').includes("lang:'en'")&&extract('loadPaddleOCRV26452').includes("ocrVersion:'PP-OCRv5'"));
+  check('PaddleOCR has no API key path',!extract('loadPaddleOCRV26452').toLowerCase().includes('apikey')&&!extract('loadPaddleOCRV26452').toLowerCase().includes('authorization'));
+  check('PaddleOCR failure falls back safely',extract('recognizeHandwritingLines').includes('PaddleOCR unavailable, fallback active')&&extract('recognizeHandwritingLines').includes('paddle=null'));
+
+  const paddleFrom=make('ocrPaddlePickFromResultsV26452',{
+    ocrPaddleResultV26452:make('ocrPaddleResultV26452'),
+    ocrMainNumber:main,
+    ocrFixedParts:fixed,
+    ocrCountNumber:count
+  });
+  function pres(text,score=.9){return{items:text?[{text,score,poly:[[0,0],[20,0],[20,10],[0,10]]}]:[]}}
+  let pp=paddleFrom(pres('108',.94),pres('108-3',.90),pres('3',.96),{hasRight:true});
+  check('Paddle sample: 108x3',pp&&pp.fixed==='108×3'&&pp.confidence===3,JSON.stringify(pp));
+  pp=paddleFrom(pres('218',.92),pres('218-6',.89),pres('6',.93),{hasRight:true});
+  check('Paddle sample: 218x6',pp&&pp.fixed==='218×6'&&pp.confidence===3,JSON.stringify(pp));
+  pp=paddleFrom(pres('10',.91),pres('10-2',.88),pres('2',.95),{hasRight:true});
+  check('Paddle sample: 10x2',pp&&pp.fixed==='10×2'&&pp.confidence===3,JSON.stringify(pp));
+  pp=paddleFrom(pres('22',.96),pres('22',.93),null,{hasRight:false});
+  check('Paddle sample: 22x1',pp&&pp.fixed==='22×1'&&pp.confidence===3,JSON.stringify(pp));
+  pp=paddleFrom(pres('212',.94),pres('212',.91),null,{hasRight:false});
+  check('Paddle sample: 212x1',pp&&pp.fixed==='212×1'&&pp.confidence===3,JSON.stringify(pp));
+  pp=paddleFrom(pres('108',.9),pres('188-3',.9),pres('3',.9),{hasRight:true});
+  check('Paddle internal disagreement is withheld',pp&&pp.unresolved===true&&pp.fixed==='',JSON.stringify(pp));
+
+  const resolve4=make('ocrResolveEnginePicksV26452');
+  let r4=resolve4({fixed:'108×3',raw:'trocr',confidence:3},{fixed:'8×3',raw:'tess',confidence:3},{fixed:'108×3',raw:'shape',confidence:3},{fixed:'108×3',raw:'paddle',confidence:3});
+  check('Four-engine 3-to-1 majority is high confidence',r4.length===1&&r4[0].fixed==='108×3'&&r4[0].tier==='high'&&r4[0].verified,JSON.stringify(r4));
+  r4=resolve4(null,{fixed:'218×6',raw:'tess',confidence:3},{fixed:'218×6',raw:'shape',confidence:3},{fixed:'218×6',raw:'paddle',confidence:3});
+  check('Paddle plus two local engines can verify without TrOCR',r4.length===1&&r4[0].fixed==='218×6'&&r4[0].tier==='high',JSON.stringify(r4));
+  r4=resolve4({fixed:'108×3',raw:'trocr',confidence:3},{fixed:'8×3',raw:'tess',confidence:3},{fixed:'108×3',raw:'shape',confidence:3},{fixed:'8×3',raw:'paddle',confidence:3});
+  check('Four-engine 2-to-2 tie is withheld',r4.length===1&&r4[0].unresolved===true,JSON.stringify(r4));
+  const scriptPath='v2.64.52_CROPPY_OCR.js';
+  check('Scriptable v2.64.52 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.51',ocrScript.includes('クロッピー v2.64.51 OCR CAMERA')&&ocrScript.includes('OCR v2.64.51 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.51',bundled.includes('<title>CROSS GPT クロッピー | v2.64.51</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.51</span>'));
+    check('Scriptable header is version-first v2.64.52',ocrScript.includes('クロッピー v2.64.52 OCR CAMERA')&&ocrScript.includes('OCR v2.64.52 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.52',bundled.includes('<title>CROSS GPT クロッピー | v2.64.52</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.52</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.51 version-first package',copyPage.includes('./v2.64.51_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.51'));
+  check('OCR copy page points to v2.64.52 version-first package',copyPage.includes('./v2.64.52_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.52'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
