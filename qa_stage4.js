@@ -798,7 +798,9 @@
     const sample='window.__SOULZ_BOOT_DRAFT = null;\nwindow.__SOULZ_BOOT_HISTORY = null;\nwindow.__SOULZ_HOME_MODE = false;\nwindow.__SOULZ_NATIVE_RECOVERED = false;';
     const out=inject(sample);check('Behavior: iPhone boot injection carries native data',out.includes('復旧テスト')&&out.includes('"id":"h1"')&&out.includes('__SOULZ_HOME_MODE = true')&&out.includes('__SOULZ_NATIVE_RECOVERED = true'),out);
   }catch(e){check('Behavior: iPhone boot injection carries native data',false,e.message)}
-  check('iPhone copy installer follows latest',iphoneCopy.includes('v2.64.38')&&iphoneCopy.includes('./CROPPY_iPhone_v2.64.38.js')&&!iphoneCopy.includes('v2.58.27'));
+  const copyVersion=(iphoneCopy.match(/iPhone OCR版 v(\d+\.\d+\.\d+)/)||[])[1]||'';
+  const copyFileVersion=(iphoneCopy.match(/\.\/v(\d+\.\d+\.\d+)_CROPPY_OCR\.js/)||[])[1]||'';
+  check('iPhone copy installer follows latest',!!copyVersion&&copyVersion===copyFileVersion&&!iphoneCopy.includes('v2.58.27'),'page='+copyVersion+' file='+copyFileVersion);
   check('SW cache version',sw.includes('cross-gpt-croppy-'+VERSION.split('.').join('-')));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
