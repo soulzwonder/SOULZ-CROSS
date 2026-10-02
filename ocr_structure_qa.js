@@ -89,6 +89,12 @@ try{
   check('Consensus: crossed-out right mark is not accepted as count',p&&p.fixed==='236×1',JSON.stringify(p));
   p=pick('141','160','388','');
   check('Consensus: disagreement is marked low confidence',p&&p.confidence===1,JSON.stringify(p));
+  p=pick('35','35','35','');
+  check('Field sample: 35 remains 35x1',p&&p.fixed==='35×1'&&p.confidence>=3,JSON.stringify(p));
+  p=pick('215','215','215','');
+  check('Field sample: 215 remains 215x1',p&&p.fixed==='215×1'&&p.confidence>=3,JSON.stringify(p));
+  p=pick('182','182','182 - 2','2');
+  check('Field sample: separated count becomes 182x2',p&&p.fixed==='182×2'&&p.confidence>=3,JSON.stringify(p));
   const repair=make('ocrDimensionRepairLine',{normalizeOCRText:x=>String(x)});
   check('Short dimension: 15x2 remains candidate',repair('15 - 2')==='15×2',repair('15 - 2'));
   const resolve=make('ocrResolveEnginePicksV26446');
