@@ -1,10 +1,11 @@
-CROSS GPT クロッピー v2.64.34 STAGED RECOVERY - QA REPORT
+CROSS GPT クロッピー v2.64.35 RESTORE ROLLBACK - QA REPORT
 
 変更:
-- UIと操作は変更せずiPhone段階保存の復旧優先順位を修正
-- 正常な.tmpが残っていれば古い本番データより先に復旧
-- iCloudバックアップJSONも一時保存→読戻し検証→本番保存→再検証
-- v2.64.33の更新キャッシュ復旧・復元プレビュー・容量不足警告を維持
+- UIと操作は変更せずバックアップ復元をトランザクション化
+- 復元後に全保存キー・draft/history・復旧コピーを読戻し検証
+- 復元途中で失敗した場合は復元前スナップショットへ自動ロールバック
+- 失敗時だけ元の状態へ戻したことを通知
+- v2.64.34の段階保存・更新キャッシュ復旧・容量不足警告を維持
 
 自動検証:
 - Version title: PASS
@@ -212,10 +213,13 @@ CROSS GPT クロッピー v2.64.34 STAGED RECOVERY - QA REPORT
 - Restore validates before writing: PASS
 - Restore confirmation shows backup summary: PASS
 - Restore auto-saves previous state: PASS
+- Restore verifies written storage before success: PASS
+- Restore failure auto-rolls back previous snapshot: PASS
 - Restore syncs native draft and history: PASS
 - Behavior: backup validator accepts valid schema: PASS
 - Behavior: backup validator rejects invalid schema: PASS
 - Behavior: backup integrity detects tampering: PASS
+- Behavior: failed restore automatically rolls back: PASS
 - Behavior: iPhone native data bridge is injected: PASS
 - iPhone backup saves to iCloud Scriptable folder: PASS
 - iPhone backup bridge avoids URL payload size: PASS
