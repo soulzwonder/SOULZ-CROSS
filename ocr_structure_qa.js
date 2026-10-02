@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.53',html.includes('<title>CROSS GPT クロッピー | v2.64.53</title>'));
-  check('OCR visible badge v2.64.53',html.includes('<span class="ocr-version-badge">v2.64.53</span>'));
+  check('OCR version marker v2.64.54',html.includes('<title>CROSS GPT クロッピー | v2.64.54</title>'));
+  check('OCR visible badge v2.64.54',html.includes('<span class="ocr-version-badge">v2.64.54</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -163,18 +163,32 @@ try{
   check('Zero-candidate warning exposes engine diagnostics',html.includes("寸法候補0件。'+ocrDiagTextV26453()")&&extract('ocrDiagTextV26453').includes("'行抽出 '"));
   check('Paddle engine is disposable',extract('ocrDisposePaddleV26453').includes("engine.dispose"));
   check('Paddle load failure still activates legacy path',extract('recognizeHandwritingLines').includes("PaddleOCR unavailable, legacy path")&&extract('recognizeHandwritingLines').includes("needsAI.length"));
-  const scriptPath='v2.64.53_CROPPY_OCR.js';
-  check('Scriptable v2.64.53 package exists',fs.existsSync(scriptPath));
+  const laneFn=make('ocrDimensionLaneV26454');
+  const currentPhotoItems=[{"x":536,"y":308,"w":69,"h":169,"area":1562,"cx":561.4967989756722,"cy":400.3021766965429},{"x":628,"y":337,"w":62,"h":100,"area":1271,"cx":657.1966955153423,"cy":385.0763178599528},{"x":464,"y":353,"w":41,"h":151,"area":931,"cx":474.9989258861439,"cy":420.1439312567132},{"x":249,"y":434,"w":58,"h":27,"area":274,"cx":276.55474452554745,"cy":446.97080291970804},{"x":254,"y":459,"w":139,"h":93,"area":1293,"cx":308.44238205723127,"cy":511.6047950502707},{"x":560,"y":500,"w":114,"h":44,"area":644,"cx":612.3913043478261,"cy":520.6180124223603},{"x":547,"y":512,"w":40,"h":83,"area":598,"cx":565.3645484949833,"cy":553.8010033444816},{"x":486,"y":535,"w":37,"h":86,"area":562,"cx":507.855871886121,"cy":573.576512455516},{"x":288,"y":537,"w":6,"h":26,"area":91,"cx":291.14285714285717,"cy":549.4725274725274},{"x":782,"y":602,"w":112,"h":67,"area":831,"cx":823.4572803850782,"cy":638.1817087845968},{"x":595,"y":636,"w":48,"h":86,"area":512,"cx":623.380859375,"cy":673.580078125},{"x":500,"y":646,"w":58,"h":106,"area":685,"cx":521.2875912408759,"cy":687.5693430656934},{"x":681,"y":649,"w":47,"h":19,"area":176,"cx":701.1477272727273,"cy":658.3806818181819},{"x":281,"y":681,"w":44,"h":104,"area":680,"cx":307.4279411764706,"cy":725.7720588235294},{"x":777,"y":759,"w":148,"h":111,"area":2035,"cx":852.9105651105651,"cy":805.6579852579853},{"x":601,"y":785,"w":62,"h":75,"area":823,"cx":635.5236938031592,"cy":827.4240583232078},{"x":525,"y":813,"w":62,"h":72,"area":423,"cx":564.3995271867612,"cy":838.4491725768321},{"x":715,"y":815,"w":55,"h":15,"area":211,"cx":738.1611374407582,"cy":820.7962085308056},{"x":417,"y":843,"w":94,"h":56,"area":517,"cx":459.1605415860735,"cy":869.8046421663443},{"x":666,"y":918,"w":90,"h":12,"area":306,"cx":707.3464052287582,"cy":925.0098039215686},{"x":628,"y":926,"w":41,"h":78,"area":446,"cx":647.3923766816143,"cy":965.3923766816143},{"x":567,"y":950,"w":17,"h":54,"area":219,"cx":573.5114155251141,"cy":974.3561643835617},{"x":462,"y":965,"w":79,"h":46,"area":448,"cx":503.47544642857144,"cy":985.0424107142857},{"x":849,"y":1031,"w":102,"h":64,"area":563,"cx":889.9467140319716,"cy":1069.9715808170515},{"x":473,"y":1049,"w":27,"h":67,"area":282,"cx":487.06028368794324,"cy":1080.5851063829787},{"x":570,"y":1050,"w":40,"h":58,"area":656,"cx":590.5396341463414,"cy":1078.5198170731708},{"x":629,"y":1050,"w":103,"h":44,"area":591,"cx":671.8714043993232,"cy":1073.834179357022},{"x":29,"y":1191,"w":29,"h":185,"area":1044,"cx":41.13409961685824,"cy":1291.1226053639846},{"x":88,"y":1386,"w":100,"h":28,"area":379,"cx":135.14511873350924,"cy":1398.891820580475},{"x":177,"y":1405,"w":75,"h":21,"area":173,"cx":213.11560693641619,"cy":1414.1271676300578},{"x":1105,"y":1415,"w":18,"h":83,"area":371,"cx":1114.7816711590297,"cy":1464.7843665768194},{"x":449,"y":1463,"w":116,"h":28,"area":650,"cx":508.5846153846154,"cy":1476.4076923076923},{"x":568,"y":1486,"w":32,"h":12,"area":167,"cx":583.6347305389221,"cy":1491.7425149700598}];
+  const lane2=laneFn({items:currentPhotoItems,w:1152,h:1536});
+  check('Current field photo: dynamic lane starts after left annotations',lane2.start>350&&lane2.start<430,'start='+lane2.start);
+  check('Current field photo: bottom/screen-edge components are removed',lane2.items.every(c=>c.cy<=1536*.95&&c.cx<=1152*.95));
+  const slope2=estimate(lane2.items,1152,1536);
+  const rows2=cluster({items:lane2.items,w:1152,h:1536,laneFiltered:true,laneStart:lane2.start},slope2);
+  check('Current field photo: six measurement rows separated',rows2.length===6,'rows='+rows2.length);
+  const meta2=rows2.map(r=>analyze(r,1152,1536));
+  check('Current field photo: 160 and 35 are not merged',rows2[0].y<400&&rows2[1].y>=490&&rows2[1].y<560,JSON.stringify(rows2.map(r=>({y:r.y,h:r.h}))));
+  check('Current field photo: 53 right count is isolated',meta2[2]&&meta2[2].hasRight&&meta2[2].hasSeparator,JSON.stringify(meta2[2]));
+  check('Current field photo: leading 1 of 182 is preserved',meta2[5]&&meta2[5].labelTrimmed===false&&rows2[5].items.length===4,JSON.stringify(meta2[5]));
+  check('Current field photo: 182 right-side 2 is isolated',meta2[5]&&meta2[5].hasRight===true&&meta2[5].rightInferred===true,JSON.stringify(meta2[5]));
+  check('Dynamic lane is wired before skew estimation',extract('makeOCRLineCrops').indexOf('ocrDimensionLaneV26454(geo)')<extract('makeOCRLineCrops').indexOf('ocrEstimateSkew(lane.items'));
+  const scriptPath='v2.64.54_CROPPY_OCR.js';
+  check('Scriptable v2.64.54 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.53',ocrScript.includes('クロッピー v2.64.53 OCR CAMERA')&&ocrScript.includes('OCR v2.64.53 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.53',bundled.includes('<title>CROSS GPT クロッピー | v2.64.53</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.53</span>'));
+    check('Scriptable header is version-first v2.64.54',ocrScript.includes('クロッピー v2.64.54 OCR CAMERA')&&ocrScript.includes('OCR v2.64.54 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.54',bundled.includes('<title>CROSS GPT クロッピー | v2.64.54</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.54</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.53 version-first package',copyPage.includes('./v2.64.53_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.53'));
+  check('OCR copy page points to v2.64.54 version-first package',copyPage.includes('./v2.64.54_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.54'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
