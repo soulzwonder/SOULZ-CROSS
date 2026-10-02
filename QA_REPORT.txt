@@ -1,11 +1,11 @@
-CROSS GPT クロッピー v2.64.31 STORAGE FULL GUARD - QA REPORT
+CROSS GPT クロッピー v2.64.32 STAGED RECOVERY - QA REPORT
 
 変更:
-- UIと操作は変更せず保存容量不足の検出を追加
-- QuotaExceededError等を通常の保存失敗と区別
-- 容量不足時はバックアップ後の履歴整理を案内
-- 勝手な履歴削除や自動削除は行わない
-- v2.64.30の段階保存・復旧・更新異常系保護を維持
+- UIと操作は変更せずiPhoneの保存途中復旧を強化
+- 検証済み .tmp を起動時の復旧候補に追加
+- 最終書き込み失敗かつrollback無しの場合は検証済み .tmp を保持
+- 次回起動で .tmp を本体へ昇格し自動復旧
+- v2.64.31の容量不足・段階保存・バックアップ保護を維持
 
 自動検証:
 - Version title: PASS
