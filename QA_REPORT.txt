@@ -1,11 +1,11 @@
-CROSS GPT クロッピー v2.64.35 RESTORE ROLLBACK - QA REPORT
+CROSS GPT クロッピー v2.64.36 WEB STAGED SAVE - QA REPORT
 
 変更:
-- UIと操作は変更せずバックアップ復元をトランザクション化
-- 復元後に全保存キー・draft/history・復旧コピーを読戻し検証
-- 復元途中で失敗した場合は復元前スナップショットへ自動ロールバック
-- 失敗時だけ元の状態へ戻したことを通知
-- v2.64.34の段階保存・更新キャッシュ復旧・容量不足警告を維持
+- UIと操作は変更せずWeb/Android保存を段階書き込み化
+- 一時保存を読戻し検証してから本番データへ昇格
+- 保存途中で終了した場合は次回起動時に検証済み一時保存から復旧
+- 一時保存キーはバックアップ対象から除外
+- v2.64.35の復元ロールバック・容量不足警告・iPhone保護を維持
 
 自動検証:
 - Version title: PASS
@@ -199,11 +199,15 @@ CROSS GPT クロッピー v2.64.35 RESTORE ROLLBACK - QA REPORT
 アクセント 8.5m)
 - Data safety settings UI: PASS
 - Recovery guard keys present: PASS
+- Web staged save keys present: PASS
+- Web staged save verifies before promote: PASS
+- Backup excludes staged snapshots: PASS
 - Storage quota gets specific guidance: PASS
 - Behavior: storage fault distinguishes quota: PASS
 - Web boot history allows localStorage fallback: PASS
 - Background safety flush saves draft and history: PASS
 - Behavior: corrupted primary auto-recovers: PASS
+- Behavior: interrupted staged save recovers latest: PASS
 - Backup success status persists separately: PASS
 - Backup status shows time and destination: PASS
 - Backup schema and app version: PASS
