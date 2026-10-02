@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.58',html.includes('<title>CROSS GPT クロッピー | v2.64.58</title>'));
-  check('OCR visible badge v2.64.58',html.includes('<span class="ocr-version-badge">v2.64.58</span>'));
+  check('OCR version marker v2.64.59',html.includes('<title>CROSS GPT クロッピー | v2.64.59</title>'));
+  check('OCR visible badge v2.64.59',html.includes('<span class="ocr-version-badge">v2.64.59</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -260,18 +260,39 @@ try{
   check('ChatGPT paste routes dimensions to room/category automatically',pasted57.length===expected57.length&&expected57.every(function(e,i){var x=pasted57[i];return x&&x.cm===e[0]&&x.count===e[1]&&x.roomName===e[2]&&x.category===e[3]&&!!x.unknownCount===e[4]&&x.use===e[5]}),JSON.stringify(pasted57.map(function(x){return{x:x.cm,count:x.count,room:x.roomName,cat:x.category,unknown:!!x.unknownCount,use:x.use}})));
   check('ChatGPT paste accepts bare dimensions and dash counts',compact57('160').count===1&&compact57('53-2').count===2&&compact57('276-？').unknown===true);
   check('ChatGPT paste help is visible',html.includes('ChatGPTの解析結果もここへ貼り付けできます'));
-  const scriptPath='v2.64.58_CROPPY_OCR.js';
-  check('Scriptable v2.64.58 package exists',fs.existsSync(scriptPath));
+
+  const gutenBounds=make('ocrGutenUnclipBoundsV26459');
+  let gb=gutenBounds([{x:100,y:100,w:40,h:80}],500,500,1.5);
+  check('Guten-style unclip expands crop in all directions',gb&&gb.x<100&&gb.y<100&&gb.x+gb.w>140&&gb.y+gb.h>180,JSON.stringify(gb));
+  gb=gutenBounds([{x:1,y:2,w:20,h:30}],100,100,1.5);
+  check('Guten-style unclip clamps safely at image edges',gb&&gb.x===0&&gb.y===0&&gb.x+gb.w<=100&&gb.y+gb.h<=100,JSON.stringify(gb));
+  const gate59=make('ocrGutenRecognitionGateV26459');
+  let gp=gate59({fixed:'236×1',paddle:true,score:.49,raw:'236'},.5);
+  check('OSS confidence gate withholds Paddle below 0.50',gp&&gp.unresolved===true&&gp.fixed==='',JSON.stringify(gp));
+  gp=gate59({fixed:'236×1',paddle:true,score:.50,raw:'236'},.5);
+  check('OSS confidence gate keeps Paddle at 0.50',gp&&gp.fixed==='236×1'&&!gp.unresolved,JSON.stringify(gp));
+  const prefer59=make('ocrPreferOSSFallbackV26459');
+  let op=prefer59({fixed:'276×1',confidence:3,raw:'276'},{fixed:'236×1',confidence:3,raw:'236'},{fixed:'236×1'});
+  check('OSS fallback may correct OCR when expanded crop agrees with shape',op&&op.fixed==='236×1'&&op.tier==='medium'&&op.ossFallback===true,JSON.stringify(op));
+  op=prefer59({fixed:'215×1',confidence:3,raw:'215'},{fixed:'216×1',confidence:3,raw:'216'},{fixed:'215×1'});
+  check('OSS fallback does not override a normal result without shape agreement',op&&op.fixed==='215×1'&&!op.ossFallback,JSON.stringify(op));
+  check('OSS expanded crops use clean source instead of replacing primary member crops',extract('makeOCRLineCrops').includes('ocrDeskewCrop(inkSrc,ossMainB')&&extract('makeOCRLineCrops').includes('mainInk:await ocrCanvasRawBlob(mainInkCv)'));
+  check('OSS fallback runs only before expensive TrOCR fallback',extract('recognizeHandwritingLines').indexOf('ocrOSSReadV26459')<extract('recognizeHandwritingLines').indexOf('loadHandwritingAI(progress)'));
+  check('OSS diagnostics are visible',extract('ocrDiagTextV26453').includes("' / OSS補助 '"));
+  const notice59=fs.readFileSync('OCR_THIRD_PARTY_NOTICES.md','utf8');
+  check('Guten OCR MIT attribution is retained',notice59.includes('Guten OCR')&&notice59.includes('MIT License')&&notice59.includes('b00d56c95a268bafd719c39eb22fbfb2d2a92a35'));
+  const scriptPath='v2.64.59_CROPPY_OCR.js';
+  check('Scriptable v2.64.59 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.58',ocrScript.includes('クロッピー v2.64.58 OCR CAMERA')&&ocrScript.includes('OCR v2.64.58 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.58',bundled.includes('<title>CROSS GPT クロッピー | v2.64.58</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.58</span>'));
+    check('Scriptable header is version-first v2.64.59',ocrScript.includes('クロッピー v2.64.59 OCR CAMERA')&&ocrScript.includes('OCR v2.64.59 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.59',bundled.includes('<title>CROSS GPT クロッピー | v2.64.59</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.59</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.58 version-first package',copyPage.includes('./v2.64.58_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.58'));
+  check('OCR copy page points to v2.64.59 version-first package',copyPage.includes('./v2.64.59_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.59'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
