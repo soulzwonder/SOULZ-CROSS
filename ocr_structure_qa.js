@@ -123,8 +123,8 @@ try{
   check('Three-engine unanimous returns high confidence',r3.length===1&&r3[0].fixed==='218×6'&&r3[0].tier==='high'&&r3[0].verified,JSON.stringify(r3));
   r3=resolve3(null,null,{fixed:'212×1',raw:'shape',confidence:3});
   check('Shape-only strong candidate is medium, never auto-high',r3.length===1&&r3[0].fixed==='212×1'&&r3[0].tier==='medium'&&!r3[0].verified,JSON.stringify(r3));
-  check('Digit-shape engine is wired into line crops',extract('makeOCRLineCrops').includes('shapeMain:ocrCanvasDigitShapeV26450')&&extract('makeOCRLineCrops').includes('shapeRight:rightInkCv?ocrCanvasDigitShapeV26450'));
-  check('Four-engine resolver is wired',extract('recognizeHandwritingLines').includes('ocrResolveEnginePicksV26452(aiPicks[k],tessPicks[k],shapePicks[k],paddlePicks[k])'));
+  check('Digit-shape engine is wired into line crops',extract('makeOCRLineCrops').includes('shapeMain:ocrCanvasDigitShapeV26455')&&extract('makeOCRLineCrops').includes('shapeRight:rightInkCv?ocrCanvasDigitShapeV26455'));
+  check('Four-engine resolver is wired',extract('recognizeHandwritingLines').includes('ocrResolveEnginePicksV26456(aiPicks[k],tessPicks[k],shapePicks[k],paddlePicks[k])'));
   check('Free PaddleOCR official SDK is pinned',html.includes('https://cdn.jsdelivr.net/npm/@paddleocr/paddleocr-js@0.4.2/+esm'));
   check('PaddleOCR uses PP-OCRv5 English handwriting model selection',extract('loadPaddleOCRV26453').includes("lang:'en'")&&extract('loadPaddleOCRV26453').includes("ocrVersion:'PP-OCRv5'"));
   check('PaddleOCR has no API key path',!extract('loadPaddleOCRV26453').toLowerCase().includes('apikey')&&!extract('loadPaddleOCRV26453').toLowerCase().includes('authorization'));
