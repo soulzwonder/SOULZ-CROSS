@@ -1,11 +1,10 @@
-CROSS GPT クロッピー v2.64.32 STAGED RECOVERY - QA REPORT
+CROSS GPT クロッピー v2.64.33 CACHE RECOVERY - QA REPORT
 
 変更:
-- UIと操作は変更せずiPhoneの保存途中復旧を強化
-- 検証済み .tmp を起動時の復旧候補に追加
-- 最終書き込み失敗かつrollback無しの場合は検証済み .tmp を保持
-- 次回起動で .tmp を本体へ昇格し自動復旧
-- v2.64.31の容量不足・段階保存・バックアップ保護を維持
+- UIと操作は増やさず更新途中の正常な一時キャッシュを次回起動で復旧
+- 壊れた一時キャッシュは起動時に破棄
+- バックアップ復元前の確認文に日時・版・現場件数を表示
+- v2.64.32の段階保存・容量不足警告・復旧保護を維持
 
 自動検証:
 - Version title: PASS
@@ -51,6 +50,7 @@ CROSS GPT クロッピー v2.64.32 STAGED RECOVERY - QA REPORT
 - iPhone native save validates JSON shape: PASS
 - iPhone auto-update source: PASS
 - iPhone auto-update cache fallback: PASS
+- iPhone staged update cache recovers on launch: PASS
 - iPhone auto-update prevents downgrade: PASS
 - iPhone keeps stable local data origin: PASS
 - iPhone keypad clarity layer: PASS
@@ -210,6 +210,7 @@ CROSS GPT クロッピー v2.64.32 STAGED RECOVERY - QA REPORT
 - Backup integrity metadata is generated: PASS
 - Restore rejects checksum mismatch but allows legacy backups: PASS
 - Restore validates before writing: PASS
+- Restore confirmation shows backup summary: PASS
 - Restore auto-saves previous state: PASS
 - Restore syncs native draft and history: PASS
 - Behavior: backup validator accepts valid schema: PASS
