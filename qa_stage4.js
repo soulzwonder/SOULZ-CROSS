@@ -1,11 +1,11 @@
 (function qaMain(){
   const fs=require('fs');
-  const VERSION='v2.64.28';
+  const VERSION='v2.64.29';
   const html=fs.readFileSync('index.html','utf8');
   const sw=fs.readFileSync('sw.js','utf8');
   const manifest=fs.readFileSync('manifest.webmanifest','utf8');
   const server=fs.readFileSync('server.js','utf8');
-  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.28.js','utf8');
+  const iphone=fs.readFileSync('CROPPY_iPhone_v2.64.29.js','utf8');
   const iphoneCopy=fs.readFileSync('iphone-copy.html','utf8');
   const checks=[];
   const check=(name,ok,detail='')=>checks.push({name,ok:!!ok,detail});
@@ -33,8 +33,8 @@
     const keys=Object.keys(deps),vals=keys.map(k=>deps[k]);
     return Function(...keys,'return ('+src+');')(...vals);
   }
-  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.28</title>'));
-  check('Visible version',html.includes('クロッピー / v2.64.28'));
+  check('Version title',html.includes('<title>CROSS GPT クロッピー | v2.64.29</title>'));
+  check('Visible version',html.includes('クロッピー / v2.64.29'));
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]),syntaxErr=[];
   scripts.forEach((s,i)=>{try{new Function(s)}catch(e){syntaxErr.push('script'+(i+1)+':'+e.message)}});
   check('HTML embedded JS syntax',syntaxErr.length===0,syntaxErr.join(' | '));
@@ -132,14 +132,14 @@
   try{
     const start=iphone.indexOf('var b64 = '),end=iphone.indexOf(';\nvar htmlData',start),expr=iphone.slice(start+'var b64 = '.length,end);
     const chunks=[...expr.matchAll(/'([^']*)'/g)].map(m=>m[1]),embedded=Buffer.from(chunks.join(''),'base64').toString('utf8');
-    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.28</title>')&&embedded.includes('クロッピー / v2.64.28'));
+    check('iPhone embedded HTML version',embedded.includes('<title>CROSS GPT クロッピー | v2.64.29</title>')&&embedded.includes('クロッピー / v2.64.29'));
     check('iPhone embedded home flow',['⚡ すぐ計算','📐 現場を開く','📋 予定・準備'].every(s=>embedded.includes(s)));
     check('iPhone embedded quick separation',embedded.includes('quickCalcByArea')&&embedded.includes('function realProjectItems()'));
     try{
       const statusFns=extractFunctions(iphone,'croppyInjectIPhoneUpdateStatus');
       const statusSrc=statusFns[statusFns.length-1].replace(/^function\s+croppyInjectIPhoneUpdateStatus/,'function');
       const injectStatus=Function('croppyUpdateVersion','croppyUpdateSource','return ('+statusSrc+');')([2,64,21],'最新');
-      const sample='<html><head></head><body><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.64.28</div></body></html>';
+      const sample='<html><head></head><body><div class="title">CROSS GPT</div><div class="subtitle">クロッピー / v2.64.29</div></body></html>';
       const once=injectStatus(sample),twice=injectStatus(once);
       check('Behavior: iPhone update badge is actually injected',once.includes('data-croppy-update-badge="1"')&&once.includes('自動更新・最新 v2.64.21')&&once.includes('id="croppy-iphone-update-status-style"'));
       check('Behavior: iPhone update badge does not duplicate',(twice.match(/data-croppy-update-badge="1"/g)||[]).length===1&&(twice.match(/id="croppy-iphone-update-status-style"/g)||[]).length===1);
@@ -410,7 +410,7 @@
     const read=makeFn('croppyReadWithRecovery',{localStorage:ls,croppyStoredValue:parse,croppyRecoveredKinds:recovered,window:win});
     const got=read('p','s','draft');check('Behavior: corrupted primary auto-recovers',got&&got.jobName==='復旧'&&store.p===store.s&&recovered[0]==='draft'&&win.__CROPPY_RECOVERED_ON_LOAD===true,JSON.stringify({got,store,recovered,win}));
   }catch(e){check('Behavior: corrupted primary auto-recovers',false,e.message)}
-  check('Backup schema and app version',html.includes("format:'CROPPY_BACKUP'")&&html.includes("formatVersion:1")&&html.includes("appVersion:'v2.64.28'"));
+  check('Backup schema and app version',html.includes("format:'CROPPY_BACKUP'")&&html.includes("formatVersion:1")&&html.includes("appVersion:'v2.64.29'"));
   check('Backup captures draft history and Croppy storage',html.includes("key===DRAFT_KEY||key===HISTORY_KEY")&&html.includes("key.indexOf('SOULZ_CROSS_')===0")&&html.includes("key.indexOf('soulz_cross_')===0"));
   check('Backup integrity metadata is generated',html.includes("integrity:{algorithm:'fnv1a32',value:croppyBackupIntegrity(storage)}")&&html.includes('function croppyBackupIntegrity(storage)'));
   check('Restore rejects checksum mismatch but allows legacy backups',html.includes("バックアップファイルが破損しています")&&html.includes("if(obj.integrity!==undefined&&obj.integrity!==null)"));
@@ -441,12 +441,28 @@
   check('iPhone backup saves to iCloud Scriptable folder',iphone.includes('FileManager.iCloud()')&&iphone.includes('"CROPPY_Backups"')&&iphone.includes('croppyBackupFM.writeString(path'));
   check('iPhone backup bridge avoids URL payload size',iphone.includes('window.__croppyBackupPayload||')&&iphone.includes('soulz-backup://export?x=')&&!iphone.includes('soulz-backup://export?data='));
   check('iPhone native files keep previous valid copy',iphone.includes('path + ".prev"')&&iphone.includes('fm.writeString(path + ".prev", current)')&&iphone.includes('croppyNativeRecovered'));
+  check('iPhone previous copy validates data shape',iphone.includes('var currentParsed = JSON.parse(current)')&&iphone.includes('croppyNativeShapeOK(path, currentParsed)'));
   try{
     const fns=extractFunctions(iphone,'croppyNativeShapeOK');
     const src=fns[fns.length-1].replace(/^function\s+croppyNativeShapeOK/,'function');
     const shape=Function('draftPath','historyPath','return ('+src+');')('DRAFT','HISTORY');
     check('Behavior: iPhone native shape guard rejects wrong type',shape('DRAFT',{a:1})&&!shape('DRAFT',[])&&shape('HISTORY',[])&&!shape('HISTORY',{}));
   }catch(e){check('Behavior: iPhone native shape guard rejects wrong type',false,e.message)}
+  try{
+    const shapeFns=extractFunctions(iphone,'croppyNativeShapeOK');
+    const shapeSrc=shapeFns[shapeFns.length-1].replace(/^function\s+croppyNativeShapeOK/,'function');
+    const shape=Function('draftPath','historyPath','return ('+shapeSrc+');')('DRAFT','HISTORY');
+    const saveFns=extractFunctions(iphone,'saveJSON');
+    const saveSrc=saveFns[saveFns.length-1].replace(/^function\s+saveJSON/,'function');
+    const files={'DRAFT':'[]','DRAFT.prev':'{"safe":true}'};
+    const fm={fileExists:p=>Object.prototype.hasOwnProperty.call(files,p),readString:p=>files[p],writeString:(p,v)=>{files[p]=v}};
+    const save=Function('fm','croppyNativeShapeOK','return ('+saveSrc+');')(fm,shape);
+    save('DRAFT','{"new":1}');
+    const invalidSkipped=files['DRAFT.prev']==='{"safe":true}'&&files['DRAFT']==='{"new":1}';
+    files['DRAFT']='{"old":1}';save('DRAFT','{"new":2}');
+    const validCopied=files['DRAFT.prev']==='{"old":1}'&&files['DRAFT']==='{"new":2}';
+    check('Behavior: invalid native current is not promoted to previous',invalidSkipped&&validCopied,JSON.stringify(files));
+  }catch(e){check('Behavior: invalid native current is not promoted to previous',false,e.message)}
   check('iPhone native boot state is injected',iphone.includes('function croppyInjectIPhoneBootState')&&iphone.includes('html = croppyInjectIPhoneBootState(html)')&&iphone.includes('window.__SOULZ_BOOT_HISTORY = []'));
   try{
     const fns=extractFunctions(iphone,'croppyInjectIPhoneBootState');const src=fns[fns.length-1].replace(/^function\s+croppyInjectIPhoneBootState/,'function');
@@ -454,14 +470,14 @@
     const sample='window.__SOULZ_BOOT_DRAFT = null;\nwindow.__SOULZ_BOOT_HISTORY = null;\nwindow.__SOULZ_HOME_MODE = false;\nwindow.__SOULZ_NATIVE_RECOVERED = false;';
     const out=inject(sample);check('Behavior: iPhone boot injection carries native data',out.includes('復旧テスト')&&out.includes('"id":"h1"')&&out.includes('__SOULZ_HOME_MODE = true')&&out.includes('__SOULZ_NATIVE_RECOVERED = true'),out);
   }catch(e){check('Behavior: iPhone boot injection carries native data',false,e.message)}
-  check('iPhone copy installer follows latest',iphoneCopy.includes('v2.64.28')&&iphoneCopy.includes('./CROPPY_iPhone_v2.64.28.js')&&!iphoneCopy.includes('v2.58.27'));
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-28'));
+  check('iPhone copy installer follows latest',iphoneCopy.includes('v2.64.29')&&iphoneCopy.includes('./CROPPY_iPhone_v2.64.29.js')&&!iphoneCopy.includes('v2.58.27'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-29'));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
-  const lines=['CROSS GPT クロッピー '+VERSION+' BACKUP INTEGRITY - QA REPORT','','変更:','- UIと操作は変更せずバックアップ整合性チェックを追加','- 新規バックアップにfnv1a32チェックサムを保存','- 復元前にチェックサム不一致を検出して破損ファイルを停止','- 旧バックアップはチェックサム無しでも従来どおり復元可能','- v2.64.27の角丸・保存・復旧保護を維持','','自動検証:'];
+  const lines=['CROSS GPT クロッピー '+VERSION+' PREV SHAPE GUARD - QA REPORT','','変更:','- UIと操作は変更せずiPhoneの直前正常データ退避を強化','- .prevへ退避する前にdraft/historyのJSON型まで検証','- JSONとして読めても型が違うデータは直前正常版へ昇格させない','- v2.64.28のバックアップ整合性・角丸・復旧保護を維持','','自動検証:'];
   for(const c of checks)lines.push('- '+c.name+': '+(c.ok?'PASS':'FAIL')+(c.detail?' ('+c.detail+')':''));
   lines.push('','実機確認（5分）:','1. 起動 → 採寸画面まで進む','2. 長さ → 枚数 → 追加を3回繰り返す','3. リピートOFF記憶 → ON復帰 → +1柄の1回使い切りを確認','4. カット済みチェック → 保存 → 再起動で保持を確認','5. バックアップ書き出し → 最終日時/保存先の更新を確認','6. 共有シートとホーム画面起動を確認','7. オフライン再起動でキャッシュ起動を確認','','legacy_ 関数: '+([...html.matchAll(/function\s+legacy_[A-Za-z0-9_$]+\s*\(/g)].length)+'個','残る重複関数: '+remaining.length+'種類','残る重複はIIFE内のローカル補助関数 q / qa と、別スコープの fallbackCopy のみ。','','注意:','- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。','- 外部品番検索はネットワーク先の応答に依存。','');
   fs.writeFileSync('QA_REPORT.txt',lines.join('\n'));console.log(lines.join('\n'));
