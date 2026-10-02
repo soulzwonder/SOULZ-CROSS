@@ -119,10 +119,21 @@ function croppyCompareVersion(a, b) {
 
 function croppyValidHTML(raw) {
   var s = String(raw || "");
-  return s.indexOf("<title>CROSS GPT クロッピー | v") >= 0 &&
-    s.indexOf('id="keypadWrap"') >= 0 &&
-    s.indexOf('id="keypadRepeatBtn"') >= 0 &&
-    !!croppyHTMLVersion(s);
+  var required = [
+    "<title>CROSS GPT クロッピー | v",
+    'id="startMeasureBtn"',
+    'id="workAreaTabs"',
+    'id="lengthField"',
+    'id="countField"',
+    'id="keypadWrap"',
+    'id="keypadRepeatBtn"',
+    'id="historyAllBtn"'
+  ];
+  if (!croppyHTMLVersion(s)) return false;
+  for (var i = 0; i < required.length; i++) {
+    if (s.indexOf(required[i]) < 0) return false;
+  }
+  return /<\/body>\s*<\/html>\s*$/i.test(s.trim());
 }
 
 function croppyWriteVerifiedCache(raw) {

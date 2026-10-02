@@ -157,10 +157,98 @@
       const version=Function('return ('+vs+');')();
       const cf=extractFunctions(iphone,'croppyValidHTML');const cs=cf[cf.length-1].replace(/^function\s+croppyValidHTML/,'function');
       const valid=Function('croppyHTMLVersion','return ('+cs+');')(version);
-      const good='<title>CROSS GPT クロッピー | v2.64.36</title><div id="keypadWrap"></div><button id="keypadRepeatBtn"></button>';
-      const truncated='<title>CROSS GPT クロッピー | v2.64.36</title><div id="keypadWrap"></div>';
+      const good='<!doctype html><html><head><title>CROSS GPT クロッピー | v2.64.36</title></head><body><button id="startMeasureBtn"></button><div id="workAreaTabs"></div><button id="lengthField"></button><button id="countField"></button><div id="keypadWrap"></div><button id="keypadRepeatBtn"></button><button id="historyAllBtn"></button></body></html>';
+      const truncated=good.slice(0,-14);
+      const noVersion=good.replace('CROSS GPT クロッピー | v2.64.36','CROSS GPT クロッピー');
+      const missingId=good.replace('id="lengthField"','id="missingLengthField"');
+      const brokenEnd=good.replace(/<\/body><\/html>$/,'');
       check('Behavior: truncated update HTML is rejected',valid(good)===true&&valid(truncated)===false);
-    }catch(e){check('Behavior: truncated update HTML is rejected',false,e.message)}
+      check('Behavior: update HTML without version is rejected',valid(noVersion)===false);
+      check('Behavior: update HTML missing required UI is rejected',valid(missingId)===false);
+      check('Behavior: structurally broken update HTML is rejected',valid(brokenEnd)===false);
+    }catch(e){
+      check('Behavior: truncated update HTML is rejected',false,e.message);
+      check('Behavior: update HTML without version is rejected',false,e.message);
+      check('Behavior: update HTML missing required UI is rejected',false,e.message);
+      check('Behavior: structurally broken update HTML is rejected',false,e.message);
+    }
+    try{
+      const vf=extractFunctions(iphone,'croppyHTMLVersion');const versionSrc=vf[vf.length-1].replace(/^function\s+croppyHTMLVersion/,'function');
+      const versionFn=Function('return ('+versionSrc+');')();
+      const cmpf=extractFunctions(iphone,'croppyCompareVersion');const compareSrc=cmpf[cmpf.length-1].replace(/^function\s+croppyCompareVersion/,'function');
+      const compareFn=Function('return ('+compareSrc+');')();
+      const valf=extractFunctions(iphone,'croppyValidHTML');const validSrc=valf[valf.length-1].replace(/^function\s+croppyValidHTML/,'function');
+      const validFn=Function('croppyHTMLVersion','return ('+validSrc+');')(versionFn);
+      const loadf=extractFunctions(iphone,'croppyLoadLatestHTML');
+      const loadSrc=loadf[loadf.length-1]
+        .replace(/^function\s+croppyLoadLatestHTML/,'function')
+        .replace(/await\s+req\.loadString\(\)/g,'req.loadString()');
+      const sample=function(v){
+        return '<!doctype html><html><head><title>CROSS GPT クロッピー | v'+v+'</title></head><body><button id="startMeasureBtn"></button><div id="workAreaTabs"></div><button id="lengthField"></button><button id="countField"></button><div id="keypadWrap"></div><button id="keypadRepeatBtn"></button><button id="historyAllBtn"></button></body></html>';
+      };
+      const bundled=sample('2.64.36');
+      function runUpdateScenario(opts){
+        opts=opts||{};
+        const CACHE='CACHE',TEMP='TEMP';
+        const store=Object.assign({},opts.files||{});
+        const cacheWrites=[],removed=[];
+        const fmMock={
+          fileExists:function(p){return Object.prototype.hasOwnProperty.call(store,p)},
+          readString:function(p){if(opts.readError===p)throw new Error('cache read failed');return store[p]},
+          remove:function(p){removed.push(p);delete store[p]}
+        };
+        function RequestMock(){this.timeoutInterval=0;this.headers={};this.loadString=function(){if(opts.remoteError)throw new Error('network offline');return opts.remote}}
+        function writeCache(raw){cacheWrites.push(raw);store[CACHE]=raw;delete store[TEMP];return true}
+        const factory=Function(
+          'fm','appCachePath','appCacheTempPath','croppyHTMLVersion','croppyValidHTML','croppyCompareVersion','AUTO_UPDATE_URL','Request','Date','console','croppyWriteVerifiedCache',
+          'var croppyUpdateSource=null,croppyUpdateVersion=null;return {run:('+loadSrc+'),source:function(){return croppyUpdateSource},version:function(){return croppyUpdateVersion}};'
+        );
+        const box=factory(fmMock,CACHE,TEMP,versionFn,validFn,compareFn,'https://example.invalid/',RequestMock,Date,{log:function(){}},writeCache);
+        const result=box.run(bundled);
+        return {result:result,source:box.source(),version:box.version(),cacheWrites:cacheWrites,removed:removed,store:store};
+      }
+      const remoteNew=sample('2.64.40');
+      const cacheNew=sample('2.64.38');
+      const tempNew=sample('2.64.39');
+      const oldRemote=sample('2.64.35');
+      const brokenRemote=remoteNew.replace(/<\/body><\/html>$/,'');
+      const noVersionRemote=remoteNew.replace('CROSS GPT クロッピー | v2.64.40','CROSS GPT クロッピー');
+      const missingUiRemote=remoteNew.replace('id="countField"','id="missingCountField"');
+
+      let u=runUpdateScenario({remote:remoteNew});
+      check('Behavior: valid newer remote wins and is cached',u.result===remoteNew&&u.source==='最新'&&u.cacheWrites[0]===remoteNew,JSON.stringify({source:u.source,writes:u.cacheWrites.length}));
+      u=runUpdateScenario({remote:brokenRemote,files:{CACHE:cacheNew}});
+      check('Behavior: broken remote HTML falls back to cache',u.result===cacheNew&&u.source==='キャッシュ',JSON.stringify({source:u.source}));
+      u=runUpdateScenario({remote:noVersionRemote,files:{CACHE:cacheNew}});
+      check('Behavior: versionless remote falls back to cache',u.result===cacheNew&&u.source==='キャッシュ',JSON.stringify({source:u.source}));
+      u=runUpdateScenario({remote:missingUiRemote,files:{CACHE:cacheNew}});
+      check('Behavior: remote missing required UI falls back to cache',u.result===cacheNew&&u.source==='キャッシュ',JSON.stringify({source:u.source}));
+      u=runUpdateScenario({remote:oldRemote});
+      check('Behavior: older remote cannot downgrade bundled app',u.result===bundled&&u.source==='内蔵',JSON.stringify({source:u.source}));
+      u=runUpdateScenario({remoteError:true,files:{CACHE:cacheNew}});
+      check('Behavior: offline launch uses valid cache',u.result===cacheNew&&u.source==='キャッシュ',JSON.stringify({source:u.source}));
+      u=runUpdateScenario({remoteError:true,files:{CACHE:'<html>broken cache</html>'}});
+      check('Behavior: broken cache plus remote failure uses bundled',u.result===bundled&&u.source==='内蔵',JSON.stringify({source:u.source}));
+      u=runUpdateScenario({remoteError:true});
+      check('Behavior: remote fetch failure uses bundled fallback',u.result===bundled&&u.source==='内蔵',JSON.stringify({source:u.source}));
+      u=runUpdateScenario({remoteError:true,files:{CACHE:'<html>broken cache</html>',TEMP:tempNew}});
+      check('Behavior: verified staged cache recovers after interrupted update',u.result===tempNew&&u.source==='キャッシュ'&&u.cacheWrites[0]===tempNew,JSON.stringify({source:u.source,writes:u.cacheWrites.length}));
+      u=runUpdateScenario({remote:remoteNew.slice(0,Math.floor(remoteNew.length*0.6)),files:{CACHE:cacheNew}});
+      check('Behavior: partially downloaded remote falls back safely',u.result===cacheNew&&u.source==='キャッシュ',JSON.stringify({source:u.source}));
+    }catch(e){
+      [
+        'Behavior: valid newer remote wins and is cached',
+        'Behavior: broken remote HTML falls back to cache',
+        'Behavior: versionless remote falls back to cache',
+        'Behavior: remote missing required UI falls back to cache',
+        'Behavior: older remote cannot downgrade bundled app',
+        'Behavior: offline launch uses valid cache',
+        'Behavior: broken cache plus remote failure uses bundled',
+        'Behavior: remote fetch failure uses bundled fallback',
+        'Behavior: verified staged cache recovers after interrupted update',
+        'Behavior: partially downloaded remote falls back safely'
+      ].forEach(function(name){check(name,false,e.message)});
+    }
     check('iPhone keeps stable local data origin',iphone.includes('await web.loadHTML(html, "https://soulz.local/");'));
     check('iPhone keypad clarity layer',iphone.includes('croppy-iphone-keypad-clarity')&&iphone.includes('#keypad .key[data-key]{font-size:1.30rem!important')&&iphone.includes('#keypad .flow-enter{border-width:3px!important')&&iphone.includes('croppyInjectIPhoneKeypadClarity(html)'));
   check('iPhone top safe-area compact layer',iphone.includes('id="croppy-iphone-top-compact"')&&iphone.includes('padding-top:10px!important')&&iphone.includes('croppyInjectIPhoneTopCompact(html)'));
@@ -578,7 +666,7 @@
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
-  const lines=['CROSS GPT クロッピー '+VERSION+' WEB STAGED SAVE - QA REPORT','','変更:','- UIと操作は変更せずWeb/Android保存を段階書き込み化','- 一時保存を読戻し検証してから本番データへ昇格','- 保存途中で終了した場合は次回起動時に検証済み一時保存から復旧','- 一時保存キーはバックアップ対象から除外','- v2.64.35の復元ロールバック・容量不足警告・iPhone保護を維持','','自動検証:'];
+  const lines=['CROSS GPT クロッピー '+VERSION+' WEB STAGED SAVE - QA REPORT','','変更:','- UIと操作は変更せずWeb/Android保存を段階書き込み化','- 一時保存を読戻し検証してから本番データへ昇格','- 保存途中で終了した場合は次回起動時に検証済み一時保存から復旧','- 一時保存キーはバックアップ対象から除外','- v2.64.35の復元ロールバック・容量不足警告・iPhone保護を維持','- iPhone自動更新は必須UI・HTML終端・remote/cache/bundled異常系を挙動QA','','自動検証:'];
   for(const c of checks)lines.push('- '+c.name+': '+(c.ok?'PASS':'FAIL')+(c.detail?' ('+c.detail+')':''));
   lines.push('','実機確認（5分）:','1. 起動 → 採寸画面まで進む','2. 長さ → 枚数 → 追加を3回繰り返す','3. リピートOFF記憶 → ON復帰 → +1柄の1回使い切りを確認','4. カット済みチェック → 保存 → 再起動で保持を確認','5. バックアップ書き出し → 最終日時/保存先の更新を確認','6. 共有シートとホーム画面起動を確認','7. オフライン再起動でキャッシュ起動を確認','','legacy_ 関数: '+([...html.matchAll(/function\s+legacy_[A-Za-z0-9_$]+\s*\(/g)].length)+'個','残る重複関数: '+remaining.length+'種類','残る重複はIIFE内のローカル補助関数 q / qa と、別スコープの fallbackCopy のみ。','','注意:','- iPhone/Android実機のタップ感、OS共有シート、ホーム画面追加は実機で最終確認が必要。','- 外部品番検索はネットワーク先の応答に依存。','');
   fs.writeFileSync('QA_REPORT.txt',lines.join('\n'));console.log(lines.join('\n'));
