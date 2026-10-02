@@ -33,8 +33,9 @@ try{
   check('Confirmation warning',html.includes('必ず数字を確認してから追加')&&html.includes('確認した寸法を採寸へ追加'));
   check('Stable data isolated',iphone.includes('SOULZ_CROSS_OCR_TEST_draft.json')&&iphone.includes('SOULZ_CROSS_OCR_TEST_history.json')&&iphone.includes('SOULZ_CROSS_OCR_TEST_app_cache.html'));
   check('Prototype localStorage isolated',iphone.includes('https://soulz-ocr-test.local/'));
-  check('Prototype dev auto-update enabled',iphone.includes('raw.githubusercontent.com/soulzwonder/SOULZ-CROSS/feature-v1.1-ocr/ocr-camera-prototype.html')&&iphone.includes('var html = await croppyLoadLatestHTML(bundledHtml);'));
+  check('Prototype dev auto-update enabled',iphone.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html')&&iphone.includes('var html = await croppyLoadLatestHTML(bundledHtml);'));
   check('Prototype dev update cache isolated',iphone.includes('SOULZ_CROSS_OCR_TEST_app_cache.html')&&iphone.includes('https://soulz-ocr-test.local/'));
+  check('Scriptable top controls stay below native bar',iphone.includes("padding-top:calc(env(safe-area-inset-top) + 74px)!important")&&iphone.includes(".start-choice{padding-top:calc(env(safe-area-inset-top) + 92px)!important}"));
 
   const names=['normalizeOCRText','measurementToCm','normalizeRoomName','detectRoomFromLine','detectCategoryFromLine','detectProductCode','detectSiteDetails','parseOCRText'];
   const defs=names.map(n=>extract(html,n)).join('\n');
