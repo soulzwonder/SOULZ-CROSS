@@ -17,7 +17,7 @@ try { croppyBackupFM = FileManager.iCloud(); croppyBackupLocation = "iCloud Driv
 var croppyBackupDir = croppyBackupFM.joinPath(croppyBackupFM.documentsDirectory(), "CROPPY_OCR_TEST_Backups");
 var croppyNativeRecovered = [];
 try { if (!croppyBackupFM.fileExists(croppyBackupDir)) croppyBackupFM.createDirectory(croppyBackupDir, true); } catch (e) { console.log("CROPPY backup dir error: " + e); }
-var AUTO_UPDATE_URL = "https://raw.githubusercontent.com/soulzwonder/SOULZ-CROSS/feature-v1.1-ocr/ocr-camera-prototype.html";
+var AUTO_UPDATE_URL = "https://soulz-cross.onrender.com/ocr-camera-prototype.html";
 var croppyUpdateSource = "内蔵";
 var croppyUpdateVersion = null;
 
@@ -235,9 +235,12 @@ function croppyInjectIPhoneKeypadClarity(raw) {
 }
 
 function croppyInjectIPhoneTopCompact(raw) {
-  // Scriptable's native Close / Share bar is outside HTML and cannot be styled here.
-  // In fullscreen WebView, remove only the duplicated HTML safe-area top inset.
-  var css = '<style id="croppy-iphone-top-compact">body{padding-top:10px!important}</style>';
+  // Scriptable's native Close / Share bar sits above the HTML.
+  // Keep the app's top controls below that native bar so they remain tappable.
+  var css = '<style id="croppy-iphone-top-compact">' +
+    'body{padding-top:calc(env(safe-area-inset-top) + 74px)!important}' +
+    '.start-choice{padding-top:calc(env(safe-area-inset-top) + 92px)!important}' +
+    '</style>';
   var s = String(raw || "");
   if (s.indexOf('id="croppy-iphone-top-compact"') >= 0) return s;
   return s.indexOf("</head>") >= 0 ? s.replace("</head>", css + "</head>") : s;
