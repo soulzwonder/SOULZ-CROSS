@@ -1,11 +1,10 @@
-CROSS GPT クロッピー v2.64.26 SAVE BRIDGE SAFE - QA REPORT
+CROSS GPT クロッピー v2.64.27 SOFT CORNERS - QA REPORT
 
 変更:
-- UIと操作は変更せず保存経路だけ安全化
-- iPhone native保存データをカスタムURLへ載せずWebViewから取得
-- draft/historyのJSON型を検証し不正形状は直前正常版へfallback
-- 現行+直前正常版の二重化と自動復旧を維持
-- バックアップ・共有・品番検索・自動更新bridgeを維持
+- カード・入力欄・主要ボタンの角丸を約2pxだけ柔らかく調整
+- ピル型UIと作業モードの密度は維持
+- テンキーも操作面積を変えず角だけ少し柔らかく調整
+- v2.64.26の保存・復旧・バックアップ保護をそのまま維持
 
 自動検証:
 - Version title: PASS
@@ -26,6 +25,8 @@ CROSS GPT クロッピー v2.64.26 SAVE BRIDGE SAFE - QA REPORT
 - Pass4 active functions single-definition: PASS
 - UI typo fixed: PASS
 - Clean theme stylesheet present: PASS
+- Soft corners layer present: PASS
+- Soft corners stay subtle: PASS
 - All light themes use near-white backgrounds: PASS
 - Active input badge uses white knockout: PASS
 - Keypad follows theme accent: PASS
