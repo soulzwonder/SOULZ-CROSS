@@ -1,7 +1,7 @@
 name: CROPPY QA and Packages
 on:
   push:
-    branches: [main]
+    branches: [main, feature-v1.1-ocr]
   workflow_dispatch:
 
 permissions:
@@ -10,7 +10,7 @@ permissions:
 # ChatGPTなどから短時間に複数ファイルを順番に更新した場合、
 # 途中commitのQAを打ち切り、最後のpushだけを検証する。
 concurrency:
-  group: croppy-qa-main
+  group: croppy-qa-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -25,6 +25,8 @@ jobs:
         run: node qa_stage4.js
       - name: Final endurance and fault-injection QA
         run: node final_torture_qa.js
+      - name: OCR camera prototype QA
+        run: node ocr_camera_prototype_qa.js
       - name: API server smoke test
         run: |
           node server.js > /tmp/croppy-server.log 2>&1 &
@@ -36,6 +38,15 @@ jobs:
           done
           cat /tmp/croppy-server.log
           exit 1
+      - name: OCR camera prototype package
+        uses: actions/upload-artifact@v4
+        with:
+          name: CROPPY_iPhone_OCR_CAMERA_TEST
+          path: |
+            CROPPY_iPhone_OCR_CAMERA_TEST.js
+            ocr-camera-prototype.html
+          if-no-files-found: error
+          retention-days: 14
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
