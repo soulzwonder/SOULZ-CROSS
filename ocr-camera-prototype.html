@@ -3985,6 +3985,7 @@ function ocrClassifyDigitShapeV26455(f){
   var r=Number(f.ratio)||0,d=Number(f.density)||0,h=Number(f.holes)||0,ts=Number(f.topSpan)||0,ms=Number(f.midSpan)||0,bs=Number(f.botSpan)||0;
   var tm=Number(f.topMean),mm=Number(f.midMean),bm=Number(f.botMean),cc=Number(f.compCount)||1;
   function hit(digit,score){return{digit:digit,score:score}}
+  if(r>1.25&&bs>.42&&h<=1)return hit('2',3);
   if(h>=1&&ts<.60&&bs>.75&&r<.85)return hit('6',3);
   if(h>=1&&r<.50&&ms<.50&&bs>.75)return hit('6',3);
   if(h>=1&&r>=.52&&r<=.95&&ts>.75&&ms>.70&&bs>.70&&d>.22)return hit('8',3);
@@ -4015,7 +4016,7 @@ function ocrCanvasDigitShapeV26455(cv){
         if(!dx&&!dy)continue;var nx=qx+dx,ny=qy+dy;if(nx<0||ny<0||nx>=w||ny>=h)continue;var np=ny*w+nx;if(work[np]){work[np]=0;stack[top++]=np}
       }
     }
-    var bw=maxX-minX+1,bh=maxY-minY+1;if(area<fragArea||bw<3||bh<fragH||bw>w*.55||bh>h*.95)continue;
+    var bw=maxX-minX+1,bh=maxY-minY+1;if(area<fragArea||bw<3||bh<fragH||bw>w*.92||bh>h*.95)continue;
     parts.push({x:minX,y:minY,w:bw,h:bh,area:area,members:members})
   }
   if(!parts.length)return null;parts.sort(function(a,b){return a.x-b.x});
@@ -4032,7 +4033,7 @@ function ocrCanvasDigitShapeV26455(cv){
   Object.keys(groups).forEach(function(k){
     var gp=groups[k],minX=1e9,minY=1e9,maxX=-1,maxY=-1,area=0,all=[];
     gp.forEach(function(pt){minX=Math.min(minX,pt.x);minY=Math.min(minY,pt.y);maxX=Math.max(maxX,pt.x+pt.w);maxY=Math.max(maxY,pt.y+pt.h);area+=pt.area;all=all.concat(pt.members)});
-    var bw=maxX-minX,bh=maxY-minY;if(area<minArea||bh<Math.max(12,minH*.60)||bw<5||bw>w*.55||bh>h*.92)return;
+    var bw=maxX-minX,bh=maxY-minY;if(area<minArea||bh<Math.max(12,minH*.60)||bw<5||bw>w*.92||bh>h*.92)return;
     var local=new Uint8Array(bw*bh);
     for(var mi=0;mi<all.length;mi++){var p=all[mi],py=Math.floor(p/w),px=p-py*w,lx=px-minX,ly=py-minY;if(lx>=0&&ly>=0&&lx<bw&&ly<bh)local[ly*bw+lx]=1}
     var third1=bh*.33,third2=bh*.66,topMin=1e9,topMax=-1,midMin=1e9,midMax=-1,botMin=1e9,botMax=-1,topX=0,topN=0,midX=0,midN=0,botX=0,botN=0;
