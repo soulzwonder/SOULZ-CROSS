@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.56',html.includes('<title>CROSS GPT クロッピー | v2.64.56</title>'));
-  check('OCR visible badge v2.64.56',html.includes('<span class="ocr-version-badge">v2.64.56</span>'));
+  check('OCR version marker v2.64.57',html.includes('<title>CROSS GPT クロッピー | v2.64.57</title>'));
+  check('OCR visible badge v2.64.57',html.includes('<span class="ocr-version-badge">v2.64.57</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -224,18 +224,47 @@ try{
   const resolve56=make('ocrResolveEnginePicksV26456',{ocrResolveEnginePicksV26452:function(){return[{fixed:'60×1',tier:'medium'}]}});
   const directFallback=resolve56(null,{fixed:'60×1',confidence:3,raw:'60'},{fixed:'160×1',confidence:4,componentShape:true,raw:'160'},{fixed:'60×1',confidence:3,raw:'60'});
   check('Direct component geometry beats matching OCR misread but stays review-safe',directFallback[0]&&directFallback[0].fixed==='160×1'&&directFallback[0].tier==='medium'&&directFallback[0].verified===false,JSON.stringify(directFallback));
-  const scriptPath='v2.64.56_CROPPY_OCR.js';
-  check('Scriptable v2.64.56 package exists',fs.existsSync(scriptPath));
+  const norm57=make('normalizeOCRText');
+  const roomNorm57=make('normalizeRoomName');
+  const room57=make('detectRoomFromLine',{normalizeRoomName:roomNorm57});
+  const cat57=make('detectCategoryFromLine');
+  const strip57=make('ocrStripRoutingTokensV26457',{normalizeOCRText:norm57});
+  const compact57=make('ocrChatPasteMeasurementV26457',{ocrStripRoutingTokensV26457:strip57});
+  const parse57=make('parseOCRText',{
+    normalizeOCRText:norm57,
+    detectSiteDetails:function(){return{}},
+    detectRoomFromLine:room57,
+    detectCategoryFromLine:cat57,
+    detectProductCode:function(){return''},
+    measurementToCm:function(v,u){v=Number(v);u=String(u||'cm').toLowerCase();return u==='mm'?v/10:(u==='m'?v*100:v)},
+    fmtCm:function(v){return String(v)},
+    ocrChatPasteMeasurementV26457:compact57
+  });
+  check('ChatGPT paste aliases: 洋 / 天 / かべ / トイレ',room57('洋')==='洋間'&&room57('洋2')==='洋間2'&&room57('トイレ')==='トイレ'&&cat57('天')==='ceiling'&&cat57('かべ')==='wall');
+  const pasted57=parse57('洋\n天\n160\n35\nかべ\n53-2\n276-？\nトイレ\n215\n182-2').items;
+  const expected57=[
+    [160,1,'洋間','ceiling',false,true],
+    [35,1,'洋間','ceiling',false,true],
+    [53,2,'洋間','wall',false,true],
+    [276,'','洋間','wall',true,false],
+    [215,1,'トイレ','wall',false,true],
+    [182,2,'トイレ','wall',false,true]
+  ];
+  check('ChatGPT paste routes dimensions to room/category automatically',pasted57.length===expected57.length&&expected57.every(function(e,i){var x=pasted57[i];return x&&x.cm===e[0]&&x.count===e[1]&&x.roomName===e[2]&&x.category===e[3]&&!!x.unknownCount===e[4]&&x.use===e[5]}),JSON.stringify(pasted57.map(function(x){return{x:x.cm,count:x.count,room:x.roomName,cat:x.category,unknown:!!x.unknownCount,use:x.use}})));
+  check('ChatGPT paste accepts bare dimensions and dash counts',compact57('160').count===1&&compact57('53-2').count===2&&compact57('276-？').unknown===true);
+  check('ChatGPT paste help is visible',html.includes('ChatGPTの解析結果もここへ貼り付けできます'));
+  const scriptPath='v2.64.57_CROPPY_OCR.js';
+  check('Scriptable v2.64.57 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.56',ocrScript.includes('クロッピー v2.64.56 OCR CAMERA')&&ocrScript.includes('OCR v2.64.56 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.56',bundled.includes('<title>CROSS GPT クロッピー | v2.64.56</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.56</span>'));
+    check('Scriptable header is version-first v2.64.57',ocrScript.includes('クロッピー v2.64.57 OCR CAMERA')&&ocrScript.includes('OCR v2.64.57 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.57',bundled.includes('<title>CROSS GPT クロッピー | v2.64.57</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.57</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.56 version-first package',copyPage.includes('./v2.64.56_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.56'));
+  check('OCR copy page points to v2.64.57 version-first package',copyPage.includes('./v2.64.57_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.57'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
