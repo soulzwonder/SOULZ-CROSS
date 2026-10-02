@@ -3,7 +3,7 @@
 // icon-color: blue; icon-glyph: calculator;
 
 // CROSS GPT / クロッピー v2.64.38 OCR CAMERA TEST
-// iPhone / Scriptable / isolated OCR camera prototype
+// iPhone / Scriptable / isolated OCR camera prototype / dev auto-update
 
 var fm = FileManager.local();
 var dir = fm.documentsDirectory();
@@ -17,7 +17,7 @@ try { croppyBackupFM = FileManager.iCloud(); croppyBackupLocation = "iCloud Driv
 var croppyBackupDir = croppyBackupFM.joinPath(croppyBackupFM.documentsDirectory(), "CROPPY_OCR_TEST_Backups");
 var croppyNativeRecovered = [];
 try { if (!croppyBackupFM.fileExists(croppyBackupDir)) croppyBackupFM.createDirectory(croppyBackupDir, true); } catch (e) { console.log("CROPPY backup dir error: " + e); }
-var AUTO_UPDATE_URL = "https://soulz-cross.onrender.com/";
+var AUTO_UPDATE_URL = "https://raw.githubusercontent.com/soulzwonder/SOULZ-CROSS/feature-v1.1-ocr/ocr-camera-prototype.html";
 var croppyUpdateSource = "内蔵";
 var croppyUpdateVersion = null;
 
@@ -7271,7 +7271,7 @@ var b64 = 'PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImphIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZ
   'KX1jYXRjaChfZSl7fQp9KSgpOwo8L3NjcmlwdD4KCjwvYm9keT4KPC9odG1sPgo=';
 var htmlData = Data.fromBase64String(b64);
 var bundledHtml = htmlData.toRawString();
-var html = bundledHtml;
+var html = await croppyLoadLatestHTML(bundledHtml);
 html = croppyInjectIPhoneBootState(html);
 html = croppyInjectIPhoneNativeBridges(html);
 html = croppyInjectIPhoneKeypadClarity(html);
