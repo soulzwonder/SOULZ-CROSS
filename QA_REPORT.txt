@@ -1,13 +1,11 @@
-CROSS GPT クロッピー v2.64.25 RECOVERY GUARD - QA REPORT
+CROSS GPT クロッピー v2.64.26 SAVE BRIDGE SAFE - QA REPORT
 
 変更:
-- Web/Androidに直前正常データの自動復旧ガードを追加
-- 履歴起動時の空配列優先を修正しlocalStorage fallbackを有効化
-- 画面を閉じる/バックグラウンド移行時に最終draft+history保存を強化
-- iPhone native JSONを現行+直前正常版の二重化
-- iPhone起動時にnative draft/history/homeModeをHTMLへ確実に注入
-- 保存エラー検出時は警告表示
-- 既存のバックアップ・共有・品番検索・自動更新bridgeを維持
+- UIと操作は変更せず保存経路だけ安全化
+- iPhone native保存データをカスタムURLへ載せずWebViewから取得
+- draft/historyのJSON型を検証し不正形状は直前正常版へfallback
+- 現行+直前正常版の二重化と自動復旧を維持
+- バックアップ・共有・品番検索・自動更新bridgeを維持
 
 自動検証:
 - Version title: PASS
@@ -46,6 +44,9 @@ CROSS GPT クロッピー v2.64.25 RECOVERY GUARD - QA REPORT
 - Behavior: iPhone update badge is actually injected: PASS
 - Behavior: iPhone update badge does not duplicate: PASS
 - iPhone native bridge: PASS
+- iPhone native save avoids URL payload size: PASS
+- iPhone native save pulls payload from WebView: PASS
+- iPhone native save validates JSON shape: PASS
 - iPhone auto-update source: PASS
 - iPhone auto-update cache fallback: PASS
 - iPhone auto-update prevents downgrade: PASS
@@ -211,6 +212,7 @@ CROSS GPT クロッピー v2.64.25 RECOVERY GUARD - QA REPORT
 - iPhone backup saves to iCloud Scriptable folder: PASS
 - iPhone backup bridge avoids URL payload size: PASS
 - iPhone native files keep previous valid copy: PASS
+- Behavior: iPhone native shape guard rejects wrong type: PASS
 - iPhone native boot state is injected: PASS
 - Behavior: iPhone boot injection carries native data: PASS
 - iPhone copy installer follows latest: PASS
