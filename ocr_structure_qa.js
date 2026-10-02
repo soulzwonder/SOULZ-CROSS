@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.54',html.includes('<title>CROSS GPT クロッピー | v2.64.54</title>'));
-  check('OCR visible badge v2.64.54',html.includes('<span class="ocr-version-badge">v2.64.54</span>'));
+  check('OCR version marker v2.64.55',html.includes('<title>CROSS GPT クロッピー | v2.64.55</title>'));
+  check('OCR visible badge v2.64.55',html.includes('<span class="ocr-version-badge">v2.64.55</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -177,18 +177,36 @@ try{
   check('Current field photo: leading 1 of 182 is preserved',meta2[5]&&meta2[5].labelTrimmed===false&&rows2[5].items.length===4,JSON.stringify(meta2[5]));
   check('Current field photo: 182 right-side 2 is isolated',meta2[5]&&meta2[5].hasRight===true&&meta2[5].rightInferred===true,JSON.stringify(meta2[5]));
   check('Dynamic lane is wired before skew estimation',extract('makeOCRLineCrops').indexOf('ocrDimensionLaneV26454(geo)')<extract('makeOCRLineCrops').indexOf('ocrEstimateSkew(lane.items'));
-  const scriptPath='v2.64.54_CROPPY_OCR.js';
-  check('Scriptable v2.64.54 package exists',fs.existsSync(scriptPath));
+  check('Current field photo: crossed-out count is marked suspicious',meta2[3]&&meta2[3].rightSuspicious===true,JSON.stringify(meta2[3]));
+  check('Current field photo: valid right counts stay usable',meta2[2]&&meta2[2].rightSuspicious===false&&meta2[5]&&meta2[5].rightSuspicious===false);
+  check('Per-row member pixels are retained',extract('ocrFindInkComponents').includes('members:members.slice()'));
+  check('Per-row ink isolation is wired before OCR',extract('makeOCRLineCrops').includes('ocrDeskewMembersCropV26455(meta.mainItems')&&extract('makeOCRLineCrops').includes('ocrDeskewMembersCropV26455(meta.rightItems'));
+  check('Suspicious count override is wired',extract('recognizeHandwritingLines').includes('ocrSuspiciousRightReviewV26455(rows[k]'));
+  const classify55=make('ocrClassifyDigitShapeV26455');
+  const shapeCases=[
+    ['1',{ratio:.227,density:.226,holes:0,topSpan:.90,midSpan:.25,botSpan:.95,topMean:.374,midMean:.107,botMean:.373,compCount:1}],
+    ['6',{ratio:.303,density:.224,holes:1,topSpan:.867,midSpan:.267,botSpan:.967,topMean:.49,midMean:.087,botMean:.42,compCount:1}],
+    ['0',{ratio:.55,density:.269,holes:0,topSpan:.818,midSpan:.909,botSpan:.758,topMean:.582,midMean:.47,botMean:.32,compCount:1}],
+    ['3',{ratio:.494,density:.182,holes:0,topSpan:.756,midSpan:.610,botSpan:.537,topMean:.439,midMean:.724,botMean:.675,compCount:1}],
+    ['5',{ratio:1.139,density:.114,holes:0,topSpan:.939,midSpan:.452,botSpan:.313,topMean:.568,midMean:.150,botMean:.241,compCount:2}],
+    ['7',{ratio:.914,density:.122,holes:0,topSpan:1,midSpan:.203,botSpan:.25,topMean:.508,midMean:.905,botMean:.745,compCount:1}],
+    ['2',{ratio:1.821,density:.153,holes:0,topSpan:.745,midSpan:.441,botSpan:.49,topMean:.391,midMean:.704,botMean:.651,compCount:1}],
+    ['8',{ratio:.697,density:.304,holes:1,topSpan:1,midSpan:.903,botSpan:.806,topMean:.495,midMean:.618,botMean:.548,compCount:1}],
+    ['2',{ratio:1.785,density:.129,holes:1,topSpan:.428,midSpan:.813,botSpan:.705,topMean:.233,midMean:.568,botMean:.433,compCount:1}]
+  ];
+  check('Current field photo: shape feature regression reads main values and right-side 2',shapeCases.every(function(t){return classify55(t[1]).digit===t[0]}),shapeCases.map(function(t){return t[0]+'='+classify55(t[1]).digit}).join(','));
+  const scriptPath='v2.64.55_CROPPY_OCR.js';
+  check('Scriptable v2.64.55 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.54',ocrScript.includes('クロッピー v2.64.54 OCR CAMERA')&&ocrScript.includes('OCR v2.64.54 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.54',bundled.includes('<title>CROSS GPT クロッピー | v2.64.54</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.54</span>'));
+    check('Scriptable header is version-first v2.64.55',ocrScript.includes('クロッピー v2.64.55 OCR CAMERA')&&ocrScript.includes('OCR v2.64.55 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.55',bundled.includes('<title>CROSS GPT クロッピー | v2.64.55</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.55</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.54 version-first package',copyPage.includes('./v2.64.54_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.54'));
+  check('OCR copy page points to v2.64.55 version-first package',copyPage.includes('./v2.64.55_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.55'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
