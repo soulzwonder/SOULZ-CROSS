@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.50',html.includes('<title>CROSS GPT クロッピー | v2.64.50</title>'));
-  check('OCR visible badge v2.64.50',html.includes('<span class="ocr-version-badge">v2.64.50</span>'));
+  check('OCR version marker v2.64.51',html.includes('<title>CROSS GPT クロッピー | v2.64.51</title>'));
+  check('OCR visible badge v2.64.51',html.includes('<span class="ocr-version-badge">v2.64.51</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -125,18 +125,18 @@ try{
   check('Shape-only strong candidate is medium, never auto-high',r3.length===1&&r3[0].fixed==='212×1'&&r3[0].tier==='medium'&&!r3[0].verified,JSON.stringify(r3));
   check('Digit-shape engine is wired into line crops',extract('makeOCRLineCrops').includes('shapeMain:ocrCanvasDigitShapeV26450')&&extract('makeOCRLineCrops').includes('shapeRight:rightInkCv?ocrCanvasDigitShapeV26450'));
   check('Three-engine resolver is wired',extract('recognizeHandwritingLines').includes('ocrResolveEnginePicksV26450(aiPick,tessPick,shapePick)'));
-  const scriptPath='v2.64.50_CROPPY_OCR.js';
-  check('Scriptable v2.64.50 package exists',fs.existsSync(scriptPath));
+  const scriptPath='v2.64.51_CROPPY_OCR.js';
+  check('Scriptable v2.64.51 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.50',ocrScript.includes('クロッピー v2.64.50 OCR CAMERA')&&ocrScript.includes('OCR v2.64.50 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.50',bundled.includes('<title>CROSS GPT クロッピー | v2.64.50</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.50</span>'));
+    check('Scriptable header is version-first v2.64.51',ocrScript.includes('クロッピー v2.64.51 OCR CAMERA')&&ocrScript.includes('OCR v2.64.51 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.51',bundled.includes('<title>CROSS GPT クロッピー | v2.64.51</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.51</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.50 version-first package',copyPage.includes('./v2.64.50_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.50'));
+  check('OCR copy page points to v2.64.51 version-first package',copyPage.includes('./v2.64.51_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.51'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
