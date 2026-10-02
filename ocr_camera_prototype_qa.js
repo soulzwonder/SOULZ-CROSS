@@ -26,6 +26,8 @@ try{
   check('Prototype iPhone syntax',(()=>{try{new Function('return (async function(){\n'+iphone+'\n})');return true}catch(e){return false}})());
   check('Camera capture input',html.includes('id="ocrCameraInput"')&&html.includes('capture="environment"'));
   check('Camera-first UI',html.indexOf('id="ocrCameraBtn"')<html.indexOf('id="ocrPickBtn"')&&html.includes('カメラで寸法メモを撮る'));
+  check('OCR dev build update marker',html.includes('<title>CROSS GPT クロッピー | v2.64.39</title>'));
+  check('Reliable home fallback',html.includes('id="iphoneHomeFallbackBtn"')&&html.includes("fallback.onclick=show")&&html.includes('class="iphone-home-fallback"'));
   check('Dimension-only multi-pass OCR',html.includes('function preprocessImageVariant(file,mode)')&&html.includes("threshold205")&&html.includes("threshold225")&&html.includes("tessedit_char_whitelist:'0123456789xX*.- '"));
   check('Loose separator repair enabled',html.includes('function ocrDimensionRepairLine(line)')&&html.includes("return nums[0]+'×'+nums[1]"));
   check('Confirmation warning',html.includes('必ず数字を確認してから追加')&&html.includes('確認した寸法を採寸へ追加'));
