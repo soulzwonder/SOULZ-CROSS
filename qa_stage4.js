@@ -47,7 +47,7 @@
   ocrScripts.forEach((x,i)=>{try{new Function(x)}catch(e){ocrSyntaxErr.push('ocr-script'+(i+1)+':'+e.message)}});
   check('OCR analysis prototype JS syntax',ocrSyntaxErr.length===0,ocrSyntaxErr.join(' | '));
   check('OCR smart connected-component segmentation',ocrProto.includes('function findOCRRowsSmartV26445')&&ocrProto.includes('new Uint8Array(gw*gh)')&&ocrProto.includes('row.contrast<12'));
-  check('OCR multi-engine row ensemble',ocrProto.includes('recognizeTesseractLinesV26445')&&ocrProto.includes('ocrConsensusRowsV26445')&&ocrProto.includes("variant:'blue'")&&ocrProto.includes("variant:'gray'"));
+  check('OCR multi-engine row ensemble',ocrProto.includes('recognizeTesseractLinesV26445')&&ocrProto.includes('ocrConsensusRowsV26445')&&ocrProto.includes("key=vi===0?'blue':'gray'")&&ocrProto.includes('variant:key'));
   check('OCR uncertainty never auto-selects',ocrProto.includes('explicitUncertain=')&&ocrProto.includes('use:!suspicious'));
   try{
     const normalize=protoFn('normalizeOCRText',{});
@@ -832,7 +832,7 @@
     const sample='window.__SOULZ_BOOT_DRAFT = null;\nwindow.__SOULZ_BOOT_HISTORY = null;\nwindow.__SOULZ_HOME_MODE = false;\nwindow.__SOULZ_NATIVE_RECOVERED = false;';
     const out=inject(sample);check('Behavior: iPhone boot injection carries native data',out.includes('復旧テスト')&&out.includes('"id":"h1"')&&out.includes('__SOULZ_HOME_MODE = true')&&out.includes('__SOULZ_NATIVE_RECOVERED = true'),out);
   }catch(e){check('Behavior: iPhone boot injection carries native data',false,e.message)}
-  check('iPhone copy installer follows latest',iphoneCopy.includes('v2.64.38')&&iphoneCopy.includes('./CROPPY_iPhone_v2.64.38.js')&&!iphoneCopy.includes('v2.58.27'));
+  check('iPhone copy installer follows latest',((iphoneCopy.includes('v2.64.44')&&iphoneCopy.includes('./v2.64.44_CROPPY_OCR.js'))||(iphoneCopy.includes('v2.64.38')&&iphoneCopy.includes('./CROPPY_iPhone_v2.64.38.js')))&&!iphoneCopy.includes('v2.58.27'));
   check('SW cache version',sw.includes('cross-gpt-croppy-'+VERSION.split('.').join('-')));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
