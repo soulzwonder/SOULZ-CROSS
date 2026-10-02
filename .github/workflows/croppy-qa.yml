@@ -1,7 +1,7 @@
 name: CROPPY QA and Packages
 on:
   push:
-    branches: [main]
+    branches: [main, feature-v1.1-ocr-analysis]
   workflow_dispatch:
 
 permissions:
