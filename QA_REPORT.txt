@@ -1,12 +1,11 @@
-CROSS GPT クロッピー v2.64.30 STAGED SAVE GUARD - QA REPORT
+CROSS GPT クロッピー v2.64.31 STORAGE FULL GUARD - QA REPORT
 
 変更:
-- UIと操作は変更せずiPhone保存をtmp書込→読戻し検証→本番保存の二段階化
-- 保存失敗時は直前正常データからrollbackを試行
-- バックアップから古いRECOVERYコピーを除外し復元後に正常データから再生成
-- 自動更新キャッシュもtmp検証後に確定
-- 途中欠損HTMLを拒否する異常系QAを追加
-- v2.64.29までの整合性・角丸・復旧保護を維持
+- UIと操作は変更せず保存容量不足の検出を追加
+- QuotaExceededError等を通常の保存失敗と区別
+- 容量不足時はバックアップ後の履歴整理を案内
+- 勝手な履歴削除や自動削除は行わない
+- v2.64.30の段階保存・復旧・更新異常系保護を維持
 
 自動検証:
 - Version title: PASS
@@ -199,6 +198,8 @@ CROSS GPT クロッピー v2.64.30 STAGED SAVE GUARD - QA REPORT
 アクセント 8.5m)
 - Data safety settings UI: PASS
 - Recovery guard keys present: PASS
+- Storage quota gets specific guidance: PASS
+- Behavior: storage fault distinguishes quota: PASS
 - Web boot history allows localStorage fallback: PASS
 - Background safety flush saves draft and history: PASS
 - Behavior: corrupted primary auto-recovers: PASS
