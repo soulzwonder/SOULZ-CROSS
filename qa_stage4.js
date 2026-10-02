@@ -451,7 +451,7 @@
   }catch(e){check('Behavior: iPhone native data bridge is injected',false,e.message)}
   check('iPhone backup saves to iCloud Scriptable folder',iphone.includes('FileManager.iCloud()')&&iphone.includes('"CROPPY_Backups"')&&iphone.includes('croppyBackupFM.writeString(path'));
   check('iPhone backup bridge avoids URL payload size',iphone.includes('window.__croppyBackupPayload||')&&iphone.includes('soulz-backup://export?x=')&&!iphone.includes('soulz-backup://export?data='));
-  check('iPhone native files keep previous valid copy',iphone.includes('path + ".prev"')&&iphone.includes('fm.writeString(path + ".prev", current)')&&iphone.includes('croppyNativeRecovered'));
+  check('iPhone native files keep previous valid copy',iphone.includes('path + ".prev"')&&iphone.includes('fm.writeString(path + ".prev", rollback)')&&iphone.includes('croppyNativeRecovered'));
   check('iPhone previous copy validates data shape',iphone.includes('var currentParsed = JSON.parse(current)')&&iphone.includes('croppyNativeShapeOK(path, currentParsed)'));
   check('iPhone native save uses staged verification',iphone.includes('var tmpPath = path + ".tmp"')&&iphone.includes('staged native save verification failed')&&iphone.includes('final native save verification failed'));
   check('iPhone update cache uses staged verification',iphone.includes('var appCacheTempPath = appCachePath + ".tmp"')&&iphone.includes('function croppyWriteVerifiedCache(raw)')&&iphone.includes('staged cache verification failed'));
