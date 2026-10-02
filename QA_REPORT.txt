@@ -1,10 +1,12 @@
-CROSS GPT クロッピー v2.64.29 PREV SHAPE GUARD - QA REPORT
+CROSS GPT クロッピー v2.64.30 STAGED SAVE GUARD - QA REPORT
 
 変更:
-- UIと操作は変更せずiPhoneの直前正常データ退避を強化
-- .prevへ退避する前にdraft/historyのJSON型まで検証
-- JSONとして読めても型が違うデータは直前正常版へ昇格させない
-- v2.64.28のバックアップ整合性・角丸・復旧保護を維持
+- UIと操作は変更せずiPhone保存をtmp書込→読戻し検証→本番保存の二段階化
+- 保存失敗時は直前正常データからrollbackを試行
+- バックアップから古いRECOVERYコピーを除外し復元後に正常データから再生成
+- 自動更新キャッシュもtmp検証後に確定
+- 途中欠損HTMLを拒否する異常系QAを追加
+- v2.64.29までの整合性・角丸・復旧保護を維持
 
 自動検証:
 - Version title: PASS

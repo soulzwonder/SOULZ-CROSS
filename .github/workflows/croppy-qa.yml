@@ -37,16 +37,16 @@ jobs:
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_iPhone_v2.64.29_PREV_SHAPE_GUARD
+          name: CROPPY_iPhone_v2.64.30_STAGED_SAVE_GUARD
           path: |
-            CROPPY_iPhone_v2.64.29.js
+            CROPPY_iPhone_v2.64.30.js
             QA_REPORT.txt
           if-no-files-found: error
           retention-days: 30
       - name: Android-Web package
         uses: actions/upload-artifact@v4
         with:
-          name: CROPPY_Android_Web_v2.64.29_PREV_SHAPE_GUARD
+          name: CROPPY_Android_Web_v2.64.30_STAGED_SAVE_GUARD
           path: |
             index.html
             manifest.webmanifest
