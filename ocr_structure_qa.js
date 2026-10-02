@@ -191,9 +191,10 @@ try{
     ['5',{ratio:1.139,density:.114,holes:0,topSpan:.939,midSpan:.452,botSpan:.313,topMean:.568,midMean:.150,botMean:.241,compCount:2}],
     ['7',{ratio:.914,density:.122,holes:0,topSpan:1,midSpan:.203,botSpan:.25,topMean:.508,midMean:.905,botMean:.745,compCount:1}],
     ['2',{ratio:1.821,density:.153,holes:0,topSpan:.745,midSpan:.441,botSpan:.49,topMean:.391,midMean:.704,botMean:.651,compCount:1}],
-    ['8',{ratio:.697,density:.304,holes:1,topSpan:1,midSpan:.903,botSpan:.806,topMean:.495,midMean:.618,botMean:.548,compCount:1}]
+    ['8',{ratio:.697,density:.304,holes:1,topSpan:1,midSpan:.903,botSpan:.806,topMean:.495,midMean:.618,botMean:.548,compCount:1}],
+    ['2',{ratio:1.785,density:.129,holes:1,topSpan:.428,midSpan:.813,botSpan:.705,topMean:.233,midMean:.568,botMean:.433,compCount:1}]
   ];
-  check('Current field photo: shape feature regression reads 160 / 35 / 53 / 276 / 215 / 182',shapeCases.every(function(t){return classify55(t[1]).digit===t[0]}),shapeCases.map(function(t){return t[0]+'='+classify55(t[1]).digit}).join(','));
+  check('Current field photo: shape feature regression reads main values and right-side 2',shapeCases.every(function(t){return classify55(t[1]).digit===t[0]}),shapeCases.map(function(t){return t[0]+'='+classify55(t[1]).digit}).join(','));
   const scriptPath='v2.64.55_CROPPY_OCR.js';
   check('Scriptable v2.64.55 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
