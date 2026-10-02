@@ -25,6 +25,8 @@ jobs:
         run: node qa_stage4.js
       - name: Final endurance and fault-injection QA
         run: node final_torture_qa.js
+      - name: OCR structure analysis QA
+        run: node ocr_structure_qa.js
       - name: API server smoke test
         run: |
           node server.js > /tmp/croppy-server.log 2>&1 &
