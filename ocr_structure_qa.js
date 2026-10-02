@@ -24,7 +24,7 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR structure version marker',html.includes('<title>CROSS GPT クロッピー | v2.64.45</title>'));
+  check('OCR structure version marker',html.includes('<title>CROSS GPT クロッピー | v2.64.46</title>'));
   check('Connected-component segmentation enabled',html.includes('function ocrFindInkComponents'));
   check('Skew estimation enabled',html.includes('function ocrEstimateSkew'));
   check('Row structure clustering enabled',html.includes('function ocrClusterRows'));
@@ -89,6 +89,14 @@ try{
   check('Consensus: crossed-out right mark is not accepted as count',p&&p.fixed==='236×1',JSON.stringify(p));
   p=pick('141','160','388','');
   check('Consensus: disagreement is marked low confidence',p&&p.confidence===1,JSON.stringify(p));
+  const repair=make('ocrDimensionRepairLine',{normalizeOCRText:x=>String(x)});
+  check('Short dimension: 15x2 remains candidate',repair('15 - 2')==='15×2',repair('15 - 2'));
+  const resolve=make('ocrResolveEnginePicksV26446');
+  let resolved=resolve({fixed:'160×1',raw:'160',confidence:3},{fixed:'160×1',raw:'160',confidence:3});
+  check('Cross-engine: matching 160 is verified',resolved.length===1&&resolved[0].fixed==='160×1'&&resolved[0].verified===true,JSON.stringify(resolved));
+  resolved=resolve({fixed:'141×1',raw:'141',confidence:3},{fixed:'160×1',raw:'160',confidence:3});
+  check('Cross-engine: disagreement stays unchecked',resolved.length===2&&resolved.every(x=>x.fixed.startsWith('? '))&&resolved.every(x=>x.verified===false),JSON.stringify(resolved));
+  check('Line-level numeric verifier enabled',html.includes('function ocrTessReadV26446')&&html.includes("progress('数字照合 ")&&html.includes("tessedit_pageseg_mode:'7'"));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
