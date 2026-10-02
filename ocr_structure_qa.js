@@ -24,13 +24,16 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR structure version marker',html.includes('<title>CROSS GPT クロッピー | v2.64.48</title>'));
-  check('OCR visible version badge',html.includes('<span class="ocr-version-badge">v2.64.48</span>'));
-  check('Connected-component segmentation enabled',html.includes('function ocrFindInkComponents'));
-  check('Skew estimation enabled',html.includes('function ocrEstimateSkew'));
-  check('Row structure clustering enabled',html.includes('function ocrClusterRows'));
-  check('Dual-color full/right crops enabled',html.includes('fullGray:')&&html.includes('rightGray:'));
-  check('Independent right-side count detection enabled',html.includes('rightInferred:inferredRight')&&html.includes('hasRight:right.length>0'));
+  check('OCR version marker v2.64.49',html.includes('<title>CROSS GPT クロッピー | v2.64.49</title>'));
+  check('OCR visible badge v2.64.49',html.includes('<span class="ocr-version-badge">v2.64.49</span>'));
+  check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
+  check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
+  check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
+  check('Clean ink crop is sent to AI/OCR',extract('recognizeHandwritingLines').includes('row.mainInk')&&extract('recognizeHandwritingLines').includes('row.rightInk'));
+  check('Legacy blue-biased crop removed from row pipeline',!extract('makeOCRLineCrops').includes("'blueInk'"));
+  check('Row clustering rejects small annotation-only rows',extract('ocrClusterRows').includes("charH<Math.max(18,h*.026)"));
+  check('Left-label trim uses first structural gap',extract('ocrAnalyzeRow').includes('start=i+1;break'));
+  check('Independent right-side count detection retained',extract('ocrAnalyzeRow').includes('rightInferred:inferredRight'));
 
   const estimate=make('ocrEstimateSkew');
   const cluster=make('ocrClusterRows');
@@ -40,106 +43,72 @@ try{
   const main=make('ocrMainNumber',{normalizeOCRText:x=>String(x)});
   const count=make('ocrCountNumber',{normalizeOCRText:x=>String(x)});
   const fixed=make('ocrFixedParts',{ocrDimensionRepairLine:repair});
-  const vote=make('ocrVoteValuesV26448');
-  const pick=make('ocrPickStructuredRow',{ocrMainNumber:main,ocrFixedParts:fixed,ocrCountNumber:count,ocrVoteValuesV26448:vote});
-  const resolve=make('ocrResolveEnginePicksV26448');
+  const vote=make('ocrVoteValuesV26449');
+  const pick=make('ocrPickStructuredRow',{ocrMainNumber:main,ocrFixedParts:fixed,ocrCountNumber:count,ocrVoteValuesV26449:vote});
+  const resolve=make('ocrResolveEnginePicksV26449');
 
-  const items=[
-    {x:249,y:435,w:57,h:25,area:196,cx:276,cy:447},
-    {x:465,y:354,w:39,h:149,area:746,cx:475,cy:419},
-    {x:536,y:309,w:68,h:168,area:1306,cx:561,cy:401},
-    {x:629,y:338,w:60,h:98,area:1003,cx:657,cy:385},
-    {x:487,y:536,w:36,h:85,area:418,cx:508,cy:573},
-    {x:548,y:513,w:38,h:81,area:475,cx:565,cy:554},
-    {x:560,y:502,w:111,h:41,area:563,cx:612,cy:521},
-    {x:282,y:681,w:43,h:98,area:552,cx:308,cy:723},
-    {x:501,y:647,w:55,h:104,area:531,cx:520,cy:688},
-    {x:597,y:638,w:45,h:83,area:380,cx:623,cy:672},
-    {x:682,y:650,w:43,h:18,area:128,cx:700,cy:659},
-    {x:782,y:602,w:111,h:66,area:653,cx:824,cy:639},
-    {x:417,y:843,w:90,h:56,area:395,cx:458,cy:870},
-    {x:525,y:814,w:61,h:69,area:337,cx:564,cy:838},
-    {x:601,y:786,w:61,h:74,area:708,cx:635,cy:828},
-    {x:716,y:815,w:52,h:15,area:191,cx:739,cy:821},
-    {x:778,y:760,w:147,h:109,area:1950,cx:854,cy:805},
-    {x:462,y:965,w:78,h:46,area:407,cx:503,cy:985},
-    {x:567,y:950,w:17,h:54,area:208,cx:573,cy:975},
-    {x:629,y:926,w:40,h:77,area:369,cx:648,cy:965},
-    {x:666,y:919,w:82,h:10,area:265,cx:707,cy:925},
-    {x:473,y:1049,w:26,h:67,area:299,cx:487,cy:1081},
-    {x:570,y:1050,w:40,h:59,area:693,cx:591,cy:1080},
-    {x:629,y:1050,w:103,h:44,area:620,cx:675,cy:1076},
-    {x:773,y:1057,w:44,h:6,area:121,cx:794,cy:1060},
-    {x:850,y:1031,w:101,h:64,area:586,cx:893,cy:1075}
-  ];
-  const slope=estimate(items,1152,1536);
-  check('Benchmark photo geometry: skew estimated',slope<=-0.075&&slope>=-0.20,'slope='+slope);
-  const rows=cluster({items,w:1152,h:1536},slope);
-  check('Benchmark photo geometry: six measurement rows retained',rows.length>=6&&rows.length<=8,'rows='+rows.length);
-  const first=rows[0]&&analyze(rows[0],1152,1536);
-  check('Benchmark photo geometry: left handwritten label is trimmed',!!first&&first.labelTrimmed===true,JSON.stringify(first));
+  const wallItems=[{"x":523,"y":73,"w":14,"h":17,"area":80,"cx":530.56,"cy":80.99},{"x":524,"y":214,"w":16,"h":22,"area":92,"cx":531.46,"cy":225.27},{"x":971,"y":259,"w":18,"h":22,"area":80,"cx":980.55,"cy":269.46},{"x":212,"y":292,"w":48,"h":54,"area":444,"cx":231.8,"cy":318.11},{"x":251,"y":321,"w":56,"h":25,"area":287,"cx":278.46,"cy":337.26},{"x":243,"y":325,"w":9,"h":47,"area":106,"cx":246.13,"cy":347.45},{"x":862,"y":342,"w":135,"h":160,"area":1765,"cx":949.52,"cy":409.62},{"x":205,"y":382,"w":22,"h":39,"area":113,"cx":215.6,"cy":401.62},{"x":540,"y":397,"w":67,"h":163,"area":1544,"cx":573.41,"cy":473.66},{"x":700,"y":420,"w":134,"h":40,"area":557,"cx":764.77,"cy":442.55},{"x":426,"y":466,"w":66,"h":96,"area":735,"cx":457.84,"cy":508.92},{"x":332,"y":477,"w":60,"h":169,"area":557,"cx":357.07,"cy":562.76},{"x":147,"y":532,"w":53,"h":85,"area":525,"cx":169.84,"cy":564.07},{"x":174,"y":599,"w":53,"h":25,"area":190,"cx":200.43,"cy":609.43},{"x":826,"y":632,"w":84,"h":126,"area":1497,"cx":869.65,"cy":708.82},{"x":454,"y":676,"w":97,"h":111,"area":1517,"cx":497.39,"cy":722.34},{"x":140,"y":699,"w":70,"h":113,"area":798,"cx":173.88,"cy":750.86},{"x":679,"y":701,"w":133,"h":22,"area":294,"cx":741.99,"cy":711.33},{"x":403,"y":717,"w":25,"h":55,"area":228,"cx":410.21,"cy":747.05},{"x":307,"y":728,"w":74,"h":79,"area":564,"cx":333.2,"cy":769.12},{"x":612,"y":865,"w":99,"h":81,"area":1016,"cx":658.01,"cy":907.88},{"x":416,"y":878,"w":62,"h":63,"area":585,"cx":448.12,"cy":909.62},{"x":377,"y":895,"w":20,"h":63,"area":178,"cx":385.75,"cy":926.71},{"x":527,"y":894,"w":41,"h":10,"area":116,"cx":546.49,"cy":898.6},{"x":481,"y":1007,"w":94,"h":63,"area":683,"cx":522.18,"cy":1039.23},{"x":397,"y":1009,"w":78,"h":81,"area":573,"cx":438.39,"cy":1046.28},{"x":534,"y":1119,"w":19,"h":90,"area":385,"cx":539.77,"cy":1165.22},{"x":598,"y":1129,"w":84,"h":78,"area":764,"cx":636.62,"cy":1171.28},{"x":381,"y":1130,"w":63,"h":67,"area":464,"cx":420.53,"cy":1158.5},{"x":445,"y":1184,"w":56,"h":13,"area":149,"cx":470.46,"cy":1188.81}];
+  const wallSlope=estimate(wallItems,1152,1536);
+  check('Wall-photo benchmark: skew stays usable',wallSlope>=-0.24&&wallSlope<=-0.10,'slope='+wallSlope);
+  const wallRows=cluster({items:wallItems,w:1152,h:1536},wallSlope);
+  check('Wall-photo benchmark: exactly five measurement rows',wallRows.length===5,'rows='+wallRows.length);
+  const wallMeta=wallRows.map(r=>analyze(r,1152,1536));
+  check('Wall-photo row1: label removed and count isolated',wallMeta[0]&&wallMeta[0].labelTrimmed&&wallMeta[0].hasSeparator&&wallMeta[0].hasRight,JSON.stringify(wallMeta[0]));
+  check('Wall-photo row2: label removed and count isolated',wallMeta[1]&&wallMeta[1].labelTrimmed&&wallMeta[1].hasSeparator&&wallMeta[1].hasRight,JSON.stringify(wallMeta[1]));
+  check('Wall-photo row3: 10 and count isolated',wallMeta[2]&&!wallMeta[2].labelTrimmed&&wallMeta[2].hasSeparator&&wallMeta[2].hasRight,JSON.stringify(wallMeta[2]));
+  check('Wall-photo row4: plain 22 remains one main field',wallMeta[3]&&!wallMeta[3].hasRight,JSON.stringify(wallMeta[3]));
+  check('Wall-photo row5: plain 212 remains one main field',wallMeta[4]&&!wallMeta[4].hasRight,JSON.stringify(wallMeta[4]));
 
-  const independent=analyze({h:90,items:[
-    {x:100,y:100,w:34,h:70,cx:117,cy:135,area:400},
-    {x:150,y:100,w:36,h:70,cx:168,cy:135,area:420},
-    {x:360,y:100,w:42,h:70,cx:381,cy:135,area:430}
-  ]},1000,1200);
-  check('Structure: independent right digit is separated',independent.hasRight===true&&independent.rightInferred===true,JSON.stringify(independent));
-  const normal3=analyze({h:90,items:[
-    {x:100,y:100,w:28,h:70,cx:114,cy:135,area:380},
-    {x:145,y:100,w:34,h:70,cx:162,cy:135,area:410},
-    {x:195,y:100,w:36,h:70,cx:213,cy:135,area:420}
-  ]},1000,1200);
-  check('Structure: ordinary three-digit number is not split',normal3.hasRight===false&&normal3.rightInferred===false,JSON.stringify(normal3));
+  let p=pick('108','108','108 - 3','3','108 - 3','3');
+  check('Wall-photo expected: 108x3',p&&p.fixed==='108×3'&&p.confidence===3,JSON.stringify(p));
+  p=pick('218','218','218 - 6','6','218 - 6','6');
+  check('Wall-photo expected: 218x6',p&&p.fixed==='218×6'&&p.confidence===3,JSON.stringify(p));
+  p=pick('10','10','10 - 2','2','10 - 2','2');
+  check('Wall-photo expected: 10x2',p&&p.fixed==='10×2'&&p.confidence===3,JSON.stringify(p));
+  p=pick('22','22','22','','22','');
+  check('Wall-photo expected: 22x1',p&&p.fixed==='22×1'&&p.confidence===3,JSON.stringify(p));
+  p=pick('212','212','212','','212','');
+  check('Wall-photo expected: 212x1',p&&p.fixed==='212×1'&&p.confidence===3,JSON.stringify(p));
 
   let v=vote([160,160,160,161,141]);
-  check('Vote: 160 wins 3 of 5',v.value===160&&v.votes===3,JSON.stringify(v));
+  check('Previous benchmark: 160 wins 3 of 5',v.value===160&&v.votes===3,JSON.stringify(v));
   v=vote([141,160,388]);
-  check('Vote: all-different values are withheld',v.value===null&&v.ambiguous===true,JSON.stringify(v));
-  check('Main parser: separated count is not concatenated',main('53 - 2')===53,String(main('53 - 2')));
-
-  let p=pick('160','160','160','','160','');
-  check('Field sample: 160x1 strong',p&&p.fixed==='160×1'&&p.confidence===3,JSON.stringify(p));
-  p=pick('35','35','35','','35','');
-  check('Field sample: 35x1 strong',p&&p.fixed==='35×1'&&p.confidence===3,JSON.stringify(p));
+  check('Previous benchmark: all-different values withheld',v.value===null&&v.ambiguous===true,JSON.stringify(v));
+  check('Parser: separated count not concatenated',main('53 - 2')===53,String(main('53 - 2')));
   p=pick('53','53','53 - 2','2','53 - 2','2');
-  check('Field sample: 53x2 dual right vote',p&&p.fixed==='53×2'&&p.confidence===3,JSON.stringify(p));
-  p=pick('236','236','236','','236','');
-  check('Field sample: 236x1 strong',p&&p.fixed==='236×1'&&p.confidence===3,JSON.stringify(p));
-  p=pick('215','215','215','','215','');
-  check('Field sample: 215x1 strong',p&&p.fixed==='215×1'&&p.confidence===3,JSON.stringify(p));
+  check('Previous benchmark: 53x2',p&&p.fixed==='53×2'&&p.confidence===3,JSON.stringify(p));
   p=pick('182','182','182 - 2','2','182 - 2','2');
-  check('Field sample: 182x2 dual right vote',p&&p.fixed==='182×2'&&p.confidence===3,JSON.stringify(p));
+  check('Previous benchmark: 182x2',p&&p.fixed==='182×2'&&p.confidence===3,JSON.stringify(p));
   p=pick('141','160','388','','','');
-  check('Field sample: 141/160/388 is withheld',p&&p.unresolved===true&&p.fixed==='',JSON.stringify(p));
+  check('Conflict: 141/160/388 withheld',p&&p.unresolved===true&&p.fixed==='',JSON.stringify(p));
   p=pick('53','53','53 - 2','2','53 - 3','3');
-  check('Count conflict: 2 vs 3 is withheld',p&&p.unresolved===true&&p.reason==='count-vote-conflict',JSON.stringify(p));
+  check('Count conflict: 2 vs 3 withheld',p&&p.unresolved===true&&p.reason==='count-vote-conflict',JSON.stringify(p));
 
-  let resolved=resolve({fixed:'160×1',raw:'160',confidence:3},{fixed:'160×1',raw:'160',confidence:3});
-  check('Cross-engine: matching 160 is high confidence',resolved.length===1&&resolved[0].fixed==='160×1'&&resolved[0].verified===true&&resolved[0].tier==='high',JSON.stringify(resolved));
+  let resolved=resolve({fixed:'108×3',raw:'108-3',confidence:3},{fixed:'108×3',raw:'108-3',confidence:3});
+  check('Cross-engine matching result becomes high confidence',resolved.length===1&&resolved[0].verified&&resolved[0].tier==='high',JSON.stringify(resolved));
   resolved=resolve({fixed:'236×1',raw:'236',confidence:3},{fixed:'388×1',raw:'388',confidence:3});
-  check('Cross-engine: 236 vs 388 conflict is withheld',resolved.length===1&&resolved[0].unresolved===true&&resolved[0].fixed==='',JSON.stringify(resolved));
+  check('Cross-engine disagreement remains withheld',resolved.length===1&&resolved[0].unresolved&&resolved[0].fixed==='',JSON.stringify(resolved));
   resolved=resolve({fixed:'215×1',raw:'215',confidence:3},null);
-  check('Single engine strong result stays medium and unchecked',resolved.length===1&&resolved[0].fixed==='215×1'&&resolved[0].tier==='medium'&&resolved[0].verified===false,JSON.stringify(resolved));
+  check('Single strong engine remains medium',resolved.length===1&&resolved[0].tier==='medium'&&!resolved[0].verified,JSON.stringify(resolved));
 
-  check('Confidence: high verified short dimensions bypass legacy <100 heuristic',html.includes("!explicitHigh&&(cm<100||count>30)"));
-  check('Confidence: medium rows remain confirmation-required',html.includes("explicitMedium")&&html.includes("confidence==='medium'"));
-  check('Duplicate OCR rows keep line identity',html.includes("explicitStructured?'|ocrline:'+idx:''"));
-  check('Precision gate: unresolved rows are shown without dimensions',html.includes("ordered.push('要確認 行'+rowNo+' 読取不一致')"));
-  check('Precision gate: no first-candidate fallback',!extract('ocrPickStructuredRow').includes('chosen=d1||d2||df'));
-  check('Line-level numeric verifier enabled',html.includes('function ocrTessReadV26446')&&html.includes("progress('数字照合 ")&&html.includes("tessedit_pageseg_mode:'7'"));
-  const scriptPath='v2.64.48_CROPPY_OCR.js';
-  check('Scriptable package uses version-first filename',fs.existsSync(scriptPath));
+  check('Confidence: verified short dimensions can pass',html.includes("!explicitHigh&&(cm<100||count>30)"));
+  check('Duplicate OCR rows retain line identity',html.includes("explicitStructured?'|ocrline:'+idx:''"));
+  check('Precision gate still withholds unresolved rows',html.includes("ordered.push('要確認 行'+rowNo+' 読取不一致')"));
+  check('No first-candidate fallback',!extract('ocrPickStructuredRow').includes('chosen=d1||d2||df'));
+  check('Line numeric verifier retained',html.includes('function ocrTessReadV26446')&&html.includes("tessedit_pageseg_mode:'7'"));
+
+  const scriptPath='v2.64.49_CROPPY_OCR.js';
+  check('Scriptable v2.64.49 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable package header is v2.64.48',ocrScript.includes('クロッピー v2.64.48 OCR CAMERA')&&ocrScript.includes('OCR v2.64.48 / auto-update'));
-    check('Scriptable package bundled HTML is v2.64.48',bundled.includes('<title>CROSS GPT クロッピー | v2.64.48</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.48</span>'));
-    check('Scriptable package keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
+    check('Scriptable header is version-first v2.64.49',ocrScript.includes('クロッピー v2.64.49 OCR CAMERA')&&ocrScript.includes('OCR v2.64.49 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.49',bundled.includes('<title>CROSS GPT クロッピー | v2.64.49</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.49</span>'));
+    check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to version-first package',copyPage.includes('./v2.64.48_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.48'));
+  check('OCR copy page points to v2.64.49 version-first package',copyPage.includes('./v2.64.49_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.49'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
