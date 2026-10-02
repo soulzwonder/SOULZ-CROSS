@@ -23,6 +23,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Regression and behavior QA
         run: node qa_stage4.js
+      - name: Final endurance and fault-injection QA
+        run: node final_torture_qa.js
       - name: API server smoke test
         run: |
           node server.js > /tmp/croppy-server.log 2>&1 &
@@ -41,6 +43,7 @@ jobs:
           path: |
             CROPPY_iPhone_v2.64.38.js
             QA_REPORT.txt
+            FINAL_TEST_REPORT.txt
           if-no-files-found: error
           retention-days: 30
       - name: Android-Web package
@@ -56,5 +59,6 @@ jobs:
             icon-192.png
             icon-512.png
             QA_REPORT.txt
+            FINAL_TEST_REPORT.txt
           if-no-files-found: error
           retention-days: 30
