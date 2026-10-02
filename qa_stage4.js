@@ -560,7 +560,7 @@
     const out=inject(sample);check('Behavior: iPhone boot injection carries native data',out.includes('復旧テスト')&&out.includes('"id":"h1"')&&out.includes('__SOULZ_HOME_MODE = true')&&out.includes('__SOULZ_NATIVE_RECOVERED = true'),out);
   }catch(e){check('Behavior: iPhone boot injection carries native data',false,e.message)}
   check('iPhone copy installer follows latest',iphoneCopy.includes('v2.64.35')&&iphoneCopy.includes('./CROPPY_iPhone_v2.64.35.js')&&!iphoneCopy.includes('v2.58.27'));
-  check('SW cache version',sw.includes('cross-gpt-croppy-v2-64-34'));
+  check('SW cache version',sw.includes('cross-gpt-croppy-'+VERSION.slice(1).replace(/\\./g,'-')));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
   const allowedScoped=new Set(['q','qa','fallbackCopy']);
