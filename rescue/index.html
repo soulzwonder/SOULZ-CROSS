@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111214" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Rescue" />
+  <title>SOULZ Rescue</title>
+  <style>
+:root{
+  color-scheme:dark;
+  --bg:#0b0c0e;--panel:#15171a;--panel2:#1c1f23;--line:#2a2f35;--text:#f4f5f6;--muted:#969da6;
+  --accent:#f4c14f;--danger:#ff6262;--good:#53d483;--blue:#6ba8ff;--orange:#ff9c57;
+  --radius:18px;--shadow:0 16px 40px rgba(0,0,0,.35)
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}body{padding-bottom:env(safe-area-inset-bottom)}button,input,select,textarea{font:inherit}button{cursor:pointer}.app-shell{max-width:980px;margin:auto;min-height:100vh}.topbar{display:flex;justify-content:space-between;align-items:flex-end;padding:calc(20px + env(safe-area-inset-top)) 18px 14px;border-bottom:1px solid var(--line);background:rgba(11,12,14,.9);backdrop-filter:blur(18px);position:sticky;top:0;z-index:20}.topbar h1{margin:0;font-size:28px;letter-spacing:.14em}.eyebrow{font-size:10px;letter-spacing:.18em;color:var(--muted);font-weight:800}.version-badge{font-size:12px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}.main{padding:16px 16px 100px}.view{display:none}.view.active{display:block}.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}.hero{display:flex;gap:18px;justify-content:space-between;align-items:end}.hero h2{font-size:26px;margin:5px 0 8px}.hero p{color:var(--muted);margin:0;max-width:520px}.primary,.danger,.file-button,.secondary{border:0;border-radius:14px;padding:13px 16px;font-weight:800}.primary{background:var(--accent);color:#15120a}.primary.big{white-space:nowrap}.secondary,.file-button{background:#2a2e33;color:var(--text);text-align:center}.danger{background:#462126;color:#ffb0b0;border:1px solid #70333a}.text-button,.icon-button{background:none;border:0;color:var(--accent);font-weight:800}.icon-button{font-size:32px;color:var(--text);padding:0 6px}.search-wrap{display:block;margin-top:14px}.search-wrap span{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}input,select,textarea{width:100%;background:#0e1012;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:13px 14px;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(244,193,79,.10)}textarea{min-height:92px;resize:vertical}.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.quick-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;color:var(--text);padding:16px 10px;text-align:left}.quick-card strong{font-size:28px;display:block;margin-bottom:8px}.quick-card span{font-size:12px;color:var(--muted)}.section-block{margin-top:24px}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}.section-head h2,.section-head h3{margin:0}.sticky-title{padding-top:4px}.toolbar{display:grid;grid-template-columns:1fr 180px;gap:10px;margin-bottom:14px}.card-list{display:grid;gap:10px}.gear-card{display:grid;grid-template-columns:76px 1fr auto;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:12px;text-align:left;color:var(--text)}.gear-photo{width:76px;height:76px;border-radius:13px;background:#090a0b;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;font-weight:900;color:#555}.gear-photo img{width:100%;height:100%;object-fit:cover}.gear-main h3{margin:2px 0 3px;font-size:19px}.gear-main p{margin:0;color:var(--muted);font-size:12px}.gear-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.chip{font-size:10px;border:1px solid var(--line);background:#101215;border-radius:999px;padding:4px 8px;color:#bdc3ca}.status-dot{font-size:11px;font-weight:800;padding:6px 9px;border-radius:999px;background:#20242a}.chevron{color:#737b84;font-size:22px}.empty{border:1px dashed var(--line);border-radius:16px;padding:28px;text-align:center;color:var(--muted)}.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(980px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(13,14,16,.94);backdrop-filter:blur(20px);border-top:1px solid var(--line);padding:7px 8px calc(7px + env(safe-area-inset-bottom));z-index:30}.bottom-nav button{background:none;border:0;color:#737b84;padding:5px}.bottom-nav button.active{color:var(--accent)}.bottom-nav span{font-size:22px;display:block;line-height:1}.bottom-nav small{font-size:10px}.sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50}.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(760px,100%);max-height:94vh;background:#111316;border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;z-index:60;box-shadow:0 -20px 60px rgba(0,0,0,.5);display:flex;flex-direction:column}.hidden{display:none!important}.sheet-handle{width:44px;height:5px;border-radius:5px;background:#42474e;margin:9px auto}.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:5px 18px 12px;border-bottom:1px solid var(--line)}.sheet-head h2{margin:2px 0 0}.sheet-body{padding:16px;overflow:auto}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:11px;color:var(--muted);font-weight:700}.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}.detail-hero{display:grid;grid-template-columns:120px 1fr;gap:16px}.detail-photo{height:120px;border-radius:16px;background:#090a0b;border:1px solid var(--line);overflow:hidden;display:flex;align-items:center;justify-content:center;color:#555}.detail-photo img{width:100%;height:100%;object-fit:cover}.detail-title h2{font-size:28px;margin:4px 0}.detail-title p{color:var(--muted);margin:0}.detail-tabs{display:flex;gap:7px;overflow:auto;margin:18px -2px 12px;padding:2px}.detail-tabs button{white-space:nowrap;background:#1b1e22;border:1px solid var(--line);color:var(--muted);padding:8px 11px;border-radius:999px}.detail-tabs button.active{background:var(--accent);color:#17130a;border-color:var(--accent);font-weight:800}.detail-panel{display:none}.detail-panel.active{display:block}.kv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.kv{background:#17191d;border:1px solid var(--line);border-radius:13px;padding:11px}.kv small{color:var(--muted);display:block;margin-bottom:4px}.sub-list{display:grid;gap:8px}.sub-card{background:#17191d;border:1px solid var(--line);border-radius:14px;padding:12px}.sub-card h4{margin:0 0 5px}.sub-card p{margin:3px 0;color:#d2d5d8;white-space:pre-wrap}.sub-card small{color:var(--muted)}.row-between{display:flex;justify-content:space-between;align-items:center;gap:10px}.mini-danger{border:0;background:none;color:#ff8c8c}.stack{display:grid;gap:12px;margin-bottom:14px}.stack h3,.stack p{margin:0}.stack p{color:var(--muted)}.danger-zone{border-color:#4b272c}.timeline{display:grid;gap:8px}.timeline-item{border-left:2px solid var(--line);padding:7px 0 7px 14px}.timeline-item strong{display:block}.timeline-item small{color:var(--muted)}.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#f4f5f6;color:#111;padding:10px 14px;border-radius:999px;font-weight:800;z-index:100;box-shadow:var(--shadow)}.photo-preview{width:100%;max-height:220px;object-fit:contain;border-radius:12px;border:1px solid var(--line);background:#090a0b}.divider{height:1px;background:var(--line);margin:16px 0}.muted{color:var(--muted)}.money{font-variant-numeric:tabular-nums}.summary-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.summary-strip .kv{text-align:center}.summary-strip strong{font-size:18px}.inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:680px){.main{padding:12px 12px 94px}.topbar{padding-left:14px;padding-right:14px}.hero{align-items:stretch;flex-direction:column}.primary.big{width:100%}.quick-grid{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr}.gear-card{grid-template-columns:64px 1fr auto}.gear-photo{width:64px;height:64px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.detail-hero{grid-template-columns:92px 1fr}.detail-photo{height:92px}.kv-grid{grid-template-columns:1fr}.summary-strip{grid-template-columns:1fr 1fr 1fr}.sheet{max-height:96vh}.sheet-body{padding:14px}}
+
+  </style>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">SOULZ TOOLS</div>
+        <h1>RESCUE</h1>
+      </div>
+      <div class="version-badge" id="versionBadge">v0.1.0</div>
+    </header>
+
+    <main class="main" id="main">
+      <section class="view active" data-view="home">
+        <div class="hero panel">
+          <div>
+            <div class="eyebrow">機材カルテ</div>
+            <h2>古い機材を、情報ごと残す。</h2>
+            <p>購入・症状・修理・部品・改造・資料を1台ごとに記録。</p>
+          </div>
+          <button class="primary big" data-action="new-equipment">＋ 機材追加</button>
+        </div>
+
+        <label class="search-wrap panel">
+          <span>検索</span>
+          <input id="globalSearch" type="search" placeholder="AKAI S1100 / 液晶 / 電源 / #要修理" autocomplete="off" />
+        </label>
+
+        <div class="quick-grid">
+          <button class="quick-card" data-filter-status="repairing"><strong id="countRepairing">0</strong><span>🔵 修理中</span></button>
+          <button class="quick-card" data-go="equipment"><strong id="countOwned">0</strong><span>📦 所有機材</span></button>
+          <button class="quick-card" data-filter-status="broken"><strong id="countBroken">0</strong><span>🔴 故障</span></button>
+          <button class="quick-card" data-go="history"><strong id="countRecent">0</strong><span>🕘 最近編集</span></button>
+        </div>
+
+        <section class="section-block">
+          <div class="section-head"><h3>最近の機材</h3><button class="text-button" data-go="equipment">すべて表示</button></div>
+          <div id="recentEquipment" class="card-list"></div>
+        </section>
+      </section>
+
+      <section class="view" data-view="equipment">
+        <div class="section-head sticky-title">
+          <div><div class="eyebrow">EQUIPMENT DB</div><h2>所有機材</h2></div>
+          <button class="primary" data-action="new-equipment">＋追加</button>
+        </div>
+        <div class="toolbar panel">
+          <input id="equipmentSearch" type="search" placeholder="機材を検索" />
+          <select id="statusFilter">
+            <option value="">全状態</option>
+            <option value="working">🟢 正常</option>
+            <option value="check">🟡 要確認</option>
+            <option value="unstable">🟠 不調</option>
+            <option value="broken">🔴 故障</option>
+            <option value="repairing">🔵 修理中</option>
+            <option value="stored">⚪ 保管</option>
+            <option value="parts">⚫ 部品取り</option>
+            <option value="sold">売却済</option>
+          </select>
+        </div>
+        <div id="equipmentList" class="card-list"></div>
+      </section>
+
+      <section class="view" data-view="history">
+        <div class="section-head sticky-title"><div><div class="eyebrow">ACTIVITY</div><h2>履歴</h2></div></div>
+        <div id="historyList" class="timeline"></div>
+      </section>
+
+      <section class="view" data-view="backup">
+        <div class="section-head sticky-title"><div><div class="eyebrow">DATA</div><h2>バックアップ</h2></div></div>
+        <div class="panel stack">
+          <h3>JSONバックアップ</h3>
+          <p>機材情報、修理履歴、部品、写真データをまとめて保存します。</p>
+          <button class="primary" id="exportBtn">JSONを書き出す</button>
+          <label class="file-button">JSONから復元<input id="importInput" type="file" accept="application/json,.json" hidden /></label>
+        </div>
+        <div class="panel stack danger-zone">
+          <h3>データ初期化</h3>
+          <p>この端末内のSOULZ Rescueデータを消去します。</p>
+          <button class="danger" id="resetBtn">すべて消去</button>
+        </div>
+        <div class="panel stack">
+          <h3>保存方式</h3>
+          <p>IndexedDB（ブラウザ内データベース）を使用。基本機能はオフライン対応です。</p>
+          <small>SOULZ Rescue <span id="aboutVersion">v0.1.0</span></small>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="メインナビゲーション">
+      <button class="active" data-nav="home"><span>⌂</span><small>ホーム</small></button>
+      <button data-nav="equipment"><span>▦</span><small>機材</small></button>
+      <button data-nav="history"><span>◷</span><small>履歴</small></button>
+      <button data-nav="backup"><span>⇩</span><small>保存</small></button>
+    </nav>
+  </div>
+
+  <div id="sheetBackdrop" class="sheet-backdrop hidden"></div>
+  <section id="sheet" class="sheet hidden" aria-modal="true" role="dialog">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div><div class="eyebrow" id="sheetEyebrow">EQUIPMENT</div><h2 id="sheetTitle">機材追加</h2></div>
+      <button class="icon-button" id="closeSheet" aria-label="閉じる">×</button>
+    </div>
+    <div id="sheetBody" class="sheet-body"></div>
+  </section>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script>
+'use strict';
+
+const APP_VERSION = '0.1.0';
+const DB_NAME = 'soulz-rescue-db';
+const DB_VERSION = 1;
+const STORE = 'app';
+const STATE_KEY = 'state';
+const STATUS = {
+  working: ['🟢','正常'], check:['🟡','要確認'], unstable:['🟠','不調'], broken:['🔴','故障'],
+  repairing:['🔵','修理中'], stored:['⚪','保管'], parts:['⚫','部品取り'], sold:['◼︎','売却済']
+};
+const CATEGORIES = ['ミキサー','サンプラー','オーディオインターフェース','AD/DA','DAC','マイク','プリアンプ','コンプレッサー','エフェクター','レコーダー','カセット','スピーカー','アンプ','シンセ','MIDI機器','ターンテーブル','その他'];
+
+let state = { version: APP_VERSION, equipment: [], activity: [] };
+let memoryFallback = null;
+let currentView = 'home';
+let currentEquipmentId = null;
+let currentDetailTab = 'overview';
+let currentStatusFilter = '';
+
+const $ = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+const uid = (prefix='id') => `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`;
+const esc = (v='') => String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+const yen = n => Number(n||0).toLocaleString('ja-JP', {style:'currency',currency:'JPY',maximumFractionDigits:0});
+const today = () => new Date().toISOString().slice(0,10);
+const dt = iso => iso ? new Date(iso).toLocaleString('ja-JP') : '';
+
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,DB_VERSION);
+    req.onupgradeneeded=()=>{ const db=req.result; if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE); };
+    req.onsuccess=()=>resolve(req.result); req.onerror=()=>reject(req.error);
+  });
+}
+function cloneState(value){
+  return JSON.parse(JSON.stringify(value));
+}
+async function loadState(){
+  try{
+    const db=await openDB();
+    return await new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readonly'); const req=tx.objectStore(STORE).get(STATE_KEY);
+      req.onsuccess=()=>resolve(req.result||null); req.onerror=()=>reject(req.error);
+    });
+  }catch(err){
+    try{ const raw=localStorage.getItem('soulz-rescue-state'); if(raw) return JSON.parse(raw); }catch(_){}
+    return memoryFallback ? cloneState(memoryFallback) : null;
+  }
+}
+async function saveState(){
+  state.version=APP_VERSION;
+  try{
+    const db=await openDB();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction(STORE,'readwrite'); tx.objectStore(STORE).put(state,STATE_KEY);
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    return;
+  }catch(err){
+    try{ localStorage.setItem('soulz-rescue-state',JSON.stringify(state)); return; }catch(_){}
+    memoryFallback=cloneState(state);
+  }
+}
+async function clearState(){
+  try{
+    const db=await openDB();
+    await new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(STATE_KEY);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+  }catch(_){}
+  try{ localStorage.removeItem('soulz-rescue-state'); }catch(_){}
+  memoryFallback=null;
+}
+function activity(type, equipmentId, text){
+  state.activity.unshift({id:uid('act'),type,equipmentId,text,at:new Date().toISOString()});
+  state.activity=state.activity.slice(0,200);
+}
+function equipmentById(id){ return state.equipment.find(x=>x.id===id); }
+function touch(eq){ eq.updatedAt=new Date().toISOString(); }
+
+function showToast(msg){
+  const el=$('#toast'); el.textContent=msg; el.classList.remove('hidden');
+  clearTimeout(showToast.t); showToast.t=setTimeout(()=>el.classList.add('hidden'),1700);
+}
+function go(view){
+  currentView=view;
+  $$('.view').forEach(v=>v.classList.toggle('active',v.dataset.view===view));
+  $$('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===view));
+  renderAll(); window.scrollTo({top:0,behavior:'instant'});
+}
+function openSheet(title, body, eyebrow='EQUIPMENT'){
+  $('#sheetTitle').textContent=title; $('#sheetEyebrow').textContent=eyebrow; $('#sheetBody').innerHTML=body;
+  $('#sheet').classList.remove('hidden'); $('#sheetBackdrop').classList.remove('hidden'); document.body.style.overflow='hidden';
+}
+function closeSheet(){ $('#sheet').classList.add('hidden'); $('#sheetBackdrop').classList.add('hidden'); document.body.style.overflow=''; currentEquipmentId=null; }
+
+function equipmentSearchText(eq){
+  const parts=[eq.manufacturer,eq.model,eq.name,eq.category,eq.serial,eq.notes,(eq.tags||[]).join(' '),(eq.symptoms||[]).map(x=>x.text).join(' '),(eq.repairs||[]).map(x=>`${x.symptom} ${x.diagnosis} ${x.action} ${x.result}`).join(' '),(eq.parts||[]).map(x=>`${x.name} ${x.partNumber} ${x.maker}`).join(' ')];
+  return parts.join(' ').toLowerCase();
+}
+function gearCard(eq){
+  const [icon,label]=STATUS[eq.status]||STATUS.check;
+  const tags=(eq.tags||[]).slice(0,3).map(t=>`<span class="chip">#${esc(t)}</span>`).join('');
+  const photo=eq.photos?.[0]?.data ? `<img src="${eq.photos[0].data}" alt="">` : esc((eq.manufacturer||'?').slice(0,2).toUpperCase());
+  return `<button class="gear-card" data-open-equipment="${eq.id}">
+    <div class="gear-photo">${photo}</div>
+    <div class="gear-main"><small class="eyebrow">${esc(eq.manufacturer||'UNKNOWN')}</small><h3>${esc(eq.model||eq.name||'名称未設定')}</h3><p>${esc(eq.category||'未分類')} ・ ${esc(eq.serial||'S/N未登録')}</p><div class="gear-meta"><span class="status-dot">${icon} ${label}</span>${tags}</div></div>
+    <div class="chevron">›</div>
+  </button>`;
+}
+function empty(text){ return `<div class="empty">${esc(text)}</div>`; }
+
+function renderHome(){
+  const owned=state.equipment.filter(e=>e.status!=='sold');
+  $('#countOwned').textContent=owned.length;
+  $('#countRepairing').textContent=state.equipment.filter(e=>e.status==='repairing').length;
+  $('#countBroken').textContent=state.equipment.filter(e=>e.status==='broken').length;
+  $('#countRecent').textContent=Math.min(20,state.activity.length);
+  const recent=[...state.equipment].sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||'')).slice(0,5);
+  $('#recentEquipment').innerHTML=recent.length?recent.map(gearCard).join(''):empty('まだ機材がありません。最初の1台を登録してください。');
+}
+function filteredEquipment(){
+  const q=($('#equipmentSearch')?.value||'').trim().toLowerCase();
+  const status=$('#statusFilter')?.value||currentStatusFilter||'';
+  return state.equipment.filter(e=>(!status||e.status===status)&&(!q||equipmentSearchText(e).includes(q))).sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
+}
+function renderEquipment(){
+  const list=filteredEquipment();
+  $('#equipmentList').innerHTML=list.length?list.map(gearCard).join(''):empty('条件に合う機材がありません。');
+}
+function renderHistory(){
+  const html=state.activity.slice(0,100).map(a=>{
+    const eq=equipmentById(a.equipmentId); return `<div class="timeline-item"><strong>${esc(a.text)}</strong><small>${eq?`${esc(eq.manufacturer)} ${esc(eq.model)} ・ `:''}${esc(dt(a.at))}</small></div>`;
+  }).join('');
+  $('#historyList').innerHTML=html||empty('まだ履歴がありません。');
+}
+function renderAll(){ renderHome(); renderEquipment(); renderHistory(); $('#versionBadge').textContent=`v${APP_VERSION}`; $('#aboutVersion').textContent=`v${APP_VERSION}`; }
+
+function statusOptions(selected='working'){
+  return Object.entries(STATUS).map(([k,[i,l]])=>`<option value="${k}" ${selected===k?'selected':''}>${i} ${l}</option>`).join('');
+}
+function categoryOptions(selected=''){
+  return `<option value="">未分類</option>`+CATEGORIES.map(c=>`<option ${selected===c?'selected':''}>${c}</option>`).join('');
+}
+function tagsFrom(s){ return [...new Set(String(s||'').split(/[\s,、#]+/).map(x=>x.trim()).filter(Boolean))]; }
+
+function equipmentForm(eq={}){
+  return `<form id="equipmentForm" class="form-grid">
+    <input type="hidden" name="id" value="${esc(eq.id||'')}">
+    <div class="field"><label>メーカー *</label><input name="manufacturer" required value="${esc(eq.manufacturer||'')}" placeholder="AKAI"></div>
+    <div class="field"><label>型番 *</label><input name="model" required value="${esc(eq.model||'')}" placeholder="S1100"></div>
+    <div class="field"><label>機材名</label><input name="name" value="${esc(eq.name||'')}" placeholder="愛称など"></div>
+    <div class="field"><label>カテゴリー</label><select name="category">${categoryOptions(eq.category)}</select></div>
+    <div class="field"><label>状態</label><select name="status">${statusOptions(eq.status||'working')}</select></div>
+    <div class="field"><label>シリアル番号</label><input name="serial" value="${esc(eq.serial||'')}"></div>
+    <div class="field"><label>製造年代</label><input name="era" value="${esc(eq.era||'')}" placeholder="1990年代"></div>
+    <div class="field"><label>台数</label><input name="quantity" type="number" min="1" value="${esc(eq.quantity||1)}"></div>
+    <div class="field"><label>購入日</label><input name="purchaseDate" type="date" value="${esc(eq.purchaseDate||'')}"></div>
+    <div class="field"><label>購入価格</label><input name="purchasePrice" type="number" min="0" inputmode="numeric" value="${esc(eq.purchasePrice||'')}"></div>
+    <div class="field full"><label>購入場所</label><input name="purchasePlace" value="${esc(eq.purchasePlace||'')}"></div>
+    <div class="field full"><label>タグ</label><input name="tags" value="${esc((eq.tags||[]).join(' '))}" placeholder="AKAI 12bit 要修理"></div>
+    <div class="field full"><label>写真</label><input id="photoInput" type="file" accept="image/*" capture="environment"><div id="photoPreviewWrap">${eq.photos?.[0]?.data?`<img class="photo-preview" src="${eq.photos[0].data}" alt="">`:''}</div></div>
+    <div class="field full"><label>メモ</label><textarea name="notes" placeholder="購入時の状態、付属品など">${esc(eq.notes||'')}</textarea></div>
+    <div class="form-actions field full"><button type="button" class="secondary" data-close-sheet>キャンセル</button><button class="primary" type="submit">保存</button></div>
+  </form>`;
+}
+function newEquipment(){ openSheet('機材追加',equipmentForm(), 'NEW EQUIPMENT'); bindEquipmentForm(); }
+function editEquipment(id){ const eq=equipmentById(id); if(!eq)return; openSheet('機材編集',equipmentForm(eq),'EDIT EQUIPMENT'); bindEquipmentForm(eq); }
+function bindEquipmentForm(existing=null){
+  let newPhoto=null;
+  $('#photoInput')?.addEventListener('change',async e=>{ const f=e.target.files?.[0]; if(!f)return; const data=await imageFileToDataURL(f); newPhoto={id:uid('photo'),name:f.name,type:'image/jpeg',data,createdAt:new Date().toISOString()}; $('#photoPreviewWrap').innerHTML=`<img class="photo-preview" src="${newPhoto.data}" alt="">`; });
+  $('#equipmentForm').addEventListener('submit',async e=>{
+    e.preventDefault(); const f=new FormData(e.currentTarget); const id=f.get('id')||uid('eq'); const old=equipmentById(id);
+    const eq={
+      id, manufacturer:String(f.get('manufacturer')).trim(), model:String(f.get('model')).trim(), name:String(f.get('name')).trim(), category:String(f.get('category')), status:String(f.get('status')),
+      serial:String(f.get('serial')).trim(), era:String(f.get('era')).trim(), quantity:Number(f.get('quantity')||1), purchaseDate:String(f.get('purchaseDate')), purchasePrice:Number(f.get('purchasePrice')||0), purchasePlace:String(f.get('purchasePlace')).trim(),
+      tags:tagsFrom(f.get('tags')), notes:String(f.get('notes')).trim(), createdAt:old?.createdAt||new Date().toISOString(), updatedAt:new Date().toISOString(),
+      photos:newPhoto?[newPhoto,...(old?.photos||[])]:old?.photos||[], symptoms:old?.symptoms||[], repairs:old?.repairs||[], parts:old?.parts||[], manuals:old?.manuals||[], modifications:old?.modifications||[], sale:old?.sale||{}
+    };
+    if(old){ Object.assign(old,eq); activity('edit',id,'機材情報を更新'); } else { state.equipment.unshift(eq); activity('create',id,'機材を登録'); }
+    await saveState(); closeSheet(); renderAll(); showToast('保存しました');
+  });
+}
+function fileToDataURL(file){ return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(file)}); }
+async function imageFileToDataURL(file){
+  const raw=await fileToDataURL(file);
+  return await new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      const max=1600; const scale=Math.min(1,max/Math.max(img.naturalWidth||1,img.naturalHeight||1));
+      const w=Math.max(1,Math.round(img.naturalWidth*scale)); const h=Math.max(1,Math.round(img.naturalHeight*scale));
+      const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+      const ctx=canvas.getContext('2d'); if(!ctx){resolve(raw);return;}
+      ctx.drawImage(img,0,0,w,h); resolve(canvas.toDataURL('image/jpeg',0.82));
+    };
+    img.onerror=()=>resolve(raw); img.src=raw;
+  });
+}
+
+function totalInvestment(eq){
+  return Number(eq.purchasePrice||0)+(eq.parts||[]).reduce((s,p)=>s+Number(p.price||0)*Number(p.quantity||1),0)+(eq.repairs||[]).reduce((s,r)=>s+Number(r.cost||0),0);
+}
+function subList(items, renderer, emptyText){ return items?.length ? `<div class="sub-list">${items.map(renderer).join('')}</div>` : empty(emptyText); }
+function detailHTML(eq){
+  const [icon,label]=STATUS[eq.status]||STATUS.check;
+  const photo=eq.photos?.[0]?.data?`<img src="${eq.photos[0].data}" alt="">`:esc((eq.manufacturer||'?').slice(0,2).toUpperCase());
+  const tabs=[['overview','基本'],['symptoms','症状'],['repairs','修理'],['parts','部品'],['manuals','資料'],['mods','改造']];
+  return `<div class="detail-hero"><div class="detail-photo">${photo}</div><div class="detail-title"><div class="eyebrow">${esc(eq.manufacturer)}</div><h2>${esc(eq.model)}</h2><p>${icon} ${label} ・ ${esc(eq.category||'未分類')}</p><div class="inline-actions"><button class="secondary" data-action="edit-current">編集</button><button class="danger" data-action="delete-current">削除</button></div></div></div>
+    <div class="detail-tabs">${tabs.map(([k,l])=>`<button class="${currentDetailTab===k?'active':''}" data-detail-tab="${k}">${l}</button>`).join('')}</div>
+    <div class="detail-panel ${currentDetailTab==='overview'?'active':''}" data-panel="overview">${overviewPanel(eq)}</div>
+    <div class="detail-panel ${currentDetailTab==='symptoms'?'active':''}" data-panel="symptoms">${symptomsPanel(eq)}</div>
+    <div class="detail-panel ${currentDetailTab==='repairs'?'active':''}" data-panel="repairs">${repairsPanel(eq)}</div>
+    <div class="detail-panel ${currentDetailTab==='parts'?'active':''}" data-panel="parts">${partsPanel(eq)}</div>
+    <div class="detail-panel ${currentDetailTab==='manuals'?'active':''}" data-panel="manuals">${manualsPanel(eq)}</div>
+    <div class="detail-panel ${currentDetailTab==='mods'?'active':''}" data-panel="mods">${modsPanel(eq)}</div>`;
+}
+function overviewPanel(eq){
+  const sale=eq.sale||{}; const profit=(Number(sale.price||0)-Number(sale.fee||0)-Number(sale.shipping||0))-totalInvestment(eq);
+  return `<div class="summary-strip"><div class="kv"><small>購入</small><strong class="money">${yen(eq.purchasePrice)}</strong></div><div class="kv"><small>総投資</small><strong class="money">${yen(totalInvestment(eq))}</strong></div><div class="kv"><small>売却差額</small><strong class="money">${sale.price?yen(profit):'-'}</strong></div></div>
+  <div class="kv-grid">
+    <div class="kv"><small>シリアル</small>${esc(eq.serial||'-')}</div><div class="kv"><small>製造年代</small>${esc(eq.era||'-')}</div><div class="kv"><small>購入日</small>${esc(eq.purchaseDate||'-')}</div><div class="kv"><small>購入場所</small>${esc(eq.purchasePlace||'-')}</div><div class="kv"><small>台数</small>${eq.quantity||1}</div><div class="kv"><small>タグ</small>${(eq.tags||[]).map(t=>`#${esc(t)}`).join(' ')||'-'}</div>
+  </div><div class="divider"></div><div class="sub-card"><h4>メモ</h4><p>${esc(eq.notes||'メモなし')}</p></div><div class="divider"></div>
+  <div class="row-between"><h3>売却情報</h3><button class="primary" data-action="edit-sale">${sale.price?'編集':'登録'}</button></div>${sale.price?`<div class="kv-grid"><div class="kv"><small>売却日</small>${esc(sale.date||'-')}</div><div class="kv"><small>売却価格</small>${yen(sale.price)}</div><div class="kv"><small>手数料</small>${yen(sale.fee)}</div><div class="kv"><small>送料</small>${yen(sale.shipping)}</div></div>`:''}`;
+}
+function symptomsPanel(eq){ return `<div class="row-between"><h3>症状</h3><button class="primary" data-add-sub="symptom">＋追加</button></div><div class="divider"></div>${subList(eq.symptoms,x=>`<div class="sub-card"><div class="row-between"><h4>${esc(x.text)}</h4><button class="mini-danger" data-remove-sub="symptoms" data-id="${x.id}">削除</button></div><small>${esc(x.date||'')}</small><p>${esc(x.note||'')}</p></div>`,'症状の記録はありません。')}`; }
+function repairsPanel(eq){ return `<div class="row-between"><h3>修理履歴</h3><button class="primary" data-add-sub="repair">＋追加</button></div><div class="divider"></div>${subList(eq.repairs,x=>`<div class="sub-card"><div class="row-between"><h4>${esc(x.date||'日付なし')} ・ ${esc(x.symptom||'修理記録')}</h4><button class="mini-danger" data-remove-sub="repairs" data-id="${x.id}">削除</button></div><p><b>診断:</b> ${esc(x.diagnosis||'-')}\n<b>対応:</b> ${esc(x.action||'-')}\n<b>結果:</b> ${esc(x.result||'-')}</p><small>費用 ${yen(x.cost)}</small></div>`,'修理履歴はありません。')}`; }
+function partsPanel(eq){ return `<div class="row-between"><h3>使用部品</h3><button class="primary" data-add-sub="part">＋追加</button></div><div class="divider"></div>${subList(eq.parts,x=>`<div class="sub-card"><div class="row-between"><h4>${esc(x.name)}</h4><button class="mini-danger" data-remove-sub="parts" data-id="${x.id}">削除</button></div><p>${esc(x.maker||'')} ${esc(x.partNumber||'')} × ${x.quantity||1}</p><small>${yen(Number(x.price||0)*Number(x.quantity||1))} ・ ${esc(x.shop||'')}</small></div>`,'部品の記録はありません。')}`; }
+function manualsPanel(eq){ return `<div class="row-between"><h3>マニュアル・資料</h3><button class="primary" data-add-sub="manual">＋追加</button></div><div class="divider"></div>${subList(eq.manuals,x=>`<div class="sub-card"><div class="row-between"><h4>${esc(x.title)}</h4><button class="mini-danger" data-remove-sub="manuals" data-id="${x.id}">削除</button></div><p>${esc(x.type||'資料')}</p>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener" class="muted">${esc(x.url)}</a>`:''}</div>`,'資料の登録はありません。')}`; }
+function modsPanel(eq){ return `<div class="row-between"><h3>改造記録</h3><button class="primary" data-add-sub="mod">＋追加</button></div><div class="divider"></div>${subList(eq.modifications,x=>`<div class="sub-card"><div class="row-between"><h4>${esc(x.title)}</h4><button class="mini-danger" data-remove-sub="modifications" data-id="${x.id}">削除</button></div><p>${esc(x.detail||'')}</p><small>${esc(x.date||'')} ・ 元に戻せる: ${x.reversible?'はい':'いいえ'}</small></div>`,'改造記録はありません。')}`; }
+
+function openEquipment(id){ currentEquipmentId=id; currentDetailTab='overview'; const eq=equipmentById(id); if(!eq)return; openSheet(`${eq.manufacturer} ${eq.model}`,detailHTML(eq),'EQUIPMENT CARD'); bindDetail(); }
+function refreshDetail(){ const eq=equipmentById(currentEquipmentId); if(!eq)return closeSheet(); $('#sheetBody').innerHTML=detailHTML(eq); bindDetail(); }
+function bindDetail(){
+  $$('[data-detail-tab]',$('#sheetBody')).forEach(b=>b.addEventListener('click',()=>{currentDetailTab=b.dataset.detailTab;refreshDetail()}));
+  $('[data-action="edit-current"]',$('#sheetBody'))?.addEventListener('click',()=>{const id=currentEquipmentId; editEquipment(id)});
+  $('[data-action="delete-current"]',$('#sheetBody'))?.addEventListener('click',async()=>{const eq=equipmentById(currentEquipmentId);if(!eq)return;if(!confirm(`${eq.manufacturer} ${eq.model} を削除しますか？`))return;state.equipment=state.equipment.filter(x=>x.id!==eq.id);activity('delete',eq.id,'機材を削除');await saveState();closeSheet();renderAll();showToast('削除しました')});
+  $('[data-action="edit-sale"]',$('#sheetBody'))?.addEventListener('click',()=>saleForm());
+  $$('[data-add-sub]',$('#sheetBody')).forEach(b=>b.addEventListener('click',()=>subForm(b.dataset.addSub)));
+  $$('[data-remove-sub]',$('#sheetBody')).forEach(b=>b.addEventListener('click',async()=>{const eq=equipmentById(currentEquipmentId);const key=b.dataset.removeSub;eq[key]=eq[key].filter(x=>x.id!==b.dataset.id);touch(eq);activity('delete-sub',eq.id,'記録を削除');await saveState();refreshDetail();renderAll()}));
+}
+function nestedForm(title, html, onSubmit){
+  const parentId=currentEquipmentId; openSheet(title,`<form id="nestedForm" class="form-grid">${html}<div class="form-actions field full"><button type="button" class="secondary" id="nestedCancel">戻る</button><button class="primary">保存</button></div></form>`,'RECORD');
+  $('#nestedCancel').onclick=()=>{currentEquipmentId=parentId;openEquipment(parentId)};
+  $('#nestedForm').onsubmit=async e=>{e.preventDefault();await onSubmit(new FormData(e.currentTarget),parentId);currentEquipmentId=parentId;openEquipment(parentId);renderAll();showToast('保存しました')};
+}
+function subForm(kind){
+  if(kind==='symptom') nestedForm('症状追加',`<div class="field full"><label>症状 *</label><input required name="text" placeholder="片ch音が出ない"></div><div class="field"><label>日付</label><input name="date" type="date" value="${today()}"></div><div class="field full"><label>メモ</label><textarea name="note"></textarea></div>`,async(f,id)=>addSub(id,'symptoms',{id:uid('sym'),text:f.get('text'),date:f.get('date'),note:f.get('note')}));
+  if(kind==='repair') nestedForm('修理記録追加',`<div class="field"><label>日付</label><input name="date" type="date" value="${today()}"></div><div class="field"><label>費用</label><input name="cost" type="number" min="0"></div><div class="field full"><label>症状</label><input name="symptom"></div><div class="field full"><label>診断</label><textarea name="diagnosis"></textarea></div><div class="field full"><label>対応</label><textarea name="action"></textarea></div><div class="field full"><label>結果</label><textarea name="result"></textarea></div>`,async(f,id)=>addSub(id,'repairs',{id:uid('rep'),date:f.get('date'),cost:Number(f.get('cost')||0),symptom:f.get('symptom'),diagnosis:f.get('diagnosis'),action:f.get('action'),result:f.get('result')}));
+  if(kind==='part') nestedForm('部品追加',`<div class="field full"><label>部品名 *</label><input required name="name" placeholder="電解コンデンサ 470µF / 25V"></div><div class="field"><label>メーカー</label><input name="maker"></div><div class="field"><label>型番</label><input name="partNumber"></div><div class="field"><label>数量</label><input name="quantity" type="number" min="1" value="1"></div><div class="field"><label>単価</label><input name="price" type="number" min="0"></div><div class="field full"><label>購入先</label><input name="shop"></div>`,async(f,id)=>addSub(id,'parts',{id:uid('part'),name:f.get('name'),maker:f.get('maker'),partNumber:f.get('partNumber'),quantity:Number(f.get('quantity')||1),price:Number(f.get('price')||0),shop:f.get('shop')}));
+  if(kind==='manual') nestedForm('資料追加',`<div class="field full"><label>タイトル *</label><input required name="title" placeholder="Service Manual"></div><div class="field"><label>種類</label><select name="type"><option>オーナーズマニュアル</option><option>サービスマニュアル</option><option>回路図</option><option>パーツリスト</option><option>MIDI Implementation</option><option>その他資料</option></select></div><div class="field full"><label>URL</label><input name="url" type="url" placeholder="https://"></div>`,async(f,id)=>addSub(id,'manuals',{id:uid('man'),title:f.get('title'),type:f.get('type'),url:f.get('url')}));
+  if(kind==='mod') nestedForm('改造記録追加',`<div class="field full"><label>改造内容 *</label><input required name="title" placeholder="OLED化"></div><div class="field"><label>日付</label><input name="date" type="date" value="${today()}"></div><div class="field"><label>元に戻せる</label><select name="reversible"><option value="yes">はい</option><option value="no">いいえ</option></select></div><div class="field full"><label>詳細</label><textarea name="detail"></textarea></div>`,async(f,id)=>addSub(id,'modifications',{id:uid('mod'),title:f.get('title'),date:f.get('date'),reversible:f.get('reversible')==='yes',detail:f.get('detail')}));
+}
+async function addSub(eqId,key,obj){ const eq=equipmentById(eqId); eq[key]=eq[key]||[]; eq[key].unshift(obj); touch(eq); activity('add-sub',eq.id,`${key} を追加`); await saveState(); }
+function saleForm(){ const eq=equipmentById(currentEquipmentId); const s=eq.sale||{}; nestedForm('売却情報',`<div class="field"><label>売却日</label><input name="date" type="date" value="${esc(s.date||'')}"></div><div class="field"><label>売却価格</label><input name="price" type="number" min="0" value="${esc(s.price||'')}"></div><div class="field"><label>手数料</label><input name="fee" type="number" min="0" value="${esc(s.fee||'')}"></div><div class="field"><label>送料</label><input name="shipping" type="number" min="0" value="${esc(s.shipping||'')}"></div>`,async(f,id)=>{const x=equipmentById(id);x.sale={date:f.get('date'),price:Number(f.get('price')||0),fee:Number(f.get('fee')||0),shipping:Number(f.get('shipping')||0)};if(x.sale.price)x.status='sold';touch(x);activity('sale',id,'売却情報を更新');await saveState()}); }
+
+async function exportJSON(){
+  const blob=new Blob([JSON.stringify({...state,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`SOULZ_RESCUE_${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('バックアップを書き出しました');
+}
+async function importJSON(file){
+  const text=await file.text(); const obj=JSON.parse(text); if(!obj||!Array.isArray(obj.equipment)) throw new Error('形式が違います');
+  state={version:APP_VERSION,equipment:obj.equipment,activity:Array.isArray(obj.activity)?obj.activity:[]}; await saveState(); renderAll(); showToast('復元しました');
+}
+
+function bindGlobal(){
+  document.addEventListener('click',e=>{
+    const nav=e.target.closest('[data-nav]'); if(nav) go(nav.dataset.nav);
+    const goBtn=e.target.closest('[data-go]'); if(goBtn) go(goBtn.dataset.go);
+    const add=e.target.closest('[data-action="new-equipment"]'); if(add) newEquipment();
+    const gear=e.target.closest('[data-open-equipment]'); if(gear) openEquipment(gear.dataset.openEquipment);
+    const status=e.target.closest('[data-filter-status]'); if(status){currentStatusFilter=status.dataset.filterStatus;go('equipment');$('#statusFilter').value=currentStatusFilter;renderEquipment();}
+    if(e.target.closest('[data-close-sheet]')) closeSheet();
+  });
+  $('#closeSheet').onclick=closeSheet; $('#sheetBackdrop').onclick=closeSheet;
+  $('#globalSearch').addEventListener('input',e=>{ if(e.target.value.trim()){go('equipment');$('#equipmentSearch').value=e.target.value;renderEquipment();} });
+  $('#equipmentSearch').addEventListener('input',renderEquipment);
+  $('#statusFilter').addEventListener('change',e=>{currentStatusFilter=e.target.value;renderEquipment()});
+  $('#exportBtn').onclick=exportJSON;
+  $('#importInput').addEventListener('change',async e=>{try{if(e.target.files?.[0]) await importJSON(e.target.files[0])}catch(err){alert(`復元できません: ${err.message}`)}finally{e.target.value=''}});
+  $('#resetBtn').onclick=async()=>{if(!confirm('SOULZ Rescueの全データを消去します。よろしいですか？'))return;await clearState();state={version:APP_VERSION,equipment:[],activity:[]};renderAll();showToast('初期化しました')};
+}
+
+async function init(){
+  try{ const saved=await loadState(); if(saved) state={version:APP_VERSION,equipment:Array.isArray(saved.equipment)?saved.equipment:[],activity:Array.isArray(saved.activity)?saved.activity:[]}; }
+  catch(err){ console.error(err); showToast('保存データを読み込めませんでした'); }
+  bindGlobal(); renderAll();
+}
+init();
+
+  </script>
+</body>
+</html>
