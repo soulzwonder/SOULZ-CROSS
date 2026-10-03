@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.61',html.includes('<title>CROSS GPT クロッピー | v2.64.61</title>'));
-  check('OCR visible badge v2.64.61',html.includes('<span class="ocr-version-badge">v2.64.61</span>'));
+  check('OCR version marker v2.64.62',html.includes('<title>CROSS GPT クロッピー | v2.64.62</title>'));
+  check('OCR visible badge v2.64.62',html.includes('<span class="ocr-version-badge">v2.64.62</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -297,18 +297,27 @@ try{
   check('Camera quality: modest resolution is caution not block',qq.level==='caution'&&qq.warnings.includes('解像度低め'),JSON.stringify(qq));
   check('Camera quality never blocks OCR execution',extract('runOCRFiles').includes("photoQ=await ocrAssessPhotoV26461(files[i])")&&extract('runOCRFiles').indexOf('recognizeHandwritingLines')>extract('runOCRFiles').indexOf('ocrAssessPhotoV26461'));
   check('Camera quality status is shown in final warning',extract('runOCRFiles').includes('ocrPhotoQualityTextV26461(ocrPhotoQualityV26461)'));
-  const scriptPath='v2.64.61_CROPPY_OCR.js';
-  check('Scriptable v2.64.61 package exists',fs.existsSync(scriptPath));
+  const seg62=make('ocrSegmentationPolicyV26462');
+  check('Adaptive segmentation: good low clamp unchanged',seg62(10,{level:'good',warnings:[],hard:[]}).threshold===24);
+  check('Adaptive segmentation: good high clamp unchanged',seg62(80,{level:'good',warnings:[],hard:[]}).threshold===44);
+  check('Adaptive segmentation: low contrast lowers threshold',seg62(10,{level:'caution',warnings:['低コントラスト'],hard:[]}).threshold===16);
+  check('Adaptive segmentation: hard faint lowers threshold further',seg62(10,{level:'retake',warnings:[],hard:['文字が小さすぎる/薄すぎる']}).threshold===13);
+  check('Adaptive segmentation: good path is unchanged',seg62(30,{level:'good',warnings:[],hard:[]}).adaptive===false&&seg62(30,{level:'good',warnings:[],hard:[]}).threshold===30);
+  check('Photo quality reaches segmentation',extract('runOCRFiles').includes('recognizeHandwritingLines(files[i],status,photoQ)')&&extract('recognizeHandwritingLines').includes('makeOCRLineCrops(file,photoQ)')&&extract('makeOCRLineCrops').includes('ocrFindInkComponents(src,photoQ)'));
+  check('Diagnostics are initialized before crop creation',extract('recognizeHandwritingLines').indexOf('croppyOCRDiagV26453={rows:0')<extract('recognizeHandwritingLines').indexOf('makeOCRLineCrops(file,photoQ)'));
+  check('Adaptive status is visible',extract('ocrDiagTextV26453').includes('薄文字補正 ON'));
+  const scriptPath='v2.64.62_CROPPY_OCR.js';
+  check('Scriptable v2.64.62 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.61',ocrScript.includes('クロッピー v2.64.61 OCR CAMERA')&&ocrScript.includes('OCR v2.64.61 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.61',bundled.includes('<title>CROSS GPT クロッピー | v2.64.61</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.61</span>'));
+    check('Scriptable header is version-first v2.64.62',ocrScript.includes('クロッピー v2.64.62 OCR CAMERA')&&ocrScript.includes('OCR v2.64.62 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.62',bundled.includes('<title>CROSS GPT クロッピー | v2.64.62</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.62</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.61 version-first package',copyPage.includes('./v2.64.61_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.61'));
+  check('OCR copy page points to v2.64.62 version-first package',copyPage.includes('./v2.64.62_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.62'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
