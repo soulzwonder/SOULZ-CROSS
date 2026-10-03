@@ -160,7 +160,7 @@ try{
   check('Memory-safe Paddle then TrOCR sequencing',extract('recognizeHandwritingLines').indexOf('await ocrDisposePaddleV26453(paddle)')<extract('recognizeHandwritingLines').indexOf('loadHandwritingAI(progress)'));
   check('TrOCR is limited to non-high-confidence rows',extract('recognizeHandwritingLines').includes("if(!p||!p.fixed||p.tier!=='high')needsAI.push(j)"));
   check('Blank OCR output is forbidden per extracted row',extract('recognizeHandwritingLines').includes("reason:'no-engine-read'")&&extract('recognizeHandwritingLines').includes("全エンジンで数値化できず"));
-  check('Zero-candidate warning exposes engine diagnostics',html.includes("寸法候補0件。'+ocrDiagTextV26453()")&&extract('ocrDiagTextV26453').includes("'行抽出 '"));
+  check('Zero-candidate warning exposes engine diagnostics',extract('runOCRFiles').includes("寸法候補0件。'+qualityText+'。'+ocrDiagTextV26453()")&&extract('ocrDiagTextV26453').includes("'行抽出 '"));
   check('Paddle engine is disposable',extract('ocrDisposePaddleV26453').includes("engine.dispose"));
   check('Paddle load failure still activates legacy path',extract('recognizeHandwritingLines').includes("PaddleOCR unavailable, legacy path")&&extract('recognizeHandwritingLines').includes("needsAI.length"));
   const laneFn=make('ocrDimensionLaneV26454');
