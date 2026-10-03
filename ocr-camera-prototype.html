@@ -4468,7 +4468,7 @@ function ocrDisposePaddleV26453(engine){
   try{if(typeof engine.dispose==='function')return Promise.resolve(engine.dispose()).catch(function(){})}catch(e){}
   return Promise.resolve()
 }
-function ocrDiagTextV26453(){var d=croppyOCRDiagV26453||{},extra=d.adaptive==='ON'?' / 薄文字補正 ON':'';return '行抽出 '+(d.rows||0)+' / Paddle '+(d.paddle||'未使用')+' / Tesseract '+(d.tesseract||'未使用')+' / TrOCR '+(d.trocr||'未使用')+' / 形状 '+(d.shape||0)+(d.laneStart?' / 数字列x '+d.laneStart:'')+extra}
+function ocrDiagTextV26453(){var d=croppyOCRDiagV26453||{},oss=d.ossRows?(' / OSS補助 '+d.ossRows):'',adaptive=d.adaptive==='ON'?' / 薄文字補正 ON':'';return '行抽出 '+(d.rows||0)+' / Paddle '+(d.paddle||'未使用')+' / Tesseract '+(d.tesseract||'未使用')+' / TrOCR '+(d.trocr||'未使用')+' / 形状 '+(d.shape||0)+(d.laneStart?' / 数字列x '+d.laneStart:'')+oss+adaptive}
 function ocrPaddleResultV26452(result){
   var items=result&&Array.isArray(result.items)?result.items.filter(function(x){return x&&String(x.text||'').trim()}):[];
   function xpos(item){
