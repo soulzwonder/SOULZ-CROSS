@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.62',html.includes('<title>CROSS GPT クロッピー | v2.64.62</title>'));
-  check('OCR visible badge v2.64.62',html.includes('<span class="ocr-version-badge">v2.64.62</span>'));
+  check('OCR version marker v2.64.63',html.includes('<title>CROSS GPT クロッピー | v2.64.63</title>'));
+  check('OCR visible badge v2.64.63',html.includes('<span class="ocr-version-badge">v2.64.63</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -277,7 +277,7 @@ try{
   check('OSS fallback may correct OCR when expanded crop agrees with shape',op&&op.fixed==='236×1'&&op.tier==='medium'&&op.ossFallback===true,JSON.stringify(op));
   op=prefer59({fixed:'215×1',confidence:3,raw:'215'},{fixed:'216×1',confidence:3,raw:'216'},{fixed:'215×1'});
   check('OSS fallback does not override a normal result without shape agreement',op&&op.fixed==='215×1'&&!op.ossFallback,JSON.stringify(op));
-  check('OSS expanded crops use clean source instead of replacing primary member crops',extract('makeOCRLineCrops').includes('ocrDeskewCrop(inkSrc,ossMainB')&&extract('makeOCRLineCrops').includes('mainInk:await ocrCanvasRawBlob(mainInkCv)'));
+  check('OSS expanded crops use clean source instead of replacing primary member crops',extract('makeOCRLineCrops').includes('ocrDeskewCrop(ocrExpandedMainSourceV26463(inkSrc,meta,geo.items),ossMainB')&&extract('makeOCRLineCrops').includes('mainInk:await ocrCanvasRawBlob(mainInkCv)'));
   check('OSS fallback runs only before expensive TrOCR fallback',extract('recognizeHandwritingLines').indexOf('ocrOSSReadV26459')<extract('recognizeHandwritingLines').indexOf('loadHandwritingAI(progress)'));
   check('OSS diagnostics are visible',extract('ocrDiagTextV26453').includes("' / OSS補助 '"));
   const notice59=fs.readFileSync('OCR_THIRD_PARTY_NOTICES.md','utf8');
@@ -306,18 +306,33 @@ try{
   check('Photo quality reaches segmentation',extract('runOCRFiles').includes('recognizeHandwritingLines(files[i],status,photoQ)')&&extract('recognizeHandwritingLines').includes('makeOCRLineCrops(file,photoQ)')&&extract('makeOCRLineCrops').includes('ocrFindInkComponents(src,photoQ)'));
   check('Diagnostics are initialized before crop creation',extract('recognizeHandwritingLines').indexOf('croppyOCRDiagV26453={rows:0')<extract('recognizeHandwritingLines').indexOf('makeOCRLineCrops(file,photoQ)'));
   check('Adaptive status is visible',extract('ocrDiagTextV26453').includes('薄文字補正 ON'));
-  const scriptPath='v2.64.62_CROPPY_OCR.js';
-  check('Scriptable v2.64.62 package exists',fs.existsSync(scriptPath));
+  const mask63=make('ocrExpandedMainSourceV26463',{ocrCloneCanvas:function(src){return {width:src.width,height:src.height,getContext:function(){return {getImageData:function(){return {data:src.pixels.slice()}},putImageData:function(d){this.saved=d.data;src.output=d.data}}}}}});
+  const digit63={members:[1,2]},line63={members:[3,4]},count63={members:[7]};
+  const pixels63=new Uint8ClampedArray(10*4).fill(0),src63={width:10,height:1,pixels:pixels63};
+  const masked63=mask63(src63,{bodyItems:[digit63,line63,count63],mainItems:[digit63]});
+  check('Expanded main erases only excluded divider/count pixels',src63.output[3*4]===255&&src63.output[4*4]===255&&src63.output[7*4]===255);
+  check('Expanded main retains original digit and unknown recovery pixels',src63.output[1*4]===0&&src63.output[2*4]===0&&src63.output[5*4]===0);
+  check('Expanded main never mutates source pixels',src63.pixels.every(v=>v===0)&&masked63!==src63);
+  check('Expanded main without exclusions reuses source',mask63(src63,{bodyItems:[digit63],mainItems:[digit63]})===src63);
+  mask63(src63,{bodyItems:[digit63,{members:[-1,100,1.5]}],mainItems:[digit63]});
+  check('Expanded mask ignores invalid member indices',src63.output.every(v=>v===0));
+  mask63(src63,{bodyItems:[digit63],mainItems:[digit63]},[{members:[8]},digit63]);
+  check('Expanded main excludes adjacent row components too',src63.output[8*4]===255&&src63.output[1*4]===0);
+  const dbg63=make('ocrDebugEnabledV26463',{location:{search:'?ocr-debug=1'}});
+  check('Row debug requires explicit opt-in',dbg63()===true&&make('ocrDebugEnabledV26463',{location:{search:''}})()===false);
+  check('Debug records normal/expanded crops and engine decisions',extract('recognizeHandwritingLines').includes('debugExpanded=fb')&&extract('recognizeHandwritingLines').includes('trocr:aiPicks[k]'));
+  const scriptPath='v2.64.63_CROPPY_OCR.js';
+  check('Scriptable v2.64.63 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.62',ocrScript.includes('クロッピー v2.64.62 OCR CAMERA')&&ocrScript.includes('OCR v2.64.62 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.62',bundled.includes('<title>CROSS GPT クロッピー | v2.64.62</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.62</span>'));
+    check('Scriptable header is version-first v2.64.63',ocrScript.includes('クロッピー v2.64.63 OCR CAMERA')&&ocrScript.includes('OCR v2.64.63 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.63',bundled.includes('<title>CROSS GPT クロッピー | v2.64.63</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.63</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.62 version-first package',copyPage.includes('./v2.64.62_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.62'));
+  check('OCR copy page points to v2.64.63 version-first package',copyPage.includes('./v2.64.63_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.63'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
