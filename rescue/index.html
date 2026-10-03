@@ -27,7 +27,7 @@
         <div class="eyebrow">SOULZ TOOLS</div>
         <h1>RESCUE</h1>
       </div>
-      <div class="version-badge" id="versionBadge">v0.1.0</div>
+      <div class="version-badge" id="versionBadge">v0.1.1</div>
     </header>
 
     <main class="main" id="main">
@@ -102,7 +102,7 @@
         <div class="panel stack">
           <h3>保存方式</h3>
           <p>IndexedDB（ブラウザ内データベース）を使用。基本機能はオフライン対応です。</p>
-          <small>SOULZ Rescue <span id="aboutVersion">v0.1.0</span></small>
+          <small>SOULZ Rescue <span id="aboutVersion">v0.1.1</span></small>
         </div>
       </section>
     </main>
@@ -129,7 +129,7 @@
   <script>
 'use strict';
 
-const APP_VERSION = '0.1.0';
+const APP_VERSION = '0.1.1';
 const DB_NAME = 'soulz-rescue-db';
 const DB_VERSION = 1;
 const STORE = 'app';
@@ -408,10 +408,36 @@ function bindGlobal(){
   $('#resetBtn').onclick=async()=>{if(!confirm('SOULZ Rescueの全データを消去します。よろしいですか？'))return;await clearState();state={version:APP_VERSION,equipment:[],activity:[]};renderAll();showToast('初期化しました')};
 }
 
+
+const UPDATE_CHECK_MS = 5 * 60 * 1000;
+let updateReloadPending = false;
+
+async function checkForAppUpdate(){
+  if(updateReloadPending) return;
+  try{
+    const res = await fetch(`version.json?ts=${Date.now()}`, {cache:'no-store'});
+    if(!res.ok) return;
+    const remote = await res.json();
+    if(remote?.version && remote.version !== APP_VERSION){
+      updateReloadPending = true;
+      showToast(`v${remote.version} に自動更新します`);
+      setTimeout(()=>{
+        const url = new URL(location.href);
+        url.searchParams.set('_v', remote.version);
+        location.replace(url.toString());
+      }, 700);
+    }
+  }catch(_){}
+}
+window.addEventListener('focus',()=>checkForAppUpdate());
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') checkForAppUpdate(); });
+setInterval(checkForAppUpdate, UPDATE_CHECK_MS);
+
 async function init(){
   try{ const saved=await loadState(); if(saved) state={version:APP_VERSION,equipment:Array.isArray(saved.equipment)?saved.equipment:[],activity:Array.isArray(saved.activity)?saved.activity:[]}; }
   catch(err){ console.error(err); showToast('保存データを読み込めませんでした'); }
   bindGlobal(); renderAll();
+  checkForAppUpdate();
 }
 init();
 
