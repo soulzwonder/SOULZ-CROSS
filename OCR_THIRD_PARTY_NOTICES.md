@@ -37,3 +37,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Transformers.js / TrOCR runtime and model status
+
+CROPPY OCR uses Transformers.js in the browser for the optional TrOCR fallback.
+Transformers.js is distributed under the Apache License 2.0.
+
+Runtime packages currently referenced by the OCR page:
+- @xenova/transformers 2.15.1 on iOS compatibility path
+- @huggingface/transformers 3.8.1 on the non-iOS path
+
+Fallback model: Xenova/trocr-small-handwritten, an ONNX conversion of
+microsoft/trocr-small-handwritten.
+
+IMPORTANT COMMERCIAL-RELEASE NOTE:
+As checked on 2026-10-05, the upstream microsoft/trocr-small-handwritten model
+card does not state an explicit license, and a Hugging Face community discussion
+specifically asks Microsoft/Hugging Face to clarify the missing license. Therefore
+CROPPY must not treat this model as commercially cleared merely because the
+Transformers.js runtime is Apache-2.0. Resolve or replace this model before a
+commercial App Store release that depends on TrOCR.
+
+Reference model with explicit MIT metadata considered for future evaluation:
+microsoft/trocr-base-handwritten. Do not substitute it automatically because its
+runtime size/performance characteristics differ and require iPhone memory testing.

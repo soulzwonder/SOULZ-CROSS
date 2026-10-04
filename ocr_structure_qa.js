@@ -304,6 +304,7 @@ try{
   check('OSS diagnostics are visible',extract('ocrDiagTextV26453').includes("' / OSS補助 '"));
   const notice59=fs.readFileSync('OCR_THIRD_PARTY_NOTICES.md','utf8');
   check('Guten OCR MIT attribution is retained',notice59.includes('Guten OCR')&&notice59.includes('MIT License')&&notice59.includes('b00d56c95a268bafd719c39eb22fbfb2d2a92a35'));
+  check('TrOCR commercial-license risk is documented',fs.readFileSync('OCR_THIRD_PARTY_NOTICES.md','utf8').includes('IMPORTANT COMMERCIAL-RELEASE NOTE')&&fs.readFileSync('OCR_THIRD_PARTY_NOTICES.md','utf8').includes('microsoft/trocr-small-handwritten'));
   const qualityDecision=make('ocrPhotoQualityDecisionV26461');
   let qq=qualityDecision({longEdge:1200,mean:145,std:42,darkRatio:.012,brightRatio:.03});
   check('Camera quality: normal photo is good',qq.level==='good',JSON.stringify(qq));
