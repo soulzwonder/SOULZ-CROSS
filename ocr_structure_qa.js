@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.64',html.includes('<title>CROSS GPT クロッピー | v2.64.64</title>'));
-  check('OCR visible badge v2.64.64',html.includes('<span class="ocr-version-badge">v2.64.64</span>'));
+  check('OCR version marker v2.64.65',html.includes('<title>CROSS GPT クロッピー | v2.64.65</title>'));
+  check('OCR visible badge v2.64.65',html.includes('<span class="ocr-version-badge">v2.64.65</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -159,6 +159,9 @@ try{
   check('Four-engine 2-to-2 tie is withheld',r4.length===1&&r4[0].unresolved===true,JSON.stringify(r4));
   check('Memory-safe Paddle then TrOCR sequencing',extract('recognizeHandwritingLines').indexOf('await ocrDisposePaddleV26453(paddle)')<extract('recognizeHandwritingLines').indexOf('loadHandwritingAI(progress)'));
   check('TrOCR is limited to non-high-confidence rows',extract('recognizeHandwritingLines').includes("if(!p||!p.fixed||p.tier!=='high')needsAI.push(j)"));
+  check('iOS TrOCR uses v2 compatibility path',extract('loadHandwritingAI').includes("@xenova/transformers@2.15.1/+esm")&&extract('loadHandwritingAI').includes("opts.quantized=true"));
+  check('Non-iOS TrOCR keeps pinned v3 q8 path',extract('loadHandwritingAI').includes("@huggingface/transformers@3.8.1/+esm")&&extract('loadHandwritingAI').includes("opts.dtype='q8'"));
+  check('iPad desktop UA is treated as iOS',extract('loadHandwritingAI').includes("platform==='MacIntel'")&&extract('loadHandwritingAI').includes("navigator.maxTouchPoints"));
   check('Blank OCR output is forbidden per extracted row',extract('recognizeHandwritingLines').includes("reason:'no-engine-read'")&&extract('recognizeHandwritingLines').includes("全エンジンで数値化できず"));
   check('Zero-candidate warning exposes engine diagnostics',extract('runOCRFiles').includes("寸法候補0件。'+qualityText+'。'+ocrDiagTextV26453()")&&extract('ocrDiagTextV26453').includes("'行抽出 '"));
   check('Paddle engine is disposable',extract('ocrDisposePaddleV26453').includes("engine.dispose"));
@@ -335,18 +338,18 @@ try{
   check('Late model progress cannot overwrite completion',el64.textContent==='寸法照合完了');
   check('Editable review inputs clear stale values and refresh commit state',extract('renderOCRCandidates').includes("c.unknownDimension=!(c.cm>0);updateOCRCommit()")&&extract('renderOCRCandidates').includes("c.unknownCount=!(c.count>0);updateOCRCommit()"));
   check('TrOCR failure message retained for opt-in diagnostics',extract('recognizeHandwritingLines').includes('trocrError=String(ae&&ae.message||ae)'));
-  const scriptPath='v2.64.64_CROPPY_OCR.js';
-  check('Scriptable v2.64.64 package exists',fs.existsSync(scriptPath));
+  const scriptPath='v2.64.65_CROPPY_OCR.js';
+  check('Scriptable v2.64.65 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.64',ocrScript.includes('クロッピー v2.64.64 OCR CAMERA')&&ocrScript.includes('OCR v2.64.64 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.64',bundled.includes('<title>CROSS GPT クロッピー | v2.64.64</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.64</span>'));
+    check('Scriptable header is version-first v2.64.65',ocrScript.includes('クロッピー v2.64.65 OCR CAMERA')&&ocrScript.includes('OCR v2.64.65 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.65',bundled.includes('<title>CROSS GPT クロッピー | v2.64.65</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.65</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.64 version-first package',copyPage.includes('./v2.64.64_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.64'));
+  check('OCR copy page points to v2.64.65 version-first package',copyPage.includes('./v2.64.65_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.65'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
