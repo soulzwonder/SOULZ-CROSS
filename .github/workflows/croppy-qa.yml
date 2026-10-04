@@ -45,33 +45,7 @@ jobs:
           trap "kill $SERVER_PID || true" EXIT
           for i in 1 2 3 4 5; do
             sleep 1
-            if curl -fsS http://127.0.0.1:10000/health | grep -q '^ok      - name: iPhone package
-        uses: actions/upload-artifact@v4
-        with:
-          name: CROPPY_iPhone_v2.64.38_BACKUP_COMMIT_GUARD
-          path: |
-            CROPPY_iPhone_v2.64.38.js
-            QA_REPORT.txt
-            FINAL_TEST_REPORT.txt
-          if-no-files-found: error
-          retention-days: 30
-      - name: Android-Web package
-        uses: actions/upload-artifact@v4
-        with:
-          name: CROPPY_Android_Web_v2.64.38_BACKUP_COMMIT_GUARD
-          path: |
-            index.html
-            manifest.webmanifest
-            sw.js
-            server.js
-            iphone-copy.html
-            icon-192.png
-            icon-512.png
-            QA_REPORT.txt
-            FINAL_TEST_REPORT.txt
-          if-no-files-found: error
-          retention-days: 30
-; then break; fi
+            if curl -fsS http://127.0.0.1:10000/health | grep -q '^ok$'; then break; fi
           done
           CODE=$(curl -sS -o /tmp/croppy-analytics.out -w "%{http_code}" \
             -X POST \
