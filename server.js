@@ -2,6 +2,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 
 const PORT = Number(process.env.PORT) || 10000;
 const ORIGINS = new Set(['https://soulz-cross.onrender.com', 'https://soulz-cross-app.onrender.com']);
@@ -91,12 +92,72 @@ async function findRepeat(code) {
   return {ok: false, code, error: errors ? 'connection_failed' : (accessible ? 'not_found' : 'connection_failed')};
 }
 
+
+const ANALYTICS_EVENTS = new Set(['open']);
+const ANALYTICS_DEVICES = new Set(['ios', 'android', 'desktop', 'other']);
+const ANALYTICS_MODES = new Set(['pwa', 'browser']);
+
+function jstDay(now = new Date()) {
+  return new Date(now.getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}
+
+async function readSmallBody(req, limit = 4096) {
+  let body = '';
+  let bytes = 0;
+  for await (const chunk of req) {
+    bytes += chunk.length;
+    if (bytes > limit) throw new Error('body_too_large');
+    body += chunk.toString('utf8');
+  }
+  return body;
+}
+
+function normalizeAnalytics(input) {
+  if (!input || typeof input !== 'object') return null;
+  const event = String(input.event || '');
+  const id = String(input.id || '');
+  const device = String(input.device || '');
+  const mode = String(input.mode || '');
+  if (!ANALYTICS_EVENTS.has(event)) return null;
+  if (!/^[A-Za-z0-9_-]{12,80}$/.test(id)) return null;
+  if (!ANALYTICS_DEVICES.has(device)) return null;
+  if (!ANALYTICS_MODES.has(mode)) return null;
+  return {
+    event,
+    day: jstDay(),
+    client: crypto.createHash('sha256').update(id).digest('hex').slice(0, 16),
+    device,
+    mode,
+    v: 1
+  };
+}
+
 const server = http.createServer(async (req, res) => {
   const origin = req.headers.origin;
   if (ORIGINS.has(origin)) res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Vary', 'Origin');
   const url = new URL(req.url, 'http://localhost');
   if (req.method === 'GET' && url.pathname === '/health') { res.writeHead(200, {'Content-Type':'text/plain'}); res.end('ok'); return; }
+  if (req.method === 'OPTIONS' && url.pathname === '/api/analytics') {
+    if (!ORIGINS.has(origin)) { res.writeHead(403); res.end(); return; }
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Max-Age', '86400');
+    res.writeHead(204); res.end(); return;
+  }
+  if (req.method === 'POST' && url.pathname === '/api/analytics') {
+    res.setHeader('Cache-Control', 'no-store');
+    if (!ORIGINS.has(origin)) { res.writeHead(403); res.end(); return; }
+    try {
+      const raw = await readSmallBody(req);
+      const record = normalizeAnalytics(JSON.parse(raw));
+      if (!record) { res.writeHead(400); res.end(); return; }
+      console.log('CROPPY_ANALYTICS ' + JSON.stringify(record));
+      res.writeHead(204); res.end(); return;
+    } catch (_e) {
+      res.writeHead(400); res.end(); return;
+    }
+  }
   if (req.method === 'GET' && url.pathname === '/api/repeat') {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
@@ -114,4 +175,4 @@ const server = http.createServer(async (req, res) => {
 });
 
 if (require.main === module) server.listen(PORT, '0.0.0.0', () => console.log('CROPPY API listening', PORT));
-module.exports = {server, candidates, findRepeat};
+module.exports = {server, candidates, findRepeat, jstDay, normalizeAnalytics};

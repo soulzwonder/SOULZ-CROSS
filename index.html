@@ -5711,5 +5711,84 @@ function closeSiteMemo(){var sh=$('#siteMemoSheet');if(!sh)return;sh.classList.r
 })();
 </script>
 
+
+<!-- CROPPY_PRIVACY_ANALYTICS_V1
+     Sends only: open event, coarse device type, display mode, and a random daily ID.
+     No field values, site names, dimensions, photos, location, names, or full user-agent are sent. -->
+<script>
+(function(){
+  'use strict';
+  var ENDPOINT='https://croppy-counter.onrender.com/api/analytics';
+  var STORAGE_KEY='croppy.analytics.daily.v1';
+
+  function jstDay(){
+    return new Date(Date.now()+9*60*60*1000).toISOString().slice(0,10);
+  }
+  function randomId(){
+    try{
+      var bytes=new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      return Array.prototype.map.call(bytes,function(b){return b.toString(16).padStart(2,'0');}).join('');
+    }catch(_e){
+      return String(Date.now().toString(36))+String(Math.random().toString(36).slice(2,18));
+    }
+  }
+  function dailyId(){
+    var day=jstDay();
+    try{
+      var saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+      if(saved && saved.day===day && /^[A-Za-z0-9_-]{12,80}$/.test(String(saved.id||''))) return String(saved.id);
+      var fresh={day:day,id:randomId()};
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(fresh));
+      return fresh.id;
+    }catch(_e){
+      return randomId();
+    }
+  }
+  function deviceClass(){
+    var ua=String(navigator.userAgent||'');
+    if(/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+    if(/Android/i.test(ua)) return 'android';
+    if(/Macintosh|Windows|Linux/i.test(ua)) return 'desktop';
+    return 'other';
+  }
+  function displayMode(){
+    try{
+      if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return 'pwa';
+      if(navigator.standalone===true) return 'pwa';
+    }catch(_e){}
+    return 'browser';
+  }
+  function sendOpen(){
+    try{
+      if(sessionStorage.getItem('croppy.analytics.open.sent.v1')==='1') return;
+      sessionStorage.setItem('croppy.analytics.open.sent.v1','1');
+    }catch(_e){}
+    var payload=JSON.stringify({
+      event:'open',
+      id:dailyId(),
+      device:deviceClass(),
+      mode:displayMode(),
+      v:1
+    });
+    fetch(ENDPOINT,{
+      method:'POST',
+      mode:'cors',
+      credentials:'omit',
+      cache:'no-store',
+      keepalive:true,
+      referrerPolicy:'no-referrer',
+      headers:{'Content-Type':'text/plain;charset=UTF-8'},
+      body:payload
+    }).catch(function(){});
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',sendOpen,{once:true});
+  }else{
+    setTimeout(sendOpen,0);
+  }
+})();
+</script>
+
 </body>
 </html>

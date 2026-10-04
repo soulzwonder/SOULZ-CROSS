@@ -38,6 +38,61 @@ jobs:
           done
           cat /tmp/croppy-server.log
           exit 1
+      - name: Privacy analytics smoke test
+        run: |
+          node server.js > /tmp/croppy-analytics-server.log 2>&1 &
+          SERVER_PID=$!
+          trap "kill $SERVER_PID || true" EXIT
+          for i in 1 2 3 4 5; do
+            sleep 1
+            if curl -fsS http://127.0.0.1:10000/health | grep -q '^ok      - name: iPhone package
+        uses: actions/upload-artifact@v4
+        with:
+          name: CROPPY_iPhone_v2.64.38_BACKUP_COMMIT_GUARD
+          path: |
+            CROPPY_iPhone_v2.64.38.js
+            QA_REPORT.txt
+            FINAL_TEST_REPORT.txt
+          if-no-files-found: error
+          retention-days: 30
+      - name: Android-Web package
+        uses: actions/upload-artifact@v4
+        with:
+          name: CROPPY_Android_Web_v2.64.38_BACKUP_COMMIT_GUARD
+          path: |
+            index.html
+            manifest.webmanifest
+            sw.js
+            server.js
+            iphone-copy.html
+            icon-192.png
+            icon-512.png
+            QA_REPORT.txt
+            FINAL_TEST_REPORT.txt
+          if-no-files-found: error
+          retention-days: 30
+; then break; fi
+          done
+          CODE=$(curl -sS -o /tmp/croppy-analytics.out -w "%{http_code}" \
+            -X POST \
+            -H 'Origin: https://soulz-cross.onrender.com' \
+            -H 'Content-Type: text/plain;charset=UTF-8' \
+            --data '{"event":"open","id":"qa_daily_0123456789abcdef","device":"desktop","mode":"browser","v":1}' \
+            http://127.0.0.1:10000/api/analytics)
+          test "$CODE" = "204"
+          grep -q 'CROPPY_ANALYTICS ' /tmp/croppy-analytics-server.log
+          if grep 'CROPPY_ANALYTICS ' /tmp/croppy-analytics-server.log | grep -Eq 'qa_daily_0123456789abcdef|user-agent|127\.0\.0\.1'; then
+            echo "Analytics log leaked raw identifier, user-agent, or IP"
+            cat /tmp/croppy-analytics-server.log
+            exit 1
+          fi
+          BAD=$(curl -sS -o /tmp/croppy-analytics-bad.out -w "%{http_code}" \
+            -X POST \
+            -H 'Origin: https://evil.example' \
+            -H 'Content-Type: text/plain;charset=UTF-8' \
+            --data '{"event":"open","id":"qa_daily_0123456789abcdef","device":"desktop","mode":"browser","v":1}' \
+            http://127.0.0.1:10000/api/analytics)
+          test "$BAD" = "403"
       - name: iPhone package
         uses: actions/upload-artifact@v4
         with:
