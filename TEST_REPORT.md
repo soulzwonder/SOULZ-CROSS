@@ -21,3 +21,12 @@ The GitHub Actions run attached to the commit is the authoritative PASS/FAIL res
 - Commit `5176b58328ae48d91eb6e4337cefd025f4c6206c` did not start jobs because the generated workflow YAML was corrupted by replacement-string handling of shell `$` sequences.
 - The application analytics implementation itself was not the failure point.
 - This follow-up restores the last known-good workflow and inserts the analytics smoke test using a replacement method that preserves shell syntax verbatim.
+
+## Owner device exclusion test
+
+Required automated checks:
+- Settings contains the per-device analytics exclusion control.
+- Client exposes the opt-out controller used by the settings control.
+- Allowed origin can submit an anonymous `exclude` marker and receives HTTP 204.
+- Raw daily ID / user-agent / localhost IP remain absent from application analytics logs.
+- Existing regression, endurance, OCR and packaging checks must still pass.

@@ -93,7 +93,7 @@ async function findRepeat(code) {
 }
 
 
-const ANALYTICS_EVENTS = new Set(['open']);
+const ANALYTICS_EVENTS = new Set(['open', 'exclude']);
 const ANALYTICS_DEVICES = new Set(['ios', 'android', 'desktop', 'other']);
 const ANALYTICS_MODES = new Set(['pwa', 'browser']);
 

@@ -18,3 +18,11 @@
 - Application analytics intentionally does not record user-entered work data, photos, exact location, names, product codes, IP address, or full user-agent.
 - Render/infrastructure may still maintain its own platform-level operational metadata outside this application log. This change does not claim to alter Render's infrastructure logging.
 - Analytics availability is best-effort. Offline launches are not transmitted until a future online page load; no offline event queue was added to avoid changing app data behavior.
+
+## Owner exclusion behavior
+
+- Owner exclusion is intentionally device/storage-local rather than IP- or fingerprint-based.
+- Turning exclusion ON sends one anonymous `exclude` event for the current JST day, then suppresses future `open` events while the flag stays enabled.
+- Reports must ignore any `open` entries whose same day/client hash also has an `exclude` entry.
+- This can remove earlier same-day opens from that same browser/PWA storage from reported counts, but it cannot identify or remove old anonymous entries from another device/storage unless that device is also marked excluded.
+- Each personal device/PWA storage must therefore be marked once.

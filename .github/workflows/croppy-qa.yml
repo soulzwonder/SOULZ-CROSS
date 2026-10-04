@@ -54,6 +54,16 @@ jobs:
             --data '{"event":"open","id":"qa_daily_0123456789abcdef","device":"desktop","mode":"browser","v":1}' \
             http://127.0.0.1:10000/api/analytics)
           test "$CODE" = "204"
+          grep -q 'id="analyticsOptOutBtn"' index.html
+          grep -q '__croppyAnalyticsSetOptOut' index.html
+          EXCLUDE=$(curl -sS -o /tmp/croppy-analytics-exclude.out -w "%{http_code}" \
+            -X POST \
+            -H 'Origin: https://soulz-cross.onrender.com' \
+            -H 'Content-Type: text/plain;charset=UTF-8' \
+            --data '{"event":"exclude","id":"qa_daily_0123456789abcdef","device":"desktop","mode":"browser","v":1}' \
+            http://127.0.0.1:10000/api/analytics)
+          test "$EXCLUDE" = "204"
+          grep -q '"event":"exclude"' /tmp/croppy-analytics-server.log
           grep -q 'CROPPY_ANALYTICS ' /tmp/croppy-analytics-server.log
           if grep 'CROPPY_ANALYTICS ' /tmp/croppy-analytics-server.log | grep -Eq 'qa_daily_0123456789abcdef|user-agent|127\.0\.0\.1'; then
             echo "Analytics log leaked raw identifier, user-agent, or IP"

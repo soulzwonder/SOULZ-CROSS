@@ -13,3 +13,12 @@
 
 - Restored the previously successful QA workflow after detecting YAML corruption in the first analytics commit.
 - No calculation, OCR, saved-data, or UI behavior was changed by the correction.
+
+## 2026-10-04 - Owner device analytics exclusion
+
+- Added a per-device "自分のアクセスを集計しない" switch under Settings > アプリ.
+- When enabled, future opens from that browser/PWA storage are not sent to analytics.
+- Enabling it also sends a privacy-safe `exclude` marker using the same anonymous daily ID so that today's earlier opens from that same storage can be ignored when reports are calculated.
+- Other users remain counted normally.
+- No IP-based, account-based, location-based, or fingerprint-based owner detection was added.
+- Rollback point: `backup/pre-owner-analytics-exclusion-20261004-4f97433`.

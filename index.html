@@ -5280,6 +5280,10 @@ function closeSiteMemo(){var sh=$('#siteMemoSheet');if(!sh)return;sh.classList.r
     </div>
     <div class="settings-card"><h3>アプリ</h3><div class="settings-desc">ホーム画面への追加など、普段使わない操作をまとめています。</div>
       <button type="button" class="settings-action-btn" id="homeBtn">ホームに追加</button>
+      <div class="setting-row" style="margin-top:8px">
+        <div><div class="setting-label">自分のアクセスを集計しない</div><div class="setting-sub" id="analyticsOptOutStatus">この端末は匿名集計に含まれます</div></div>
+        <div class="setting-chips"><button type="button" id="analyticsOptOutBtn" aria-pressed="false">OFF</button></div>
+      </div>
     </div>
     <div class="settings-card data-safety-card"><h3>データ管理</h3><div class="settings-desc">現場・部屋・採寸・カット状態・メモ・履歴・設定を1つのJSONへ保存します。鍵番号・住所・連絡先なども含むため、バックアップファイルの保管には注意してください。</div>
       <div class="data-safety-meta" id="dataSafetyMeta"><div id="dataSafetyCount">保存済み現場 0件</div><div class="data-safety-last" id="dataSafetyLastBackup">最終バックアップ まだありません</div></div>
@@ -5506,7 +5510,13 @@ function closeSiteMemo(){var sh=$('#siteMemoSheet');if(!sh)return;sh.classList.r
       setTimeout(function(){location.reload()},700);
     }catch(e){if(typeof toast==='function')toast(e&&e.croppyRolledBack?'戻せませんでした。現在の状態を維持しました':'直前の状態へ戻せませんでした')}
   }
-  function openSettings(){closeHelp();var s=q('#appSettingsSheet');if(!s)return;s.classList.add('show');s.setAttribute('aria-hidden','false');paintPrefs();croppyRefreshDataSafety()}
+  function croppyAnalyticsOptedOut(){try{return localStorage.getItem('croppy.analytics.optout.v1')==='1'}catch(e){return false}}
+  function croppyRefreshAnalyticsPrivacy(){
+    var b=q('#analyticsOptOutBtn'),st=q('#analyticsOptOutStatus'),on=croppyAnalyticsOptedOut();
+    if(b){b.classList.toggle('active',on);b.textContent=on?'ON':'OFF';b.setAttribute('aria-pressed',on?'true':'false')}
+    if(st)st.textContent=on?'この端末は集計対象外です':'この端末は匿名集計に含まれます';
+  }
+  function openSettings(){closeHelp();var s=q('#appSettingsSheet');if(!s)return;s.classList.add('show');s.setAttribute('aria-hidden','false');paintPrefs();croppyRefreshDataSafety();croppyRefreshAnalyticsPrivacy()}
   function closeSettings(){var s=q('#appSettingsSheet');if(!s)return;s.classList.remove('show');s.setAttribute('aria-hidden','true')}
   var topHelpBtn=q('#topHelpBtn'),topFilesBtn=q('#topFilesBtn'),topSettingsBtn=q('#topSettingsBtn');
   function openHelp(){var h=q('#appHelpSheet');if(!h)return;closeSettings();h.classList.add('show');h.setAttribute('aria-hidden','false')}
@@ -5520,6 +5530,13 @@ function closeSiteMemo(){var sh=$('#siteMemoSheet');if(!sh)return;sh.classList.r
   qa('#themeSetting [data-theme]').forEach(function(b){b.onclick=function(){var p=readPrefs();p.theme=normTheme(b.dataset.theme);writePrefs(p);try{var raw=JSON.parse(localStorage.getItem('soulz_cross_calc_v11_draft')||'null');if(raw){raw.siteTheme=p.theme;localStorage.setItem('soulz_cross_calc_v11_draft',JSON.stringify(raw))}}catch(e){}if(window.__croppySetSiteTheme)window.__croppySetSiteTheme(p.theme);paintPrefs()}});
   qa('#fontSetting [data-font]').forEach(function(b){b.onclick=function(){var p=readPrefs();p.font=b.dataset.font;writePrefs(p);paintPrefs()}});
   var home=q('#homeBtn');if(home)home.onclick=function(){if(window.__SOULZ_HOME_MODE){if(typeof toast==='function')toast('ホーム画面から起動できています');return}if(window.__soulzOpenSettings)window.__soulzOpenSettings()};
+  var analyticsOptOut=q('#analyticsOptOutBtn');if(analyticsOptOut)analyticsOptOut.onclick=function(){
+    var next=!croppyAnalyticsOptedOut();
+    if(window.__croppyAnalyticsSetOptOut)window.__croppyAnalyticsSetOptOut(next);
+    else{try{if(next)localStorage.setItem('croppy.analytics.optout.v1','1');else localStorage.removeItem('croppy.analytics.optout.v1')}catch(e){}}
+    croppyRefreshAnalyticsPrivacy();
+    if(typeof toast==='function')toast(next?'この端末をアクセス集計から除外しました':'この端末をアクセス集計へ戻しました');
+  };
   var dataBackup=q('#dataBackupBtn'),dataRestore=q('#dataRestoreBtn'),dataRestoreInput=q('#dataRestoreInput'),dataUndo=q('#dataUndoRestoreBtn');
   if(dataBackup)dataBackup.onclick=croppyExportBackup;
   if(dataRestore&&dataRestoreInput)dataRestore.onclick=function(){dataRestoreInput.value='';dataRestoreInput.click()};
@@ -5713,13 +5730,15 @@ function closeSiteMemo(){var sh=$('#siteMemoSheet');if(!sh)return;sh.classList.r
 
 
 <!-- CROPPY_PRIVACY_ANALYTICS_V1
-     Sends only: open event, coarse device type, display mode, and a random daily ID.
+     Sends only: open/exclude event, coarse device type, display mode, and a random daily ID.
      No field values, site names, dimensions, photos, location, names, or full user-agent are sent. -->
 <script>
 (function(){
   'use strict';
   var ENDPOINT='https://croppy-counter.onrender.com/api/analytics';
   var STORAGE_KEY='croppy.analytics.daily.v1';
+  var OPTOUT_KEY='croppy.analytics.optout.v1';
+  var SESSION_SENT_KEY='croppy.analytics.open.sent.v1';
 
   function jstDay(){
     return new Date(Date.now()+9*60*60*1000).toISOString().slice(0,10);
@@ -5745,6 +5764,9 @@ function closeSiteMemo(){var sh=$('#siteMemoSheet');if(!sh)return;sh.classList.r
       return randomId();
     }
   }
+  function isOptedOut(){
+    try{return localStorage.getItem(OPTOUT_KEY)==='1'}catch(_e){return false}
+  }
   function deviceClass(){
     var ua=String(navigator.userAgent||'');
     if(/iPhone|iPad|iPod/i.test(ua)) return 'ios';
@@ -5759,19 +5781,15 @@ function closeSiteMemo(){var sh=$('#siteMemoSheet');if(!sh)return;sh.classList.r
     }catch(_e){}
     return 'browser';
   }
-  function sendOpen(){
-    try{
-      if(sessionStorage.getItem('croppy.analytics.open.sent.v1')==='1') return;
-      sessionStorage.setItem('croppy.analytics.open.sent.v1','1');
-    }catch(_e){}
+  function sendEvent(eventName){
     var payload=JSON.stringify({
-      event:'open',
+      event:eventName,
       id:dailyId(),
       device:deviceClass(),
       mode:displayMode(),
       v:1
     });
-    fetch(ENDPOINT,{
+    return fetch(ENDPOINT,{
       method:'POST',
       mode:'cors',
       credentials:'omit',
@@ -5782,6 +5800,27 @@ function closeSiteMemo(){var sh=$('#siteMemoSheet');if(!sh)return;sh.classList.r
       body:payload
     }).catch(function(){});
   }
+  function sendOpen(){
+    if(isOptedOut())return;
+    try{
+      if(sessionStorage.getItem(SESSION_SENT_KEY)==='1') return;
+      sessionStorage.setItem(SESSION_SENT_KEY,'1');
+    }catch(_e){}
+    sendEvent('open');
+  }
+  window.__croppyAnalyticsIsOptedOut=isOptedOut;
+  window.__croppyAnalyticsSetOptOut=function(excluded){
+    try{
+      if(excluded)localStorage.setItem(OPTOUT_KEY,'1');
+      else localStorage.removeItem(OPTOUT_KEY);
+    }catch(_e){}
+    if(excluded){
+      sendEvent('exclude');
+    }else{
+      try{sessionStorage.removeItem(SESSION_SENT_KEY)}catch(_e){}
+      sendOpen();
+    }
+  };
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',sendOpen,{once:true});
   }else{
