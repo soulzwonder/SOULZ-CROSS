@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.69',html.includes('<title>CROSS GPT クロッピー | v2.64.69</title>'));
-  check('OCR visible badge v2.64.69',html.includes('<span class="ocr-version-badge">v2.64.69</span>'));
+  check('OCR version marker v2.64.70',html.includes('<title>CROSS GPT クロッピー | v2.64.70</title>'));
+  check('OCR visible badge v2.64.70',html.includes('<span class="ocr-version-badge">v2.64.70</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -251,6 +251,12 @@ try{
   const suspicious55=make('ocrSuspiciousRightReviewV26455');
   const review236=suspicious55({meta:{rightSuspicious:true}},null,null,{mainCm:236},null);
   check('Current field photo: crossed-out 236 keeps correct main value',review236&&review236[0]&&review236[0].fixed==='236×?',JSON.stringify(review236));
+  const review236Agree=suspicious55({meta:{rightSuspicious:true}},{mainCm:236},{mainCm:236},{mainCm:236},null);
+  check('Suspicious count: corroborated main dimension is preserved',review236Agree&&review236Agree[0]&&review236Agree[0].fixed==='236×?',JSON.stringify(review236Agree));
+  const reviewShapeConflict=suspicious55({meta:{rightSuspicious:true}},{mainCm:276},{mainCm:276},{mainCm:236},null);
+  check('Suspicious count: shape-only main dimension cannot override disagreeing OCR',reviewShapeConflict&&reviewShapeConflict[0]&&reviewShapeConflict[0].fixed==='',JSON.stringify(reviewShapeConflict));
+  const reviewVoteOnly=suspicious55({meta:{rightSuspicious:true}},{mainCm:215},{mainCm:215},null,null);
+  check('Suspicious count: agreeing OCR can preserve main dimension without shape',reviewVoteOnly&&reviewVoteOnly[0]&&reviewVoteOnly[0].fixed==='215×?',JSON.stringify(reviewVoteOnly));
   const resolve56=make('ocrResolveEnginePicksV26456',{ocrResolveEnginePicksV26452:function(){return[{fixed:'60×1',tier:'medium'}]}});
   const directFallback=resolve56(null,{fixed:'60×1',confidence:3,raw:'60'},{fixed:'160×1',confidence:4,componentShape:true,raw:'160'},{fixed:'60×1',confidence:3,raw:'60'});
   check('Direct component geometry beats matching OCR misread but stays review-safe',directFallback[0]&&directFallback[0].fixed==='160×1'&&directFallback[0].tier==='medium'&&directFallback[0].verified===false,JSON.stringify(directFallback));
@@ -358,18 +364,18 @@ try{
   check('Late model progress cannot overwrite completion',el64.textContent==='寸法照合完了');
   check('Editable review inputs clear stale values and refresh commit state',extract('renderOCRCandidates').includes("c.unknownDimension=!(c.cm>0);updateOCRCommit()")&&extract('renderOCRCandidates').includes("c.unknownCount=!(c.count>0);updateOCRCommit()"));
   check('TrOCR failure message retained for opt-in diagnostics',extract('recognizeHandwritingLines').includes('trocrError=String(ae&&ae.message||ae)'));
-  const scriptPath='v2.64.69_CROPPY_OCR.js';
-  check('Scriptable v2.64.69 package exists',fs.existsSync(scriptPath));
+  const scriptPath='v2.64.70_CROPPY_OCR.js';
+  check('Scriptable v2.64.70 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.69',ocrScript.includes('クロッピー v2.64.69 OCR CAMERA')&&ocrScript.includes('OCR v2.64.69 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.69',bundled.includes('<title>CROSS GPT クロッピー | v2.64.69</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.69</span>'));
+    check('Scriptable header is version-first v2.64.70',ocrScript.includes('クロッピー v2.64.70 OCR CAMERA')&&ocrScript.includes('OCR v2.64.70 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.70',bundled.includes('<title>CROSS GPT クロッピー | v2.64.70</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.70</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.69 version-first package',copyPage.includes('./v2.64.69_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.69'));
+  check('OCR copy page points to v2.64.70 version-first package',copyPage.includes('./v2.64.70_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.70'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
