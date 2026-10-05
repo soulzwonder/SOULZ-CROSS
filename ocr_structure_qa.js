@@ -248,7 +248,7 @@ try{
   check('Current field photo: 236 middle glyph stays 3 not 7',classify56({ratio:.8611,density:.0948,holes:0,topSpan:.9677,midSpan:.2258,botSpan:.3226,topMean:.5042,midMean:.9011,botMean:.6899,compCount:1}).digit==='3');
   check('Representative handwritten 7 remains 7',classify56({ratio:.9000,density:.0900,holes:0,topSpan:.9500,midSpan:.2500,botSpan:.3000,topMean:.5500,midMean:.4500,botMean:.3500,compCount:1}).digit==='7');
   check('Current field photo: 35 trailing stroke is separator',meta2[1]&&meta2[1].hasSeparator===true&&meta2[1].mainItems&&meta2[1].mainItems.length===2&&meta2[1].rightItems&&meta2[1].rightItems.length===0,JSON.stringify(meta2[1]));
-  const suspicious55=make('ocrSuspiciousRightReviewV26455');
+  const suspicious55=make('ocrSuspiciousRightReviewV26455',{ocrVoteValuesV26449:make('ocrVoteValuesV26449')});
   const review236=suspicious55({meta:{rightSuspicious:true}},null,null,{mainCm:236},null);
   check('Current field photo: crossed-out 236 keeps correct main value',review236&&review236[0]&&review236[0].fixed==='236×?',JSON.stringify(review236));
   const review236Agree=suspicious55({meta:{rightSuspicious:true}},{mainCm:236},{mainCm:236},{mainCm:236},null);
