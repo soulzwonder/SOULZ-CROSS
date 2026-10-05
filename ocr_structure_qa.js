@@ -34,7 +34,7 @@ try{
   check('Row clustering keeps legacy annotation rejection outside rescue',extract('ocrClusterRows').includes("rescue?7:18")&&extract('ocrClusterRows').includes("rescue?.010:.026"));
   check('Low-contrast rescue is gated to faint-rescue photos',extract('makeOCRLineCrops').includes("rows.length<3&&geo.adaptiveSegmentation&&geo.segmentationProfile==='faint-rescue'"));
   check('Low-contrast rescue relaxes component floor only in rescue mode',extract('ocrClusterRows').includes("rescue?18:45")&&extract('ocrClusterRows').includes("rescue?5:8"));
-  check('Normal row thresholds remain unchanged',extract('ocrClusterRows').includes("rescue?7:18")&&extract('ocrClusterRows').includes("rescue?.045:.12"));
+  check('Normal row thresholds remain unchanged',extract('ocrClusterRows').includes("rescue?7:18")&&extract('ocrClusterRows').includes("rescue?.030:.12"));
   check('Rescue rejects long rule-line components',extract('ocrClusterRows').includes("ratio>4.8"));
   check('Rescue rejects extremely sparse components',extract('ocrClusterRows').includes("fill<.035"));
   const rescueCluster=make('ocrClusterRows');
