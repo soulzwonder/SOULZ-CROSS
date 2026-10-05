@@ -24,8 +24,8 @@ function make(name,deps={}){
   return Function(...keys,'return ('+body+');')(...vals);
 }
 try{
-  check('OCR version marker v2.64.71',html.includes('<title>CROSS GPT クロッピー | v2.64.71</title>'));
-  check('OCR visible badge v2.64.71',html.includes('<span class="ocr-version-badge">v2.64.71</span>'));
+  check('OCR version marker v2.64.72',html.includes('<title>CROSS GPT クロッピー | v2.64.72</title>'));
+  check('OCR visible badge v2.64.72',html.includes('<span class="ocr-version-badge">v2.64.72</span>'));
   check('Local-contrast segmentation enabled',extract('ocrFindInkComponents').includes("segmentation:'local-contrast'")&&extract('ocrFindInkComponents').includes("ocrPercentile(hist,Math.max(1,sample),.95)"));
   check('Texture cleanup uses local green-channel contrast',extract('ocrFindInkComponents').includes('a[si+1]')&&extract('ocrFindInkComponents').includes('a[(sp-radius)*4+1]'));
   check('Clean handwriting canvas is generated',extract('ocrFindInkComponents').includes('cleanCanvas')&&extract('makeOCRLineCrops').includes('geo.cleanCanvas'));
@@ -50,6 +50,11 @@ try{
 
   const estimate=make('ocrEstimateSkew');
   const cluster=make('ocrClusterRows');
+  const compactFaint=[];
+  [300,355,410,465,520].forEach(function(y){[0,1,2].forEach(function(i){compactFaint.push({x:430+i*18,y:y-13,w:14,h:26,area:150,cx:437+i*18,cy:y})})});
+  const compactRows=cluster({items:compactFaint.map(x=>Object.assign({},x)),w:1200,h:1800,lowContrastRescue:true},0);
+  check('Faint rescue keeps five compact handwritten rows separate',compactRows.length===5,'rows='+compactRows.length);
+  check('Faint rescue keeps short numeric rows such as 10 or 35',compactRows.every(r=>r.w>=50),'widths='+compactRows.map(r=>r.w).join(','));
   const bounds=make('ocrBounds');
   const analyze=make('ocrAnalyzeRow',{ocrBounds:bounds});
   const repair=make('ocrDimensionRepairLine',{normalizeOCRText:x=>String(x)});
@@ -311,8 +316,8 @@ try{
   const notice59=fs.readFileSync('OCR_THIRD_PARTY_NOTICES.md','utf8');
   check('Guten OCR MIT attribution is retained',notice59.includes('Guten OCR')&&notice59.includes('MIT License')&&notice59.includes('b00d56c95a268bafd719c39eb22fbfb2d2a92a35'));
   check('TrOCR commercial-license risk is documented',fs.readFileSync('OCR_THIRD_PARTY_NOTICES.md','utf8').includes('IMPORTANT COMMERCIAL-RELEASE NOTE')&&fs.readFileSync('OCR_THIRD_PARTY_NOTICES.md','utf8').includes('microsoft/trocr-small-handwritten'));
-  check('Visible app version is not stale',html.includes('クロッピー / v2.64.71')&&!html.includes('クロッピー / v2.64.38'));
-  check('Backup metadata version follows release',html.includes("appVersion:'v2.64.71'"));
+  check('Visible app version is not stale',html.includes('クロッピー / v2.64.72')&&!html.includes('クロッピー / v2.64.38'));
+  check('Backup metadata version follows release',html.includes("appVersion:'v2.64.72'"));
   const qualityDecision=make('ocrPhotoQualityDecisionV26461');
   let qq=qualityDecision({longEdge:1200,mean:145,std:42,darkRatio:.012,brightRatio:.03});
   check('Camera quality: normal photo is good',qq.level==='good',JSON.stringify(qq));
@@ -366,18 +371,18 @@ try{
   check('Late model progress cannot overwrite completion',el64.textContent==='寸法照合完了');
   check('Editable review inputs clear stale values and refresh commit state',extract('renderOCRCandidates').includes("c.unknownDimension=!(c.cm>0);updateOCRCommit()")&&extract('renderOCRCandidates').includes("c.unknownCount=!(c.count>0);updateOCRCommit()"));
   check('TrOCR failure message retained for opt-in diagnostics',extract('recognizeHandwritingLines').includes('trocrError=String(ae&&ae.message||ae)'));
-  const scriptPath='v2.64.71_CROPPY_OCR.js';
-  check('Scriptable v2.64.71 package exists',fs.existsSync(scriptPath));
+  const scriptPath='v2.64.72_CROPPY_OCR.js';
+  check('Scriptable v2.64.72 package exists',fs.existsSync(scriptPath));
   if(fs.existsSync(scriptPath)){
     const ocrScript=fs.readFileSync(scriptPath,'utf8');
     const bm=ocrScript.match(/var b64 = '([^']+)'/);
     const bundled=bm?Buffer.from(bm[1],'base64').toString('utf8'):'';
-    check('Scriptable header is version-first v2.64.71',ocrScript.includes('クロッピー v2.64.71 OCR CAMERA')&&ocrScript.includes('OCR v2.64.71 / auto-update'));
-    check('Scriptable bundled HTML is v2.64.71',bundled.includes('<title>CROSS GPT クロッピー | v2.64.71</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.71</span>'));
+    check('Scriptable header is version-first v2.64.72',ocrScript.includes('クロッピー v2.64.72 OCR CAMERA')&&ocrScript.includes('OCR v2.64.72 / auto-update'));
+    check('Scriptable bundled HTML is v2.64.72',bundled.includes('<title>CROSS GPT クロッピー | v2.64.72</title>')&&bundled.includes('<span class="ocr-version-badge">v2.64.72</span>'));
     check('Scriptable keeps OCR auto-update URL',ocrScript.includes('https://soulz-cross.onrender.com/ocr-camera-prototype.html'));
   }
   const copyPage=fs.readFileSync('iphone-copy.html','utf8');
-  check('OCR copy page points to v2.64.71 version-first package',copyPage.includes('./v2.64.71_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.71'));
+  check('OCR copy page points to v2.64.72 version-first package',copyPage.includes('./v2.64.72_CROPPY_OCR.js')&&copyPage.includes('iPhone OCR版 v2.64.72'));
 }catch(e){
   check('OCR structure QA harness',false,e.stack||String(e));
 }
