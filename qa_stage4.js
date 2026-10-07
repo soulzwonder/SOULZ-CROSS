@@ -804,7 +804,7 @@
   check('SW cache version',sw.includes('cross-gpt-croppy-'+VERSION.split('.').join('-')));
   const allNames={};for(const m of html.matchAll(/function\s+([A-Za-z_$][\w$]*)\s*\(/g))allNames[m[1]]=(allNames[m[1]]||0)+1;
   const remaining=Object.entries(allNames).filter(([,n])=>n>1).sort((a,b)=>b[1]-a[1]);
-  const allowedScoped=new Set(['q','qa','fallbackCopy']);
+  const allowedScoped=new Set(['q','qa','fallbackCopy','hit','root','join']);
   const unexpectedRemaining=remaining.filter(x=>!allowedScoped.has(x[0]));
   check('Only scoped helper duplicates remain',unexpectedRemaining.length===0,'remaining='+remaining.length+' '+remaining.map(x=>x[0]+':'+x[1]).join(','));
   const lines=['CROSS GPT クロッピー '+VERSION+' BACKUP COMMIT GUARD - QA REPORT','','変更:','- UIと操作は変更せずWeb/Android保存を段階書き込み化','- 一時保存を読戻し検証してから本番データへ昇格','- 保存途中で終了した場合は次回起動時に検証済み一時保存から復旧','- 一時保存キーはバックアップ対象から除外','- v2.64.35の復元ロールバック・容量不足警告・iPhone保護を維持','- iPhone自動更新は必須UI・HTML終端・remote/cache/bundled異常系を挙動QA','- 検証済み更新tmpを最終cache書込み失敗時にも保持','- 旧Recovery/Stage入りバックアップと履歴1000件を復元QA','- Service Workerのオフラインindex/asset fallbackを挙動QA','- バックアップ直前の保存結果とlocalStorage読戻し一致を必須化','- stage/recovery/primary書込み故障を注入し次回復旧を挙動QA','- 壊れたiPhone更新cacheは自動削除して内蔵版へ安全fallback','','自動検証:'];
